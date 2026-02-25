@@ -20,9 +20,10 @@ export const BuildingInfoList = () => {
   const [loading, setLoading] = useState(true);
   const [address, setAddress] = useState("");
   const [deleteLoading, setDeleteLoading] = useState(false);
-
+  const [currentOccupancy, setCurrentOccupancy] = useState("");
   const [editBuildingId, setEditBuildingId] = useState(null);
   const [editFieldValue, setEditFieldValue] = useState("");
+  const [editOccupancy, setEditOccupancy] = useState("");
 
   useEffect(() => {
     const fetchBuildings = async () => {
@@ -47,15 +48,28 @@ export const BuildingInfoList = () => {
     }
   }, [BuildingList, searchTerm, loading]);
 
+  // const goToChat = (buildingId, category) => {
+  //   navigate("/building-info-upload", {
+  //     state: { buildingId, category },
+  //   });
+  // };
+
   const goToChat = (buildingId, category) => {
-    navigate("/building-info-upload", {
-      state: { buildingId, category },
-    });
+    if (category === "tenant_info") {
+      navigate("/tenant-info-upload", {
+        state: { buildingId, category },
+      });
+    } else {
+      navigate("/building-info-upload", {
+        state: { buildingId, category },
+      });
+    }
   };
 
   const startEdit = (building) => {
     setEditBuildingId(building.id);
     setEditFieldValue(building.address || "");
+    setEditOccupancy(building.current_occupancy ?? "");
   };
 
   const saveEdit = async (buildingId) => {
@@ -66,6 +80,7 @@ export const BuildingInfoList = () => {
       const payload = {
         building_id: buildingId,
         address: editFieldValue,
+        current_occupancy: Number(editOccupancy),
       };
 
       await dispatch(UpdateBuildingSubmit(payload)).unwrap();
@@ -102,6 +117,7 @@ export const BuildingInfoList = () => {
         {
           category: "BuildingInfo",
           address: address,
+          current_occupancy: Number(currentOccupancy),
         },
       ];
 
@@ -110,6 +126,7 @@ export const BuildingInfoList = () => {
       await dispatch(ListBuildingSubmit("BuildingInfo"));
 
       setAddress("");
+      setCurrentOccupancy("");
     } catch (error) {
       console.error("Error submitting building:", error);
     } finally {
@@ -171,23 +188,53 @@ export const BuildingInfoList = () => {
 
       <div className="card-body d-flex flex-column justify-content-center">
         {editBuildingId === building.id ? (
-          <input
-            type="text"
-            className="form-control"
-            value={editFieldValue}
-            onChange={(e) => setEditFieldValue(e.target.value)}
-            autoFocus
-          />
+          <div className="d-flex flex-column gap-2">
+            <input
+              type="text"
+              className="form-control"
+              value={editFieldValue}
+              onChange={(e) => setEditFieldValue(e.target.value)}
+              placeholder="Building Address"
+              autoFocus
+            />
+
+            <input
+              type="number"
+              className="form-control"
+              value={editOccupancy}
+              onChange={(e) => setEditOccupancy(e.target.value)}
+              placeholder="Current Occupancy (%)"
+              min="0"
+              max="100"
+            />
+          </div>
         ) : (
           <>
             <div className="col-md-12 py-2">
               <div className="d-flex align-items-center justify-content-between mx-1 flex-wrap">
-                <div className="d-flex col-12 col-md-6 mt-2 mt-md-0">
-                  <i className="bi bi-geo-alt-fill me-2 text-primary"></i>
-                  <div className="mx-2 check w-75 fw-semibold">
-                    {building.address || "N/A"}
+                <div className="d-flex flex-column col-12 col-md-6 mt-2 mt-md-0">
+                  <div className="d-flex align-items-center mb-1">
+                    <i className="bi bi-geo-alt-fill me-2 text-primary"></i>
+                    <span className="fw-semibold">
+                      {building.address || "N/A"}
+                    </span>
+                  </div>
+
+                  <div className="d-flex align-items-center">
+                    <i
+                      className={`bi bi-people-fill me-2 ${building.current_occupancy > 80
+                        ? "text-success"
+                        : building.current_occupancy > 50
+                          ? "text-warning"
+                          : "text-danger"
+                        }`}
+                    ></i>
+                    <span className="fw-semibold">
+                      {building.current_occupancy ?? "0"}%
+                    </span>
                   </div>
                 </div>
+
                 <div className="d-flex col-12 col-md-6 justify-content-start justify-content-md-end gap-2 flex-wrap mt-3 mt-md-2">
                   <button
                     className="btn btn-dark btn-sm"
@@ -208,6 +255,12 @@ export const BuildingInfoList = () => {
                     onClick={() => goToChat(building.id, "building_info")}
                   >
                     Building Info
+                  </button>
+                  <button
+                    className="btn btn-dark btn-sm"
+                    onClick={() => goToChat(building.id, "tenant_info")}
+                  >
+                    Tenant Info
                   </button>
                 </div>
               </div>
@@ -230,16 +283,15 @@ export const BuildingInfoList = () => {
       )}
 
       <div
-        className="text-center bg-white rounded shadow-sm py-3 mb-4"
+        className="text-center rounded shadow-sm py-3 mb-4"
         style={{
-          position: "sticky",
+          // position: "sticky",
           top: 0,
           zIndex: 10,
-          borderBottom: "1px solid #dee2e6",
         }}
       >
-        <h4 className="fw-bold text-dark">Building Info List</h4>
-        <p className="text-muted mb-3">
+        <h4 className="fw-bold">Building Info List</h4>
+        <p className="mb-3">
           Here’s a summary of all the submitted buildings.
         </p>
         <input
@@ -264,7 +316,7 @@ export const BuildingInfoList = () => {
         <div className="d-flex flex-column gap-3">
           <form onSubmit={handleAddSubmit}>
             <div className="row g-2 align-items-center justify-content-between">
-              <div className="col-md-9">
+              <div className="col-md-6">
                 <div className="input-group">
                   <span className="input-group-text">
                     <i className="bi bi-geo-alt-fill"></i>
@@ -280,6 +332,21 @@ export const BuildingInfoList = () => {
                   />
                 </div>
               </div>
+
+              <div className="col-md-3">
+                <input
+                  type="number"
+                  className="form-control"
+                  placeholder="Current Occupancy (%)"
+                  value={currentOccupancy}
+                  onChange={(e) => setCurrentOccupancy(e.target.value)}
+                  disabled={loading}
+                  min="0"
+                  max="100"
+                  required
+                />
+              </div>
+
               <div className="col-md-3 col-12">
                 <button
                   type="submit"

@@ -4,14 +4,13 @@ import { useSelector } from "react-redux";
 import { useState, useEffect, useCallback, useMemo } from "react";
 import { SessionList } from "../Pages/User/Session/sessionList";
 import { SidebarSkeleton } from "./SidebarSkeleton";
+import ThemeToggle from "./ThemeToggle";
 
 export const Sidebar = ({ collapsed, setCollapsed }) => {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const { userdata, loading } = useSelector(
-    (state) => state.ProfileSlice
-  );
+  const { userdata, loading } = useSelector((state) => state.ProfileSlice);
 
   const [openMenu, setOpenMenu] = useState(null);
   const [showSessionModal, setShowSessionModal] = useState(false);
@@ -19,7 +18,6 @@ export const Sidebar = ({ collapsed, setCollapsed }) => {
   const [profileData, setProfileData] = useState({
     gemini_chat_enabled: false,
     forum_enabled: false,
-    // dashboard_enabled: false,
     portfolio_insights_enabled: false,
     email_drafting_enabled: false,
     notes_enabled: false,
@@ -40,7 +38,8 @@ export const Sidebar = ({ collapsed, setCollapsed }) => {
     leases_agreement_data_enabled: false,
     deal_tracker_enabled: false,
     tour_enabled: false,
-    information_collaboration_enabled: false
+    information_collaboration_enabled: false,
+    project_management_enabled: false,
   });
 
   const role = sessionStorage.getItem("role");
@@ -69,11 +68,12 @@ export const Sidebar = ({ collapsed, setCollapsed }) => {
         setProfileData({
           gemini_chat_enabled: userdata?.gemini_chat_enabled || false,
           forum_enabled: userdata?.forum_enabled || false,
-          // dashboard_enabled: userdata?.dashboard_enabled || false,
-          portfolio_insights_enabled: userdata?.portfolio_insights_enabled || false,
+          portfolio_insights_enabled:
+            userdata?.portfolio_insights_enabled || false,
           email_drafting_enabled: userdata?.email_drafting_enabled || false,
           notes_enabled: userdata?.notes_enabled || false,
-          ai_lease_abstract_enabled: userdata?.ai_lease_abstract_enabled || false,
+          ai_lease_abstract_enabled:
+            userdata?.ai_lease_abstract_enabled || false,
           det_enabled: userdata?.det_enabled || false,
           dct_enabled: userdata?.dct_enabled || false,
           calculator_enabled: userdata?.calculator_enabled || false,
@@ -81,17 +81,24 @@ export const Sidebar = ({ collapsed, setCollapsed }) => {
           third_party_enabled: userdata?.third_party_enabled || false,
           employee_contact_enabled: userdata?.employee_contact_enabled || false,
           building_info_enabled: userdata?.building_info_enabled || false,
-          comparative_building_data_enabled: userdata?.comparative_building_data_enabled || false,
-          tenant_information_enabled: userdata?.tenant_information_enabled || false,
-          tenants_in_the_market_enabled: userdata?.tenants_in_the_market_enabled || false,
-          fire_safety_enabled:userdata?.fire_safety_enabled || false,
+          comparative_building_data_enabled:
+            userdata?.comparative_building_data_enabled || false,
+          tenant_information_enabled:
+            userdata?.tenant_information_enabled || false,
+          tenants_in_the_market_enabled:
+            userdata?.tenants_in_the_market_enabled || false,
+          fire_safety_enabled: userdata?.fire_safety_enabled || false,
           comps_enabled: userdata?.comps_enabled || false,
           sublease_tracker_enabled: userdata?.sublease_tracker_enabled || false,
           renewal_tracker_enabled: userdata?.renewal_tracker_enabled || false,
-          leases_agreement_data_enabled: userdata?.leases_agreement_data_enabled || false,
+          leases_agreement_data_enabled:
+            userdata?.leases_agreement_data_enabled || false,
           deal_tracker_enabled: userdata?.deal_tracker_enabled || false,
           tour_enabled: userdata?.tour_enabled || false,
-          information_collaboration_enabled: userdata?.information_collaboration_enabled || false
+          information_collaboration_enabled:
+            userdata?.information_collaboration_enabled || false,
+          project_management_enabled:
+            userdata?.project_management_enabled || false,
         });
       } catch (error) {
         console.error("Failed to load profile:", error);
@@ -109,7 +116,7 @@ export const Sidebar = ({ collapsed, setCollapsed }) => {
 
   const isActive = useCallback(
     (path) => location.pathname === path,
-    [location.pathname]
+    [location.pathname],
   );
 
   const handleLinkClick = useCallback(
@@ -117,7 +124,7 @@ export const Sidebar = ({ collapsed, setCollapsed }) => {
       navigate(path);
       if (isMobile) setCollapsed(true);
     },
-    [navigate, isMobile, setCollapsed]
+    [navigate, isMobile, setCollapsed],
   );
 
   const toggleAccordion = useCallback((menu) => {
@@ -146,7 +153,7 @@ export const Sidebar = ({ collapsed, setCollapsed }) => {
         </li>
       );
     },
-    [handleLinkClick, collapsed]
+    [handleLinkClick, collapsed],
   );
 
   const AccordionHeader = useCallback(
@@ -167,13 +174,15 @@ export const Sidebar = ({ collapsed, setCollapsed }) => {
         </li>
       );
     },
-    [openMenu, toggleAccordion]
+    [openMenu, toggleAccordion],
   );
 
-  const isCategoryEnabled = useCallback((features) => {
-    return features.some(feature => profileData[feature]);
-  }, [profileData]);
-
+  const isCategoryEnabled = useCallback(
+    (features) => {
+      return features.some((feature) => profileData[feature]);
+    },
+    [profileData],
+  );
 
   const SuperAdminPanel = useMemo(
     () =>
@@ -194,7 +203,7 @@ export const Sidebar = ({ collapsed, setCollapsed }) => {
           />
         </>
       ),
-    [role, collapsed, NavItem, isActive]
+    [role, collapsed, NavItem, isActive],
   );
 
   const AdminPanel = useMemo(
@@ -275,38 +284,48 @@ export const Sidebar = ({ collapsed, setCollapsed }) => {
             isActivePath={isActive("/space-inquiry")}
           />
 
-
           <AccordionHeader menuKey="dataCategories" label="Data Categories" />
-
 
           {openMenu === "dataCategories" && (
             <>
               <NavItem
-                path="/third-party-upload"
-                icon="bi-people"
-                label="Third Party Contact Info"
-                isActivePath={isActive("/third-party-upload")}
-
-              />
-              <NavItem
-                path="/employee-contact-upload"
-                icon="bi-people-fill"
-                label="Employee Contact Info"
-                isActivePath={isActive("/employee-contact-upload")}
-
+                path="/tenants-market-upload"
+                icon="bi-building-check"
+                label="Tenants in the Market"
+                isActivePath={isActive("/tenants-market-upload")}
               />
               <NavItem
                 path="/comps-upload"
                 icon="bi-bar-chart-line-fill"
                 label="Comps"
                 isActivePath={isActive("/comps-upload")}
-
               />
               <NavItem
-                path="/fire-safety-building-mechanicals"
+                path="/tenant-info-building-list"
+                icon="bi-card-list"
+                label="Tenant Information"
+                isActivePath={isActive("/tenant-info-building-list")}
+              />
+              <NavItem
+                path="/third-party-upload"
+                icon="bi-people"
+                label="Third Party Contact Info"
+                isActivePath={isActive("/third-party-upload")}
+              />
+              <NavItem
+                path="/employee-contact-upload"
+                icon="bi-people-fill"
+                label="Employee Contact Info"
+                isActivePath={isActive("/employee-contact-upload")}
+              />
+
+              <NavItem
+                path="/admin-fire-safety-building-mechanicals-list"
                 icon="bi-shield-check"
                 label="Fire Safety & Building Mechanicals"
-                isActivePath={isActive("/fire-safety-building-mechanicals")}
+                isActivePath={isActive(
+                  "/admin-fire-safety-building-mechanicals-list",
+                )}
               />
 
               <NavItem
@@ -314,53 +333,34 @@ export const Sidebar = ({ collapsed, setCollapsed }) => {
                 icon="bi-bar-chart-line"
                 label="Comparative Buildings Data"
                 isActivePath={isActive("/comparative-building-list")}
-
               />
-              <NavItem
-                path="/tenent-info-building-list"
-                icon="bi-card-list"
-                label="Tenant Information"
-                isActivePath={isActive("/tenent-info-building-list")}
 
-              />
-              <NavItem
-                path="/tenants-market-upload"
-                icon="bi-building-check"
-                label="Tenants in the Market"
-                isActivePath={isActive("/tenants-market-upload")}
-
-              />
               <NavItem
                 path="/building-info-list"
                 icon="bi-building"
                 label="Building Info Data"
                 isActivePath={isActive("/building-info-list")}
-
               />
               <NavItem
                 path="/sublease-tracker-list"
                 icon="bi-journal-text"
                 label="Sublease Tracker"
                 isActivePath={isActive("/sublease-tracker-list")}
-
               />
               <NavItem
                 path="/admin-renewal-tracker-list"
                 icon="bi-arrow-repeat"
                 label="Renewal Tracker"
                 isActivePath={isActive("/admin-renewal-tracker-list")}
-
               />
               <NavItem
                 path="/admin-tours"
                 icon="bi-geo-alt"
                 label="Tours"
                 isActivePath={isActive("/admin-tours")}
-
               />
             </>
           )}
-
 
           {!collapsed && (
             <AccordionHeader menuKey="adminTools" label="Admin Tools" />
@@ -376,26 +376,34 @@ export const Sidebar = ({ collapsed, setCollapsed }) => {
           )}
         </>
       ),
-    [role, collapsed, NavItem, isActive, openMenu, AccordionHeader, profileData, isCategoryEnabled]
+    [
+      role,
+      collapsed,
+      NavItem,
+      isActive,
+      openMenu,
+      AccordionHeader,
+      profileData,
+      isCategoryEnabled,
+    ],
   );
-
 
   const UserPanel = useMemo(() => {
     if (role !== "user") return null;
 
     const dataCategoriesEnabled = isCategoryEnabled([
-      'third_party_enabled',
-      'employee_contact_enabled',
-      'building_info_enabled',
-      'comparative_building_data_enabled',
-      'tenant_information_enabled',
-      'tenants_in_the_market_enabled',
-      'comps_enabled',
-      'sublease_tracker_enabled',
-      'renewal_tracker_enabled',
-      'leases_agreement_data_enabled',
-      'tour_enabled',
-      'deal_tracker_enabled'
+      "third_party_enabled",
+      "employee_contact_enabled",
+      "building_info_enabled",
+      "comparative_building_data_enabled",
+      "tenant_information_enabled",
+      "tenants_in_the_market_enabled",
+      "comps_enabled",
+      "sublease_tracker_enabled",
+      "renewal_tracker_enabled",
+      "leases_agreement_data_enabled",
+      "tour_enabled",
+      "deal_tracker_enabled",
     ]);
 
     const settingsEnabled = true;
@@ -431,13 +439,13 @@ export const Sidebar = ({ collapsed, setCollapsed }) => {
           isActivePath={isActive("/cre-news")}
           enabled={true}
         />
-        <NavItem
+        {/* <NavItem
           path="/email-drafting"
           icon="bi-envelope-open"
           label="Email Drafting"
           isActivePath={isActive("/email-drafting")}
           enabled={profileData.email_drafting_enabled}
-        />
+        /> */}
 
         {profileData.gemini_chat_enabled && (
           <NavItem
@@ -509,22 +517,21 @@ export const Sidebar = ({ collapsed, setCollapsed }) => {
           isActivePath={isActive("/yardi")}
           enabled={profileData.yardi_enabled}
         />
-        {/* <NavItem
+        <NavItem
           path="/messages"
           icon="bi-journal-text"
           label="Messages"
           isActivePath={isActive("/messages")}
-          enabled={true}
-        /> */}
-{/* 
+          enabled={profileData.gemini_chat_enabled}
+        />
+
         <NavItem
           path="/project-management"
-          icon="bi-journal-text"
+          icon="bi-diagram-3"
           label="Project Management"
           isActivePath={isActive("/project-management")}
-          enabled={true}
-        /> */}
-
+          enabled={profileData.project_management_enabled}
+        />
 
         {!collapsed && dataCategoriesEnabled && (
           <AccordionHeader menuKey="generalInfo" label="Data Categories" />
@@ -532,6 +539,27 @@ export const Sidebar = ({ collapsed, setCollapsed }) => {
 
         {openMenu === "generalInfo" && dataCategoriesEnabled && (
           <ul className="nav flex-column mt-1">
+            <NavItem
+              path="/tenant-market"
+              icon="bi-people-fill"
+              label="Tenants in the Market"
+              isActivePath={isActive("/tenant-market")}
+              enabled={profileData.tenants_in_the_market_enabled}
+            />
+            <NavItem
+              path="/comps-chat"
+              icon="bi-bar-chart-line-fill"
+              label="Comps"
+              isActivePath={isActive("/comps-chat")}
+              enabled={profileData.comps_enabled}
+            />
+            <NavItem
+              path="/tenent-info-user-building-list"
+              icon="bi-chat-left-text"
+              label="Tenant Information"
+              isActivePath={isActive("/tenent-info-user-building-list")}
+              enabled={profileData.tenant_information_enabled}
+            />
             <NavItem
               path="/third-party-chat"
               icon="bi-telephone-fill"
@@ -560,32 +588,14 @@ export const Sidebar = ({ collapsed, setCollapsed }) => {
               isActivePath={isActive("/comparative-user-building-list")}
               enabled={profileData.comparative_building_data_enabled}
             />
+
             <NavItem
-              path="/tenent-info-user-building-list"
-              icon="bi-chat-left-text"
-              label="Tenant Information"
-              isActivePath={isActive("/tenent-info-user-building-list")}
-              enabled={profileData.tenant_information_enabled}
-            />
-            <NavItem
-              path="/tenant-market"
-              icon="bi-people-fill"
-              label="Tenants in the Market"
-              isActivePath={isActive("/tenant-market")}
-              enabled={profileData.tenants_in_the_market_enabled}
-            />
-            <NavItem
-              path="/comps-chat"
-              icon="bi-bar-chart-line-fill"
-              label="Comps"
-              isActivePath={isActive("/comps-chat")}
-              enabled={profileData.comps_enabled}
-            />
-            <NavItem
-              path="/user-fire-safety-building-mechanicals"
+              path="/user-fire-safety-building-mechanicals-list"
               icon="bi-shield-check"
               label="Fire Safety & Building Mechanicals"
-              isActivePath={isActive("/user-fire-safety-building-mechanicals")}
+              isActivePath={isActive(
+                "/user-fire-safety-building-mechanicals-list",
+              )}
               enabled={profileData.fire_safety_enabled}
             />
 
@@ -620,7 +630,7 @@ export const Sidebar = ({ collapsed, setCollapsed }) => {
             <NavItem
               path="/deal-list"
               icon="bi-kanban"
-              label="Deal Tracker"
+              label="Lead and Deal Tracker"
               isActivePath={isActive("/deal-list")}
               enabled={profileData.deal_tracker_enabled}
             />
@@ -650,7 +660,6 @@ export const Sidebar = ({ collapsed, setCollapsed }) => {
           </>
         )}
 
-
         {isMobile && showSessionModal && (
           <div className="mt-2">
             <div className="bg-dark border w-75 rounded p-2">
@@ -670,18 +679,18 @@ export const Sidebar = ({ collapsed, setCollapsed }) => {
     AccordionHeader,
     isMobile,
     showSessionModal,
-    isCategoryEnabled
+    isCategoryEnabled,
   ]);
 
   return (
     <>
       <aside
-        className={`sidebar-wrapper d-flex flex-column bg-dark text-white border-end ${isMobile && !collapsed ? "sidebar-mobile-open" : ""
+        className={`sidebar-wrapper d-flex flex-column border-end ${isMobile && !collapsed ? "sidebar-mobile-open" : ""
           }`}
+        style={{ backgroundColor: 'var(--sidebar-bg)', color: 'var(--text-primary)' }}
       >
-
         <div className="p-3 border-bottom d-flex justify-content-between align-items-center">
-          {!collapsed && <span className="mb-0 fs-5">creportfoliopulse</span>}
+          {!collapsed && <span className="mb-0 fs-5 creportfoliopulse">creportfoliopulse</span>}
           {isMobile && (
             <button
               className="btn btn-sm btn-outline-light"
@@ -697,7 +706,6 @@ export const Sidebar = ({ collapsed, setCollapsed }) => {
             </button>
           )}
         </div>
-
 
         <div
           className="sidebar-body flex-grow-1 overflow-auto px-3 pt-3"
@@ -716,9 +724,10 @@ export const Sidebar = ({ collapsed, setCollapsed }) => {
           </ul>
         </div>
 
-
-
         <div className="mt-auto p-3 border-top">
+          <div className="mb-3 d-flex justify-content-center">
+            <ThemeToggle collapsed={collapsed} />
+          </div>
           <button
             onClick={handleLogout}
             className="btn btn-outline-danger w-100"

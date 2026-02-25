@@ -16,7 +16,19 @@ export const toursCreateSubmit = createAsyncThunk(
     } catch (error) {
       return rejectWithValue(getErrorMsg(error));
     }
-  }
+  },
+);
+
+export const UpdateToursSubmit = createAsyncThunk(
+  "tours/update",
+  async ({ id, payload }, { rejectWithValue }) => {
+    try {
+      const response = await axiosInstance.patch(`/tours/${id}`, payload);
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.response.data);
+    }
+  },
 );
 
 export const GeToursList = createAsyncThunk(
@@ -28,7 +40,7 @@ export const GeToursList = createAsyncThunk(
     } catch (error) {
       return rejectWithValue(getErrorMsg(error));
     }
-  }
+  },
 );
 
 export const DeleteToursSubmit = createAsyncThunk(
@@ -41,5 +53,5 @@ export const DeleteToursSubmit = createAsyncThunk(
     } catch (error) {
       return rejectWithValue(error.response?.data?.message);
     }
-  }
+  },
 );

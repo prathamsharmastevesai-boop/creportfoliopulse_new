@@ -22,8 +22,8 @@ export const UserBuildingInfolist = () => {
     searchTerm.trim() === ""
       ? BuildingList
       : BuildingList.filter((b) =>
-          b.address?.toLowerCase().includes(searchTerm.toLowerCase())
-        );
+        b.address?.toLowerCase().includes(searchTerm.toLowerCase()),
+      );
 
   useEffect(() => {
     filteredBuildings.forEach((building, i) => {
@@ -37,9 +37,15 @@ export const UserBuildingInfolist = () => {
   }, [filteredBuildings]);
 
   const goToChat = (buildingId, category) => {
-    navigate("/building-chat", {
-      state: { buildingId, category },
-    });
+    if (category === "tenant_info") {
+      navigate("/tenant-information-chat", {
+        state: { buildingId, category },
+      });
+    } else {
+      navigate("/building-chat", {
+        state: { buildingId, category },
+      });
+    }
   };
 
   return (
@@ -48,16 +54,16 @@ export const UserBuildingInfolist = () => {
         <h4 className="mb-0 text-light mx-4">Building Info list</h4>
       </div>
 
-      
-
       <div className="container-fuild p-3">
+        <div className="mb-3">
           <input
-          type="search"
-          className="form-control"
-          placeholder="Search by address..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-        />
+            type="search"
+            className="form-control"
+            placeholder="Search by address..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
+        </div>
         {loading ? (
           <div className="text-center py-5">
             <RAGLoader />
@@ -77,13 +83,30 @@ export const UserBuildingInfolist = () => {
                   style={{ borderRadius: "16px" }}
                 >
                   <div className="d-flex align-items-center justify-content-between ">
-                    <div className="d-flex align-items-center">
-                      <i className="bi bi-geo-alt-fill me-2 text-primary"></i>
-                      <div className="fw-semibold">
-                        {building.address || "N/A"}
+                    <div className="d-flex flex-column">
+                      <div className="d-flex align-items-center">
+                        <i className="bi bi-geo-alt-fill me-2 text-primary"></i>
+                        <span className="fw-semibold">
+                          {building.address || "N/A"}
+                        </span>
+                      </div>
+
+                      <div className="d-flex align-items-center mt-1">
+                        <i
+                          className={`bi bi-people-fill me-2 ${building.current_occupancy > 80
+                              ? "text-success"
+                              : building.current_occupancy > 50
+                                ? "text-warning"
+                                : "text-danger"
+                            }`}
+                        ></i>
+                        <span className="fw-semibold">
+                          {building.current_occupancy ?? 0}%
+                        </span>
                       </div>
                     </div>
-                    <div className="d-flex gap-2 flex-wrap">
+
+                    <div className="d-flex gap-2 flex-wrap align-items-center justify-content-end">
                       <button
                         className="btn btn-dark btn-sm"
                         onClick={() => goToChat(building.id, "floor_plan")}
@@ -103,6 +126,12 @@ export const UserBuildingInfolist = () => {
                         onClick={() => goToChat(building.id, "building_info")}
                       >
                         Building Info
+                      </button>
+                      <button
+                        className="btn btn-dark btn-sm"
+                        onClick={() => goToChat(building.id, "tenant_info")}
+                      >
+                        Tenant Info
                       </button>
                     </div>
                   </div>

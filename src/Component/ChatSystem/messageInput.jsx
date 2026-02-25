@@ -1,4 +1,8 @@
 import { useRef, useState } from "react";
+import { useWebSocket } from "../../Context/WebSocketContext";
+import { useDispatch } from "react-redux";
+import { uploadChatFileApi } from "../../Networking/User/APIs/ChatSystem/chatSystemApi";
+import "./chatInput.css";
 
 export const ChatInput = ({
   text,
@@ -6,139 +10,188 @@ export const ChatInput = ({
   onSend,
   conversationId,
   myUserId,
-  receiverId,
-  sendTypingIndicator,
-  onAttachmentClick,
-  uploading,
-  onFileUpload, // callback to handle file upload
 }) => {
+  const dispatch = useDispatch();
+  const { sendMessage } = useWebSocket();
   const typingTimeout = useRef(null);
+  const textareaRef = useRef(null);
+  const fileRef = useRef(null);
+
+  const [uploading, setUploading] = useState(false);
+  const [pendingFile, setPendingFile] = useState(null);
 
   const handleTyping = (value) => {
     setText(value);
 
-    if (receiverId && sendTypingIndicator && !uploading) {
-      sendTypingIndicator(receiverId, true);
-
-      clearTimeout(typingTimeout.current);
-      typingTimeout.current = setTimeout(() => {
-        sendTypingIndicator(receiverId, false);
-      }, 3000);
+    if (textareaRef.current) {
+      textareaRef.current.style.height = "auto";
+      textareaRef.current.style.height = `${Math.min(
+        textareaRef.current.scrollHeight,
+        120,
+      )}px`;
     }
+
+    sendMessage({
+      type: "TYPING",
+      conversation_id: conversationId,
+      is_typing: true,
+    });
+
+    clearTimeout(typingTimeout.current);
+    typingTimeout.current = setTimeout(() => {
+      sendMessage({
+        type: "TYPING",
+        conversation_id: conversationId,
+        is_typing: false,
+      });
+    }, 1500);
   };
 
   const handleSendMessage = () => {
-    if (!text.trim() || uploading) return;
+    const hasText = text.trim().length > 0;
+    const hasFile = pendingFile !== null;
 
-    if (receiverId && sendTypingIndicator) {
-      sendTypingIndicator(receiverId, false);
-    }
+    if (!hasText && !hasFile) return;
 
-    clearTimeout(typingTimeout.current);
+    const payload = {
+      type: "NEW_MESSAGE",
+      conversation_id: conversationId,
+      sender_id: myUserId,
+      content: text.trim(),
+    };
 
-    onSend();
+    if (hasFile) payload.file_id = pendingFile.file_id;
+
+    onSend(payload);
+
     setText("");
+    setPendingFile(null);
+
+    if (textareaRef.current) textareaRef.current.style.height = "auto";
+
+    sendMessage({
+      type: "TYPING",
+      conversation_id: conversationId,
+      sender_id: myUserId,
+      is_typing: false,
+    });
   };
 
-  const handleKeyDown = (e) => {
-    if (e.key === "Enter" && !e.shiftKey && !uploading) {
+  const handleFileSelect = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("category", "chatting");
+
+    try {
+      setUploading(true);
+
+      const result = await dispatch(uploadChatFileApi(formData)).unwrap();
+      const file_id = result.file_id;
+
+      let previewUrl = null;
+      if (file.type.startsWith("image/")) {
+        previewUrl = URL.createObjectURL(file);
+      }
+
+      setPendingFile({
+        file_id,
+        name: file.name,
+        type: file.type,
+        previewUrl,
+      });
+    } catch (err) {
+      console.error("Upload failed", err);
+    } finally {
+      setUploading(false);
+      e.target.value = "";
+    }
+  };
+
+  const removePendingFile = () => {
+    if (pendingFile?.previewUrl) {
+      URL.revokeObjectURL(pendingFile.previewUrl);
+    }
+    setPendingFile(null);
+  };
+
+  const handleKeyPress = (e) => {
+    if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
       handleSendMessage();
     }
   };
 
-  const handleFileChange = (e) => {
-    const file = e.target.files[0];
-    if (!file || uploading) return;
-
-    if (onFileUpload) {
-      onFileUpload(file);
-    }
-    e.target.value = ""; // reset input
-  };
-
   return (
-    <div
-      className="chat-input-wrapper"
-      style={{
-        display: "flex",
-        padding: "10px",
-        borderTop: "1px solid #ddd",
-        background: "#fff",
-        alignItems: "center",
-        gap: "10px",
-        opacity: uploading ? 0.6 : 1,
-      }}
-    >
-      {/* Attachment */}
-      <button
-        className="icon-btn attachment"
-        onClick={() => document.getElementById("fileInput")?.click()}
-        disabled={uploading}
-        style={{
-          background: "none",
-          border: "none",
-          fontSize: "20px",
-          cursor: uploading ? "not-allowed" : "pointer",
-          color: uploading ? "#999" : "#666",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          width: "40px",
-          height: "40px",
-          borderRadius: "50%",
-        }}
-      >
-        <i className="ri-attachment-2" />
-      </button>
+    <div className="chat-input-container">
+      {pendingFile && (
+        <div className="attachment-bar">
+          <div className="attachment-content">
+            {pendingFile.type.startsWith("image/") ? (
+              <img src={pendingFile.previewUrl} alt="Preview" />
+            ) : (
+              <div className="attachment-file">
+                <i className="ri-file-line" />
+                <span>{pendingFile.name}</span>
+              </div>
+            )}
+          </div>
 
-      <input
-        type="file"
-        id="fileInput"
-        style={{ display: "none" }}
-        onChange={handleFileChange}
-      />
+          <button className="attachment-remove" onClick={removePendingFile}>
+            <i className="ri-close-line" />
+          </button>
+        </div>
+      )}
 
-      {/* Text input */}
-      <input
-        className="chat-input"
-        value={text}
-        onChange={(e) => handleTyping(e.target.value)}
-        onKeyDown={handleKeyDown}
-        placeholder={uploading ? "Uploading file..." : "Type a message..."}
-        disabled={uploading}
-        style={{
-          flex: 1,
-          padding: "10px 15px",
-          border: "1px solid #ddd",
-          borderRadius: "20px",
-          outline: "none",
-          fontSize: "14px",
-          background: uploading ? "#f9f9f9" : "#fff",
-          cursor: uploading ? "not-allowed" : "text",
-        }}
-      />
+      <div className="chat-input-row">
+        <div className="input-actions">
+          <button
+            className="action-btn"
+            onClick={() => fileRef.current.click()}
+            disabled={uploading || pendingFile}
+          >
+            {uploading ? (
+              <i className="ri-loader-4-line spinning" />
+            ) : (
+              <i className="ri-attachment-2" />
+            )}
+          </button>
 
-      {/* Send button */}
-      <button
-        className="icon-btn send"
-        onClick={handleSendMessage}
-        disabled={!text.trim() || uploading}
-        style={{
-          background: !text.trim() || uploading ? "#ccc" : "#007bff",
-          color: "white",
-          border: "none",
-          borderRadius: "50%",
-          width: "40px",
-          height: "40px",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          cursor: !text.trim() || uploading ? "not-allowed" : "pointer",
-        }}
-      >
-        <i className="ri-send-plane-2-fill" />
-      </button>
+          <input
+            type="file"
+            ref={fileRef}
+            hidden
+            onChange={handleFileSelect}
+            disabled={uploading || pendingFile}
+          />
+        </div>
+
+        <textarea
+          ref={textareaRef}
+          className="message-input"
+          placeholder="Type a message"
+          value={text}
+          onChange={(e) => handleTyping(e.target.value)}
+          onKeyDown={handleKeyPress}
+          rows={1}
+        />
+
+        {text.trim() || pendingFile ? (
+          <button
+            className="send-btn"
+            onClick={handleSendMessage}
+            disabled={uploading}
+          >
+            <i className="ri-send-plane-fill" />
+          </button>
+        ) : (
+          <button className="voice-btn">
+            <i className="ri-mic-line" />
+          </button>
+        )}
+      </div>
     </div>
   );
 };

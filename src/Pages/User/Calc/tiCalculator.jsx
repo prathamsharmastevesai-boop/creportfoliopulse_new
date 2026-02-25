@@ -89,16 +89,12 @@ export const TICalculator = () => {
 
   return (
     <div className="container-fluid">
-      {/* INPUT CARD */}
       <div className="card shadow-sm">
         <div className="card-body">
           <h4 className="fw-bold mb-3">TI Calculator</h4>
 
-          {/* SF INPUT */}
           <Form.Group className="mb-3">
-            <Form.Label className="fw-semibold">
-              Square Footage (SF)
-            </Form.Label>
+            <Form.Label className="fw-semibold">Square Footage (SF)</Form.Label>
             <Form.Control
               type="number"
               placeholder="e.g. 10000"
@@ -116,11 +112,8 @@ export const TICalculator = () => {
             </Form.Control.Feedback>
           </Form.Group>
 
-          {/* LINE ITEMS */}
           <Form.Group className="mb-3">
-            <Form.Label className="fw-semibold">
-              TI Line Items
-            </Form.Label>
+            <Form.Label className="fw-semibold">TI Line Items</Form.Label>
 
             <div className="border rounded p-3">
               {LINE_ITEMS.map((item) => (
@@ -137,9 +130,7 @@ export const TICalculator = () => {
             </div>
 
             {errors.items && (
-              <div className="text-danger mt-1">
-                {errors.items}
-              </div>
+              <div className="text-danger mt-1">{errors.items}</div>
             )}
           </Form.Group>
 
@@ -160,55 +151,46 @@ export const TICalculator = () => {
         </div>
       </div>
 
-      {/* RESULT CARD */}
-   {result && (
-  <div className="card shadow-sm mt-4">
-    <div className="card-body">
-      <h6 className="fw-bold mb-3">Breakdown</h6>
+      {result && (
+        <div className="card shadow-sm mt-4">
+          <div className="card-body">
+            <h6 className="fw-bold mb-3">Breakdown</h6>
 
-      {/* LINE ITEMS */}
-      <ul className="list-group mb-3">
-        {Object.entries(result.breakdown || {}).map(
-          ([key, value]) => (
-            <li key={key} className="list-group-item">
-              <div className="d-flex justify-content-between">
-                <span className="fw-semibold">{key}</span>
-                <span>${formatCurrency(value.cost)}</span>
-              </div>
+            <ul className="list-group mb-3">
+              {Object.entries(result.breakdown || {}).map(([key, value]) => (
+                <li key={key} className="list-group-item">
+                  <div className="d-flex justify-content-between">
+                    <span className="fw-semibold">{key}</span>
+                    <span>${formatCurrency(value.cost)}</span>
+                  </div>
 
-              {value.formula && (
-                <small className="text-muted d-block ms-2">
-                  {value.formula}
-                </small>
-              )}
-            </li>
-          )
-        )}
-      </ul>
+                  {value.formula && (
+                    <small className="text-muted d-block ms-2">
+                      {value.formula}
+                    </small>
+                  )}
+                </li>
+              ))}
+            </ul>
 
-    
-      <div className="d-flex justify-content-between">
-        <span className="fw-semibold">Contingency</span>
-        <span>${formatCurrency(result.contingency)}</span>
-      </div>
+            <div className="d-flex justify-content-between">
+              <span className="fw-semibold">Contingency</span>
+              <span>${formatCurrency(result.contingency)}</span>
+            </div>
 
-      <hr />
+            <hr />
 
-      <div className="d-flex justify-content-between fs-5 fw-bold text-success">
-        <span>Estimated Total</span>
-        <span>
-          ${formatCurrency(result.estimated_total)}
-        </span>
-      </div>
+            <div className="d-flex justify-content-between fs-5 fw-bold text-success">
+              <span>Estimated Total</span>
+              <span>${formatCurrency(result.estimated_total)}</span>
+            </div>
 
-      <div className="text-end text-muted mt-1 fs-5 fw-bold">
-        Cost per SF: $
-        {formatCurrency(result.cost_per_sf, 2)}
-      </div>
-    </div>
-  </div>
-)}
-
+            <div className="text-end text-muted mt-1 fs-5 fw-bold">
+              Cost per SF: ${formatCurrency(result.cost_per_sf, 2)}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

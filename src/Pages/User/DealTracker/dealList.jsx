@@ -87,7 +87,7 @@ const DealList = () => {
       const completedStages = deal.stages.filter((stage) => stage.is_completed);
       if (completedStages.length > 0) {
         const lastCompleted = completedStages.sort(
-          (a, b) => new Date(b.completed_at) - new Date(a.completed_at)
+          (a, b) => new Date(b.completed_at) - new Date(a.completed_at),
         )[0];
         return lastCompleted.stage_name;
       }
@@ -119,7 +119,7 @@ const DealList = () => {
           <div className="d-flex align-items-center justify-content-between gap-2 flex-grow-1 min-w-0">
             <div className="d-flex flex-column justify-content-center ms-4 text-truncate">
               <h5 className="mb-0 text-light text-truncate">
-                View Deal Tracker
+                Lead and Deal Tracker
               </h5>
               <small className="text-light text-truncate">
                 (Main List View)
@@ -139,7 +139,6 @@ const DealList = () => {
         <div
           className="container-fuild p-4 shadow-sm"
           style={{
-            background: "#f5f7fa",
             borderRadius: "8px",
             height: "100vh",
           }}
@@ -164,7 +163,7 @@ const DealList = () => {
     return (
       <div
         className="container-fuild p-4 shadow-sm"
-        style={{ background: "#f5f7fa", borderRadius: "8px" }}
+        style={{ borderRadius: "8px" }}
       >
         <div className="mb-4">
           <div className="text-start mb-3">
@@ -230,7 +229,7 @@ const DealList = () => {
           <FaArrowLeft size={16} />
         </div>
         <div className="input-group ">
-          <span className="input-group-text bg-white border-end-0">
+          <span className="input-group-text border-end-0">
             <i className="bi bi-search"></i>
           </span>
           <input
@@ -252,8 +251,7 @@ const DealList = () => {
         </div>
       </div>
       <div
-        className="container-fuild p-4 shadow-sm"
-        style={{ background: "#f5f7fa", borderRadius: "8px", height: "100vh" }}
+        className="container-fuild p-2 shadow-sm"
       >
         {filteredDeals.length === 0 ? (
           <div className="text-center py-5">
@@ -282,7 +280,7 @@ const DealList = () => {
         ) : (
           <div className="table-responsive">
             <table className="table mt-3 align-middle w-800">
-              <thead className="table-light">
+              <thead className="">
                 <tr>
                   <th style={{ fontWeight: "600", fontSize: "14px" }}>
                     Tenant Name
@@ -359,7 +357,6 @@ const DealList = () => {
                     </td>
                     <td className="">
                       <div className="table-icons">
-
                         <button
                           className="btn btn-sm text-white me-2"
                           style={{

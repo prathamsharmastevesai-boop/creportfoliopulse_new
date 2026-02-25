@@ -4,13 +4,12 @@ import {
   getDealTracker,
   updateDealTracker,
 } from "../../../Networking/User/APIs/DealTracker/dealTrackerApi";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import { toast } from "react-toastify";
 
 const DealDetailView = () => {
   const { dealId } = useParams();
   const dispatch = useDispatch();
-  const navigate = useNavigate();
 
   const [deal, setDeal] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -26,6 +25,8 @@ const DealDetailView = () => {
     broker_of_record: "",
     landlord_lead_of_record: "",
     current_lease_expiration: "",
+    space_inquiry_date: "",
+    space_inquiry_notes: "",
   });
 
   const [stages, setStages] = useState([]);
@@ -53,6 +54,10 @@ const DealDetailView = () => {
         current_lease_expiration: result.current_lease_expiration
           ? result.current_lease_expiration.substring(0, 10)
           : "",
+        space_inquiry_date: result.space_inquiry_date
+          ? result.space_inquiry_date.substring(0, 10)
+          : "",
+        space_inquiry_notes: result.space_inquiry_notes || "",
       });
 
       if (result.stages && Array.isArray(result.stages)) {
@@ -62,12 +67,12 @@ const DealDetailView = () => {
             completed_at: stage.completed_at
               ? stage.completed_at.substring(0, 10)
               : "",
-          }))
+          })),
         );
       }
     } catch (err) {
       console.error("Error fetching deal details:", err);
-      toast.error("Failed to load deal details");
+      // toast.error("Failed to load deal details");
     } finally {
       setLoading(false);
     }
@@ -110,36 +115,49 @@ const DealDetailView = () => {
   const handleSave = async () => {
     if (!dealId) return;
 
-    if (!form.tenant_name.trim()) {
-      toast.error("Tenant Name is required");
-      return;
-    }
 
-    if (!form.building_address_interest.trim()) {
-      toast.error("Building Address of Interest is required");
-      return;
-    }
 
     setSaving(true);
 
-    const payload = {
-      ...form,
-      stages: stages.map((stage) => {
-        const stageData = {
-          id: stage.id,
-          stage_name: stage.stage_name,
-          order_index: stage.order_index,
-          is_completed: stage.is_completed,
-          notes: stage.notes || "",
-        };
-
-        if (stage.is_completed && stage.completed_at) {
-          const date = new Date(stage.completed_at);
-          stageData.completed_at = date.toISOString();
+    const formPayload = {};
+    Object.entries(form).forEach(([key, value]) => {
+      if (typeof value === "string" && value.trim() !== "") {
+        if (
+          key === "current_lease_expiration" ||
+          key === "space_inquiry_date"
+        ) {
+          formPayload[key] = new Date(value + "T00:00:00.000Z").toISOString();
+        } else {
+          formPayload[key] = value.trim();
         }
+      }
+    });
 
-        return stageData;
-      }),
+    const stagesPayload = stages.map((stage) => {
+      const stageObj = {
+        id: stage.id, 
+        stage_name: stage.stage_name,
+        order_index: stage.order_index,
+        is_completed: stage.is_completed, 
+      };
+
+      if (stage.is_completed && stage.completed_at) {
+       
+        stageObj.completed_at = new Date(
+          stage.completed_at + "T00:00:00.000Z",
+        ).toISOString();
+      }
+
+      if (stage.notes && stage.notes.trim() !== "") {
+        stageObj.notes = stage.notes.trim();
+      }
+
+      return stageObj;
+    });
+
+    const payload = {
+      ...formPayload,
+      stages: stagesPayload,
     };
 
     try {
@@ -147,11 +165,12 @@ const DealDetailView = () => {
         updateDealTracker({
           dealId,
           data: payload,
-        })
+        }),
       ).unwrap();
 
       setDeal(result);
       setIsEditMode(false);
+
 
       setForm({
         tenant_name: result.tenant_name || "",
@@ -164,10 +183,14 @@ const DealDetailView = () => {
         current_lease_expiration: result.current_lease_expiration
           ? result.current_lease_expiration.substring(0, 10)
           : "",
+        space_inquiry_date: result.space_inquiry_date
+          ? result.space_inquiry_date.substring(0, 10)
+          : "",
+        space_inquiry_notes: result.space_inquiry_notes || "",
       });
     } catch (error) {
       console.error("Error updating deal:", error);
-      toast.error(error?.message || "Failed to update deal");
+      toast.error("Failed to update deal");
     } finally {
       setSaving(false);
     }
@@ -183,75 +206,74 @@ const DealDetailView = () => {
     });
   };
 
-if (loading) {
-  return (
-    <div className="container-fluid p-0">
-      
-      <div className="header-bg sticky-header px-3 py-2">
-        <div className="d-flex justify-content-between align-items-center flex-column flex-md-row mx-4">
-          <h5 className="text-light text-center mb-2 mb-md-0">
-            {isEditMode ? "Edit Lease Deal" : "View Lease Deal"} – Deal Tracker
-          </h5>
+  if (loading) {
+    return (
+      <div className="container-fluid p-0">
+        <div className="header-bg sticky-header px-3 py-2">
+          <div className="d-flex justify-content-between align-items-center flex-column flex-md-row mx-4">
+            <h5 className="text-light text-center mb-2 mb-md-0">
+              {isEditMode ? "Edit Lease Deal" : "View Lease Deal"} – Deal
+              Tracker
+            </h5>
 
-          <div className="d-flex gap-2 mt-2 mt-md-0">
-            {isEditMode ? (
-              <>
-                <button
-                  className="btn btn-outline-secondary"
-                  onClick={handleEditToggle}
-                  disabled={saving}
-                >
-                  Cancel
-                </button>
+            <div className="d-flex gap-2 mt-2 mt-md-0">
+              {isEditMode ? (
+                <>
+                  <button
+                    className="btn btn-outline-secondary"
+                    onClick={handleEditToggle}
+                    disabled={saving}
+                  >
+                    Cancel
+                  </button>
 
+                  <button
+                    className="btn text-light"
+                    style={{
+                      backgroundColor: "#217ae6",
+                      borderColor: "#217ae6",
+                    }}
+                    onClick={handleSave}
+                    disabled={saving}
+                  >
+                    {saving ? (
+                      <>
+                        <span
+                          className="spinner-border spinner-border-sm me-2"
+                          role="status"
+                        />
+                        Saving...
+                      </>
+                    ) : (
+                      "Save"
+                    )}
+                  </button>
+                </>
+              ) : (
                 <button
                   className="btn text-light"
                   style={{
                     backgroundColor: "#217ae6",
                     borderColor: "#217ae6",
                   }}
-                  onClick={handleSave}
-                  disabled={saving}
+                  onClick={handleEditToggle}
                 >
-                  {saving ? (
-                    <>
-                      <span
-                        className="spinner-border spinner-border-sm me-2"
-                        role="status"
-                      />
-                      Saving...
-                    </>
-                  ) : (
-                    "Save"
-                  )}
+                  Edit Deal
                 </button>
-              </>
-            ) : (
-              <button
-                className="btn text-light"
-                style={{
-                  backgroundColor: "#217ae6",
-                  borderColor: "#217ae6",
-                }}
-                onClick={handleEditToggle}
-              >
-                Edit Deal
-              </button>
-            )}
+              )}
+            </div>
           </div>
         </div>
-      </div>
 
-
-      <div className="d-flex flex-column justify-content-center align-items-center vh-100">
-        <div className="spinner-border text-secondary" role="status">
-          <span className="visually-hidden">Loading...</span>
+        <div className="d-flex flex-column justify-content-center align-items-center vh-100">
+          <div className="spinner-border text-secondary" role="status">
+            <span className="visually-hidden">Loading...</span>
+          </div>
+          <p className="mt-3 text-muted">Loading deal details...</p>
         </div>
-        <p className="mt-3 text-muted">Loading deal details...</p>
       </div>
-    </div>
-  );
-}
+    );
+  }
 
   if (!deal) {
     return (
@@ -264,8 +286,10 @@ if (loading) {
   return (
     <div>
       <div className="header-bg sticky-header px-3 py-2">
-        <div className="d-flex justify-content-between align-items-center flex-column flex-md-row
-         mx-4">
+        <div
+          className="d-flex justify-content-between align-items-center flex-column flex-md-row
+         mx-4"
+        >
           <div className="d-flex align-items-center gap-3">
             <h5 className="text-light text-center mb-2 mb-md-0">
               {isEditMode ? "Edit Lease Deal" : "View Lease Deal"} – Deal
@@ -335,13 +359,13 @@ if (loading) {
                 label: "Tenant Name",
                 name: "tenant_name",
                 type: "text",
-                required: true,
+                required: false,
               },
               {
                 label: "Building of Interest",
                 name: "building_address_interest",
                 type: "text",
-                required: true,
+                required: false,
               },
               {
                 label: "Current Building Address",
@@ -422,6 +446,49 @@ if (loading) {
               </div>
             )}
           </div>
+          <div className="row g-3 my-2">
+            <div className="col-md-6 col-12">
+              <label className="fw-semibold">Space Inquiry Date</label>
+              {isEditMode ? (
+                <input
+                  type="date"
+                  className="form-control"
+                  name="space_inquiry_date"
+                  value={form.space_inquiry_date || ""}
+                  onChange={handleInputChange}
+                  disabled={saving}
+                />
+              ) : (
+                <div className="form-control-plaintext">
+                  {form.space_inquiry_date ? (
+                    formatDate(form.space_inquiry_date)
+                  ) : (
+                    <span className="text-muted">Not specified</span>
+                  )}
+                </div>
+              )}
+            </div>
+
+            <div className="col-md-6 col-12">
+              <label className="fw-semibold">Space Inquiry Notes</label>
+              {isEditMode ? (
+                <textarea
+                  className="form-control"
+                  rows="2"
+                  name="space_inquiry_notes"
+                  value={form.space_inquiry_notes || ""}
+                  onChange={handleInputChange}
+                  disabled={saving}
+                />
+              ) : (
+                <div className="form-control-plaintext">
+                  {form.space_inquiry_notes || (
+                    <span className="text-muted">No notes</span>
+                  )}
+                </div>
+              )}
+            </div>
+          </div>
         </div>
 
         <div className="card p-4">
@@ -459,7 +526,7 @@ if (loading) {
                             handleStageChange(
                               index,
                               "is_completed",
-                              e.target.checked
+                              e.target.checked,
                             )
                           }
                           disabled={saving}
@@ -491,7 +558,7 @@ if (loading) {
                             handleStageChange(
                               index,
                               "completed_at",
-                              e.target.value
+                              e.target.value,
                             )
                           }
                           disabled={saving || !stage.is_completed}

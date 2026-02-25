@@ -4,14 +4,15 @@
   background: rgba(0, 0, 0, 0.35);
   z-index: 1000;
   display: flex;
-  justify-content: center; 
-  align-items: flex-start; 
+  justify-content: center;
+  align-items: flex-start;
 }
 
 .profile-panel {
   width: 100%;
-  max-width: 600px; 
-  background: #fff;
+  max-width: 600px;
+  background: var(--card-bg);
+  color: var(--text-primary);
   padding: 10px;
   border-radius: 0 0 10px 10px;
   animation: slideDown 0.35s ease forwards;
@@ -25,6 +26,7 @@
     transform: translateY(-100%);
     opacity: 0;
   }
+
   to {
     transform: translateY(0);
     opacity: 1;
@@ -50,7 +52,6 @@
   width: 100%;
   display: flex;
   justify-content: flex-start;
-  /* margin-bottom: 20px; */
 }
 
 .back-btn {
@@ -58,9 +59,9 @@
   border: none;
   font-size: 22px;
   cursor: pointer;
+  color: var(--text-primary);
 }
 
-/* Info text styling */
 .profile-info-text {
   display: flex;
   flex-direction: column;
@@ -68,17 +69,16 @@
   gap: 5px;
 }
 
-/* --------- Desktop layout (row) --------- */
 @media (min-width: 767px) {
   .profile-panel {
-    flex-direction: row; /* Avatar + info side by side */
+    flex-direction: row;
     align-items: center;
     justify-content: space-around;
     padding: 30px;
   }
 
   .profile-avatar.initial-avatar {
-    margin: 0 30px 0 0; /* Right margin instead of bottom */
+    margin: 0 30px 0 0;
   }
 
   .profile-info-text {
@@ -86,9 +86,9 @@
     gap: 10px;
   }
 
-  .profile-header {
+  /* .profile-header {
     position: absolute;
     top: 10px;
     left: 10px;
-  }
+  } */
 }

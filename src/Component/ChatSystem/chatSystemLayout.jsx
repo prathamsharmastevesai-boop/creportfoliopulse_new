@@ -1,194 +1,107 @@
-import React, { useEffect, useMemo, useState, useRef } from "react";
-import { useLocation, useNavigate, useParams } from "react-router-dom";
+import React, { useEffect, useMemo, useState } from "react";
+import { useLocation, useParams, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-
 import { useWebSocket } from "../../Context/WebSocketContext";
-import { fetchMessages, uploadfileChatSystemAPi } from "../../Networking/User/APIs/ChatSystem/chatSystemApi";
-import ChatMessages from "./messageBubble";
-import { ChatInput } from "./messageInput";
+import { fetchMessages } from "../../Networking/User/APIs/ChatSystem/chatSystemApi";
 import { ChatHeader } from "./chatSystemHeader";
+import { ChatMessages } from "./messageBubble";
+import { ChatInput } from "./messageInput";
 import { UserProfile } from "./userProfile";
+import { ChatSearch } from "./ChatSearch"; // import new component
+import "./chatSystem.css";
+import { clearMessages } from "../../Networking/User/Slice/chatSystemSlice";
 
 export const ChatLayout = () => {
   const { conversationId } = useParams();
   const location = useLocation();
   const navigate = useNavigate();
+
   const receiverId = location.state?.receiver_id;
   const name = location.state?.name;
-
+  const isGroup = location.state?.is_group;
+  const participants = location.state?.participants;
 
   const dispatch = useDispatch();
-  const { messages, userStatus } = useSelector(
-    (state) => state.chatSystemSlice
-  );
-  console.log(userStatus, "userStatus");
+  const { messages, userStatus } = useSelector((s) => s.chatSystemSlice);
 
-  const { sendMessage, myUserId, sendTypingIndicator, setCurrentConversation } = useWebSocket();
+  const { sendMessage, myUserId } = useWebSocket();
+
   const [showProfile, setShowProfile] = useState(false);
   const [text, setText] = useState("");
-  const [uploading, setUploading] = useState(false);
-  const [uploadProgress, setUploadProgress] = useState(0);
-  const fileInputRef = useRef(null);
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [highlightedMessageId, setHighlightedMessageId] = useState(null);
 
   useEffect(() => {
-    if (conversationId && receiverId) {
-      setCurrentConversation(Number(conversationId), receiverId);
-    }
-  }, [conversationId, receiverId, setCurrentConversation]);
-
-  useEffect(() => {
+    if (!conversationId) return;
+    dispatch(clearMessages());
     if (conversationId) {
-      console.log("Fetching messages for conversation:", conversationId);
-      dispatch(fetchMessages(conversationId));
+      dispatch(fetchMessages({ conversationId, page: 1 }));
     }
   }, [conversationId, dispatch]);
 
-
+  useEffect(() => {
+    if (!conversationId) return;
+    sendMessage({
+      type: "JOIN_CONVERSATION",
+      conversation_id: Number(conversationId),
+    });
+  }, [conversationId, sendMessage]);
 
   const allMessages = useMemo(() => {
     return [...messages].sort(
-      (a, b) => new Date(a.created_at) - new Date(b.created_at)
+      (a, b) => new Date(a.created_at) - new Date(b.created_at),
     );
   }, [messages]);
 
-  const handleSend = () => {
-    if (!text.trim() || !receiverId || !myUserId) {
-      console.error("Missing required data for sending message:", {
-        text: text.trim(),
-        receiverId,
-        myUserId
-      });
-      return;
-    }
-
-    const success = sendMessage({
+  const handleSend = (payload) => {
+    sendMessage({
       type: "NEW_MESSAGE",
+      conversation_id: Number(conversationId),
+      sender_id: myUserId,
       receiver_id: receiverId,
-      content: text.trim()
+      content: payload.content || "",
+      file_id: payload.file_id,
     });
-
-    if (!success) {
-      console.error("Failed to send message via WebSocket");
-    }
-
-    if (receiverId) {
-      sendTypingIndicator(receiverId, false);
-    }
-
-    setText("");
   };
 
-  const handleFileUpload = (file) => {
-    if (!file || !receiverId || !myUserId) return;
-
-  
-    dispatch(
-      uploadfileChatSystemAPi({
-        file,
-        receiverId,
-        myUserId,
-      })
-    )
-      .unwrap() 
-      .then((data) => {
-        console.log("File uploaded successfully:", data.fileId);
-
-     
-        sendMessage({
-          type: "NEW_MESSAGE",
-          receiver_id: data.receiverId,
-          content: data.fileName,
-          file_id: data.fileId,
-        });
-      })
-      .catch((err) => {
-        console.error("File upload failed:", err);
-        alert("Failed to upload file. Please try again.");
-      });
+  const openSearch = () => setIsSearchOpen(true);
+  const closeSearch = () => {
+    setIsSearchOpen(false);
+    setHighlightedMessageId(null);
   };
 
-
-  
-  const handleAttachmentClick = () => {
-    fileInputRef.current.click();
-  };
-
- 
-  const handleFileChange = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-    
-      if (file.size > 30 * 1024 * 1024) {
-        alert("File size should be less than 10MB");
-        return;
+  const handleJumpToMessage = (messageId) => {
+    setHighlightedMessageId(messageId);
+    // Scroll after DOM update
+    setTimeout(() => {
+      const element = document.querySelector(
+        `[data-message-id="${messageId}"]`,
+      );
+      if (element) {
+        element.scrollIntoView({ behavior: "smooth", block: "center" });
+        // Remove highlight after 2 seconds
+        setTimeout(() => setHighlightedMessageId(null), 2000);
       }
-
-   
-      const allowedTypes = [
-        'image/jpeg', 'image/png', 'image/gif', 'image/webp',
-        'application/pdf',
-        'application/msword',
-        'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-        'text/plain',
-        'application/vnd.ms-excel',
-        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
-      ];
-
-      if (!allowedTypes.includes(file.type)) {
-        alert("Please select a valid file type (images, PDF, DOC, TXT, XLS)");
-        return;
-      }
-
-      handleFileUpload(file);
-    }
-
-    
-    e.target.value = null;
+    }, 100);
   };
 
   return (
-    <div className="chat-container">
+    <div className="chat-root">
       <ChatHeader
         name={name}
-   receiverId={receiverId}
-        onProfileClick={() => console.log("Profile clicked")}
-         onBack={() => navigate(-1)} 
+        receiverId={receiverId}
+        isGroup={isGroup}
+        participants={participants}
+        status={userStatus?.[receiverId]}
+        onProfileClick={() => setShowProfile(true)}
+        onSearchClick={openSearch} // new prop
       />
-
-      {uploading && (
-        <div style={{
-          padding: '10px',
-          background: '#f5f5f5',
-          borderBottom: '1px solid #ddd'
-        }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-            <div style={{ flex: 1 }}>
-              <div style={{
-                height: '6px',
-                background: '#e0e0e0',
-                borderRadius: '3px',
-                overflow: 'hidden'
-              }}>
-                <div style={{
-                  height: '100%',
-                  background: '#007bff',
-                  width: `${uploadProgress}%`,
-                  transition: 'width 0.3s ease'
-                }} />
-              </div>
-            </div>
-            <span style={{ fontSize: '12px', color: '#666' }}>
-              {uploadProgress}%
-            </span>
-          </div>
-        </div>
-      )}
 
       <ChatMessages
         messages={allMessages}
         myUserId={myUserId}
         conversationId={conversationId}
-        receiverId={receiverId}
+        highlightedMessageId={highlightedMessageId} // new prop
       />
 
       <ChatInput
@@ -197,19 +110,6 @@ export const ChatLayout = () => {
         onSend={handleSend}
         conversationId={conversationId}
         myUserId={myUserId}
-        receiverId={receiverId}
-        sendTypingIndicator={sendTypingIndicator}
-        onAttachmentClick={handleAttachmentClick}
-        uploading={uploading}
-      />
-
-    
-      <input
-        type="file"
-        ref={fileInputRef}
-        onChange={handleFileChange}
-        style={{ display: 'none' }}
-        accept=".jpg,.jpeg,.png,.gif,.webp,.pdf,.doc,.docx,.txt,.xls,.xlsx"
       />
 
       <UserProfile
@@ -217,6 +117,18 @@ export const ChatLayout = () => {
         onClose={() => setShowProfile(false)}
         userId={receiverId}
         name={name}
+        isGroup={isGroup}
+        participants={participants}
+        conversationId={conversationId}
+        onExitGroup={() => navigate("/conversations")}
+        onSearchClick={openSearch} // new prop
+      />
+
+      <ChatSearch
+        messages={allMessages}
+        isOpen={isSearchOpen}
+        onClose={closeSearch}
+        onJumpToMessage={handleJumpToMessage}
       />
     </div>
   );

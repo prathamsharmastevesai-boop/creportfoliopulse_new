@@ -9,6 +9,10 @@ import notesReducer from "../../User/Slice/notesSlice";
 import subleaseReducer from "../Slice/subleaseTrackerSlice";
 import RenewalReducer from "../Slice/RenewalTrackerSlice";
 import chatSystemReducer from "../../User/Slice/chatSystemSlice";
+import workLetterdocumentReducer from "../../User/Slice/workLetterDocumentSlice";
+import timelineReducer from "../../User/Slice/timeLineSlice";
+import workLetterChatReducer from "../../User/Slice/workLetterChatSlice";
+import lineItemReducer from "../../User/Slice/lineItemSlice";
 
 const store = configureStore({
   reducer: {
@@ -22,6 +26,10 @@ const store = configureStore({
     subleaseSlice: subleaseReducer,
     RenewalSlice: RenewalReducer,
     chatSystemSlice: chatSystemReducer,
+    workLetterdocumentSlice: workLetterdocumentReducer,
+    timelineSlice: timelineReducer,
+    workLetterChatSlice: workLetterChatReducer,
+    lineItemSlice: lineItemReducer,
   },
 });
 

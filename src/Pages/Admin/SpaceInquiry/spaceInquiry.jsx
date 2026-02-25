@@ -77,6 +77,15 @@ export const SpaceInquiry = () => {
     setButton(false);
   };
 
+  const Info = ({ label, children }) => (
+    <div className="col-md-6">
+      <div className="border rounded p-3 h-100 shadow-sm">
+        <div className="small mb-1">{label}</div>
+        <div className="fw-semibold">{children}</div>
+      </div>
+    </div>
+  );
+
   useEffect(() => {
     const fetchInquiryList = async () => {
       try {
@@ -170,10 +179,10 @@ export const SpaceInquiry = () => {
         imap_username: form.imap_username,
         imap_password: form.imap_password,
         building_addresses_list: (form.building_addresses_list || []).filter(
-          (x) => x.trim() !== ""
+          (x) => x.trim() !== "",
         ),
         trusted_sender_domains: (form.trusted_sender_domains || []).filter(
-          (x) => x.trim() !== ""
+          (x) => x.trim() !== "",
         ),
         is_active: Boolean(form.is_active),
       };
@@ -206,12 +215,12 @@ export const SpaceInquiry = () => {
         imap_password: res?.imap_password ?? "",
         building_addresses_list:
           Array.isArray(res?.building_addresses_list) &&
-          res.building_addresses_list.length > 0
+            res.building_addresses_list.length > 0
             ? res.building_addresses_list
             : [""],
         trusted_sender_domains:
           Array.isArray(res?.trusted_sender_domains) &&
-          res.trusted_sender_domains.length > 0
+            res.trusted_sender_domains.length > 0
             ? res.trusted_sender_domains
             : [""],
         is_active: typeof res?.is_active === "boolean" ? res.is_active : true,
@@ -275,7 +284,7 @@ export const SpaceInquiry = () => {
           editData.building_addresses_list || []
         ).filter((x) => x?.toString().trim() !== ""),
         trusted_sender_domains: (editData.trusted_sender_domains || []).filter(
-          (x) => x?.toString().trim() !== ""
+          (x) => x?.toString().trim() !== "",
         ),
         is_active: Boolean(editData.is_active),
       };
@@ -296,7 +305,7 @@ export const SpaceInquiry = () => {
 
   return (
     <>
-      <div className="container-fluid mt-4">
+      <div className="container-fluid p-3">
         <div className="card shadow-sm border-0">
           <div className="card-header bg-success text-white d-flex justify-content-between align-items-center">
             <h5 className="mb-0">📨 Space Inquiry List</h5>
@@ -415,7 +424,13 @@ export const SpaceInquiry = () => {
         </div>
       </div>
 
-      <Modal show={showAdd} onHide={() => setShowAdd(false)} size="lg" centered>
+      <Modal
+        className="modal_wrapper"
+        show={showAdd}
+        onHide={() => setShowAdd(false)}
+        size="lg"
+        centered
+      >
         <Modal.Header closeButton>
           <Modal.Title>New Space Inquiry Configuration</Modal.Title>
         </Modal.Header>
@@ -467,51 +482,6 @@ export const SpaceInquiry = () => {
 
             <hr />
 
-            {/* <h5 className="mb-3">SMTP Settings</h5> */}
-
-            {/* <div className="row">
-              <div className="col-md-6 mb-3">
-                <Form.Label>SMTP Host</Form.Label>
-                <Form.Control
-                  name="smtp_host"
-                  value={form.smtp_host}
-                  onChange={handleChange}
-                  placeholder="smtp.gmail.com"
-                />
-              </div>
-
-              <div className="col-md-3 mb-3">
-                <Form.Label>SMTP Port</Form.Label>
-                <Form.Control
-                  name="smtp_port"
-                  type="number"
-                  value={form.smtp_port}
-                  onChange={handleChange}
-                />
-              </div>
-
-              <div className="col-md-6 mb-3">
-                <Form.Label>SMTP Username</Form.Label>
-                <Form.Control
-                  name="smtp_username"
-                  value={form.smtp_username}
-                  onChange={handleChange}
-                />
-              </div>
-
-              <div className="col-md-6 mb-3">
-                <Form.Label>SMTP Password</Form.Label>
-                <Form.Control
-                  name="smtp_password"
-                  type="password"
-                  value={form.smtp_password}
-                  onChange={handleChange}
-                />
-              </div>
-            </div> */}
-
-            {/* <hr /> */}
-
             <h5>Building Addresses</h5>
             {form.building_addresses_list.map((item, index) => (
               <div className="d-flex mb-2" key={index}>
@@ -522,7 +492,7 @@ export const SpaceInquiry = () => {
                     handleArrayChange(
                       index,
                       e.target.value,
-                      "building_addresses_list"
+                      "building_addresses_list",
                     )
                   }
                 />
@@ -558,7 +528,7 @@ export const SpaceInquiry = () => {
                     handleArrayChange(
                       index,
                       e.target.value,
-                      "trusted_sender_domains"
+                      "trusted_sender_domains",
                     )
                   }
                 />
@@ -613,6 +583,7 @@ export const SpaceInquiry = () => {
       </Modal>
 
       <Modal
+        className="modal_wrapper"
         show={showView}
         onHide={() => setShowView(false)}
         size="lg"
@@ -724,66 +695,6 @@ export const SpaceInquiry = () => {
 
                     <hr />
 
-                    {/* <h5 className="fw-bold mb-3"> Update SMTP Settings</h5> */}
-
-                    {/* <div className="row">
-                      <div className="col-md-6 mb-3">
-                        <Form.Label>SMTP Host</Form.Label>
-                        <Form.Control
-                          value={editData.smtp_host}
-                          onChange={(e) =>
-                            setEditData({
-                              ...editData,
-                              smtp_host: e.target.value,
-                            })
-                          }
-                        />
-                      </div>
-
-                      <div className="col-md-3 mb-3">
-                        <Form.Label>SMTP Port</Form.Label>
-                        <Form.Control
-                          type="number"
-                          value={editData.smtp_port}
-                          onChange={(e) =>
-                            setEditData({
-                              ...editData,
-                              smtp_port: e.target.value,
-                            })
-                          }
-                        />
-                      </div>
-
-                      <div className="col-md-6 mb-3">
-                        <Form.Label>SMTP Username</Form.Label>
-                        <Form.Control
-                          value={editData.smtp_username}
-                          onChange={(e) =>
-                            setEditData({
-                              ...editData,
-                              smtp_username: e.target.value,
-                            })
-                          }
-                        />
-                      </div>
-
-                      <div className="col-md-6 mb-3">
-                        <Form.Label>SMTP Password</Form.Label>
-                        <Form.Control
-                          type="password"
-                          value={editData.smtp_password}
-                          onChange={(e) =>
-                            setEditData({
-                              ...editData,
-                              smtp_password: e.target.value,
-                            })
-                          }
-                        />
-                      </div>
-                    </div> */}
-
-                    <hr />
-
                     <h5 className="fw-bold mb-3">Building Addresses</h5>
                     {(editData.building_addresses_list || []).map(
                       (addr, index) => (
@@ -794,7 +705,7 @@ export const SpaceInquiry = () => {
                               editArrayChange(
                                 "building_addresses_list",
                                 index,
-                                e.target.value
+                                e.target.value,
                               )
                             }
                           />
@@ -804,14 +715,14 @@ export const SpaceInquiry = () => {
                             onClick={() =>
                               removeEditArrayField(
                                 "building_addresses_list",
-                                index
+                                index,
                               )
                             }
                           >
                             X
                           </Button>
                         </div>
-                      )
+                      ),
                     )}
 
                     <Button
@@ -835,7 +746,7 @@ export const SpaceInquiry = () => {
                             editArrayChange(
                               "trusted_sender_domains",
                               index,
-                              e.target.value
+                              e.target.value,
                             )
                           }
                         />
@@ -845,7 +756,7 @@ export const SpaceInquiry = () => {
                           onClick={() =>
                             removeEditArrayField(
                               "trusted_sender_domains",
-                              index
+                              index,
                             )
                           }
                         >
@@ -909,40 +820,11 @@ export const SpaceInquiry = () => {
                     </div>
                   </div>
 
-                  {/* <div className="mb-4">
-                    <h5 className="fw-bold mb-3">SMTP Configuration</h5>
-                    <div className="card shadow-sm border-0">
-                      <div className="card-body">
-                        <table className="table table-borderless mb-0">
-                          <tbody>
-                            <tr>
-                              <th>SMTP Host:</th>
-                              <td>{configDetails.smtp_host}</td>
-                            </tr>
-                            <tr>
-                              <th>SMTP Port:</th>
-                              <td>{configDetails.smtp_port}</td>
-                            </tr>
-                            <tr>
-                              <th>SMTP Username:</th>
-                              <td>{configDetails.smtp_username}</td>
-                            </tr>
-                            <tr>
-                              <th>SMTP Password:</th>
-                              <td>******</td>
-                            </tr>
-                          </tbody>
-                        </table>
-                      </div>
-                    </div>
-                  </div> */}
-
                   <div className="mb-4">
                     <h5 className="fw-bold mb-3"> Status</h5>
                     <span
-                      className={`badge px-3 py-2 ${
-                        configDetails.is_active ? "bg-success" : "bg-danger"
-                      }`}
+                      className={`badge px-3  ${configDetails.is_active ? "bg-success" : "bg-danger"
+                        }`}
                     >
                       {configDetails.is_active ? "Active" : "Inactive"}
                     </span>
@@ -956,7 +838,7 @@ export const SpaceInquiry = () => {
                           <li className="list-group-item" key={i}>
                             {a}
                           </li>
-                        )
+                        ),
                       )}
                     </ul>
                   </div>
@@ -965,10 +847,10 @@ export const SpaceInquiry = () => {
                     <h5 className="fw-bold mb-3">Trusted Sender Domains</h5>
                     {(configDetails.trusted_sender_domains || []).map(
                       (d, i) => (
-                        <span className="badge bg-primary p-2 me-2" key={i}>
+                        <span className="badge bg-primary px-2 me-2" key={i}>
                           {d}
                         </span>
-                      )
+                      ),
                     )}
                   </div>
                 </div>
@@ -999,12 +881,13 @@ export const SpaceInquiry = () => {
       </Modal>
 
       <Modal
+        className="modal_wrapper"
         show={showInquiryView}
         onHide={() => setShowInquiryView(false)}
         size="lg"
         centered
       >
-        <Modal.Header closeButton className="bg-light">
+        <Modal.Header closeButton>
           <Modal.Title className="fw-bold">
             <i className="bi bi-info-circle me-2"></i>
             Inquiry Details
@@ -1019,170 +902,134 @@ export const SpaceInquiry = () => {
             </div>
           ) : selectedInquiry ? (
             <div className="container-fluid">
-              <div className="row">
-                <div className="col-md-6 mb-4">
-                  <div className="card border-0 shadow-sm h-100">
-                    <div
-                      className="card-header text-white"
-                      style={{ backgroundColor: "#212529" }}
-                    >
-                      <h6 className="mb-0">
-                        <i className="bi bi-person me-2"></i>Sender Information
-                      </h6>
-                    </div>
-                    <div className="card-body">
-                      <table className="table table-borderless">
-                        <tbody>
-                          <tr>
-                            <th width="40%">ID:</th>
-                            <td>
-                              <Badge bg="secondary">{selectedInquiry.id}</Badge>
-                            </td>
-                          </tr>
-                          <tr>
-                            <th>Name:</th>
-                            <td className="fw-semibold">
-                              {selectedInquiry.sender_name || "N/A"}
-                            </td>
-                          </tr>
-                          <tr>
-                            <th>Email:</th>
-                            <td>
-                              <a
-                                href={`mailto:${selectedInquiry.sender_email}`}
-                              >
-                                {selectedInquiry.sender_email || "N/A"}
-                              </a>
-                            </td>
-                          </tr>
-                          <tr>
-                            <th>Phone:</th>
-                            <td>{selectedInquiry.sender_phone || "N/A"}</td>
-                          </tr>
-                          <tr>
-                            <th>Broker Company:</th>
-                            <td>{selectedInquiry.broker_company || "N/A"}</td>
-                          </tr>
-                        </tbody>
-                      </table>
-                    </div>
-                  </div>
+              <div className="card shadow-sm border-0 mb-4">
+                <div className="card-header bg-dark text-white">
+                  <h6 className="mb-0 fw-semibold">
+                    <i className="bi bi-person me-2"></i>
+                    Sender Information
+                  </h6>
                 </div>
 
-                <div className="col-md-6 mb-4">
-                  <div className="card border-0 shadow-sm h-100">
-                    <div
-                      className="card-header  text-white"
-                      style={{ backgroundColor: "#212529" }}
-                    >
-                      <h6 className="mb-0">
-                        <i className="bi bi-building me-2"></i>Property Details
-                      </h6>
-                    </div>
-                    <div className="card-body">
-                      <table className="table table-borderless">
-                        <tbody>
-                          <tr>
-                            <th width="40%">Building Address:</th>
-                            <td className="fw-semibold">
-                              {selectedInquiry.building_address || "N/A"}
-                            </td>
-                          </tr>
-                          <tr>
-                            <th>Email Date:</th>
-                            <td>
-                              {selectedInquiry.email_date
-                                ? new Date(
-                                    selectedInquiry.email_date
-                                  ).toLocaleString("en-US")
-                                : "N/A"}
-                            </td>
-                          </tr>
-                          <tr>
-                            <th>Status:</th>
-                            <td>
-                              <Badge
-                                bg={
-                                  selectedInquiry.status === "processed"
-                                    ? "success"
-                                    : selectedInquiry.status === "pending"
-                                    ? "warning"
-                                    : "info"
-                                }
-                              >
-                                {selectedInquiry.status || "new"}
-                              </Badge>
-                            </td>
-                          </tr>
-                          <tr>
-                            <th>Created At:</th>
-                            <td>
-                              {selectedInquiry.created_at
-                                ? new Date(
-                                    selectedInquiry.created_at
-                                  ).toLocaleString("en-US")
-                                : "N/A"}
-                            </td>
-                          </tr>
-                        </tbody>
-                      </table>
-                    </div>
+                <div className="card-body">
+                  <div className="row g-3">
+                    <Info label="ID">
+                      <Badge bg="secondary">{selectedInquiry.id}</Badge>
+                    </Info>
+
+                    <Info label="Name">
+                      {selectedInquiry.sender_name || "N/A"}
+                    </Info>
+
+                    <Info label="Email">
+                      {selectedInquiry.sender_email ? (
+                        <a href={`mailto:${selectedInquiry.sender_email}`}>
+                          {selectedInquiry.sender_email}
+                        </a>
+                      ) : (
+                        "N/A"
+                      )}
+                    </Info>
+
+                    <Info label="Phone">
+                      {selectedInquiry.sender_phone || "N/A"}
+                    </Info>
+
+                    <Info label="Broker Company">
+                      {selectedInquiry.broker_company || "N/A"}
+                    </Info>
                   </div>
                 </div>
+              </div>
 
-                <div className="col-12 mb-4">
-                  <div className="card border-0 shadow-sm">
-                    <div
-                      className="card-header  text-white"
-                      style={{ backgroundColor: "#212529" }}
-                    >
-                      <h6 className="mb-0">
-                        <i className="bi bi-chat-text me-2"></i>Inquiry Message
-                      </h6>
-                    </div>
-                    <div className="card-body">
-                      <div className="bg-light p-3 rounded">
-                        <p className="mb-0" style={{ whiteSpace: "pre-wrap" }}>
-                          {selectedInquiry.inquiry_text ||
-                            "No inquiry text provided"}
-                        </p>
-                      </div>
-                    </div>
-                  </div>
+              <div className="card shadow-sm border-0 mb-4">
+                <div className="card-header bg-dark text-white">
+                  <h6 className="mb-0 fw-semibold">
+                    <i className="bi bi-building me-2"></i>
+                    Property Details
+                  </h6>
                 </div>
 
-                {(selectedInquiry.additional_notes ||
-                  selectedInquiry.attachments) && (
-                  <div className="col-12">
-                    <div className="card border-0 shadow-sm">
-                      <div className="card-header bg-warning text-dark">
-                        <h6 className="mb-0">
-                          <i className="bi bi-paperclip me-2"></i>Additional
-                          Information
-                        </h6>
-                      </div>
-                      <div className="card-body">
-                        {selectedInquiry.additional_notes && (
-                          <div className="mb-3">
-                            <h6>Additional Notes:</h6>
-                            <p className="mb-0">
-                              {selectedInquiry.additional_notes}
-                            </p>
+                <div className="card-body">
+                  <div className="row g-3">
+                    <Info label="Building Address">
+                      {selectedInquiry.building_address || "N/A"}
+                    </Info>
+
+                    <Info label="Email Date">
+                      {selectedInquiry.email_date
+                        ? new Date(selectedInquiry.email_date).toLocaleString()
+                        : "N/A"}
+                    </Info>
+
+                    <Info label="Status">
+                      <Badge
+                        bg={
+                          selectedInquiry.status === "processed"
+                            ? "success"
+                            : selectedInquiry.status === "pending"
+                              ? "warning"
+                              : "secondary"
+                        }
+                      >
+                        {selectedInquiry.status || "new"}
+                      </Badge>
+                    </Info>
+
+                    <Info label="Created At">
+                      {selectedInquiry.created_at
+                        ? new Date(selectedInquiry.created_at).toLocaleString()
+                        : "N/A"}
+                    </Info>
+                  </div>
+                </div>
+              </div>
+
+              <div className="card shadow-sm border-0 mb-4">
+                <div className="card-header bg-dark text-white">
+                  <h6 className="mb-0 fw-semibold">
+                    <i className="bi bi-chat-text me-2"></i>
+                    Inquiry Message
+                  </h6>
+                </div>
+
+                <div className="card-body">
+                  <div className="p-3 border rounded small-text">
+                    {selectedInquiry.inquiry_text || "No inquiry text provided"}
+                  </div>
+                </div>
+              </div>
+
+              {(selectedInquiry.additional_notes ||
+                selectedInquiry.attachments) && (
+                  <div className="card shadow-sm border-0">
+                    <div className="card-header bg-warning">
+                      <h6 className="mb-0 fw-semibold">
+                        <i className="bi bi-paperclip me-2"></i>
+                        Additional Information
+                      </h6>
+                    </div>
+
+                    <div className="card-body">
+                      {selectedInquiry.additional_notes && (
+                        <div className="mb-3">
+                          <label className="text-muted small">Notes</label>
+                          <div className="p-2 border rounded bg-light">
+                            {selectedInquiry.additional_notes}
                           </div>
-                        )}
-                        {selectedInquiry.attachments && (
-                          <div>
-                            <h6>Attachments:</h6>
-                            <p className="mb-0">
-                              {selectedInquiry.attachments}
-                            </p>
+                        </div>
+                      )}
+
+                      {selectedInquiry.attachments && (
+                        <div>
+                          <label className="text-muted small">Attachments</label>
+                          <div className="p-2 border rounded bg-light">
+                            {selectedInquiry.attachments}
                           </div>
-                        )}
-                      </div>
+                        </div>
+                      )}
                     </div>
                   </div>
                 )}
-              </div>
             </div>
           ) : (
             <div className="text-center py-5">

@@ -38,6 +38,7 @@ export const AskQuestion = "/chatbot/ask_question/";
 // export const AskQuestionEndpoint = "/user/ask_simple/";
 export const ASkQuestionbuildingEndpoint = "/building/files/query";
 export const Chat_history = "/chat/history/";
+export const Gemini_Chat_History = "/gemini/gemini/history/";
 export const Del_Chat_Session = "/chat/delete/";
 
 // ASK QUESTION REPORT
@@ -107,11 +108,13 @@ export const extractTextViewdata = "/gen_lease/files/view_generated_lease/text";
 export const updatetextdata = "/gen_lease/files/text";
 
 //Feedback
-export const feedbacksubmit = "/feedback/submit";
+export const feedbacksubmit = "/information_collaboration/submit";
 export const getfeedback = "/feedback/my-feedback";
-export const getadminfeedback = "/feedback/company-feedback";
+export const getadminfeedback = "/information_collaboration/admin/entries";
 export const getuserfeedback = "/feedback/my-feedback";
 export const updatefeedback = "/feedback/update/";
+export const getinfocollaborationbuildings =
+  "/information_collaboration/category-buildings";
 
 //Email Drafting
 export const AddnewTenent = "/mail_draft/tenants/create";

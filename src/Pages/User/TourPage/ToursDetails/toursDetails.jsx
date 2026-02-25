@@ -4,6 +4,7 @@ import { Container, Modal, Button, Table } from "react-bootstrap";
 import {
   DeleteToursSubmit,
   GeToursList,
+  UpdateToursSubmit,
 } from "../../../../Networking/User/APIs/Tours/toursApi";
 import { toast } from "react-toastify";
 import RAGLoader from "../../../../Component/Loader";
@@ -13,6 +14,18 @@ export const ToursDetails = () => {
 
   const [toursList, setToursList] = useState([]);
   const [loading, setLoading] = useState(true);
+
+  const [editModal, setEditModal] = useState(false);
+  const [editTourId, setEditTourId] = useState(null);
+  const [editForm, setEditForm] = useState({
+    date: "",
+    building: "",
+    floor_suite: "",
+    tenant: "",
+    broker: "",
+    notes: "",
+  });
+  const [updateLoading, setUpdateLoading] = useState(false);
 
   const [deleteLoading, setDeleteLoading] = useState(false);
   const [deleteId, setDeleteId] = useState(null);
@@ -41,6 +54,44 @@ export const ToursDetails = () => {
 
   const openDeleteModal = (id) => {
     setDeleteId(id);
+  };
+
+  const handleEdit = (tour) => {
+    setEditTourId(tour.id);
+    setEditForm({
+      date: tour.date || "",
+      building: tour.building || "",
+      floor_suite: tour.floor_suite || "",
+      tenant: tour.tenant || "",
+      broker: tour.broker || "",
+      notes: tour.notes || "",
+    });
+    setEditModal(true);
+  };
+
+  const handleUpdate = async () => {
+    setUpdateLoading(true);
+
+    try {
+      const payload = {
+        ...editForm,
+      };
+
+      await dispatch(UpdateToursSubmit({ id: editTourId, payload })).unwrap();
+
+      setToursList((prev) =>
+        prev.map((item) =>
+          item.id === editTourId ? { ...item, ...payload } : item,
+        ),
+      );
+
+      toast.success("Tour updated successfully");
+      setEditModal(false);
+    } catch (err) {
+      console.log(err);
+    } finally {
+      setUpdateLoading(false);
+    }
   };
 
   const handleDelete = async () => {
@@ -73,9 +124,8 @@ export const ToursDetails = () => {
     <div>
       <Container
         fluid
-        className="p-4 shadow-sm"
+        className="shadow-sm"
         style={{
-          background: "#f5f7fa",
           borderRadius: "8px",
           minHeight: "100vh",
         }}
@@ -101,7 +151,7 @@ export const ToursDetails = () => {
               </thead>
 
               <tbody>
-                {toursList.map((tour) => (
+                {[...toursList].reverse().map((tour) => (
                   <tr key={tour.id}>
                     <td>{tour.building || "N/A"}</td>
                     <td>{tour.user_email || "N/A"}</td>
@@ -111,30 +161,39 @@ export const ToursDetails = () => {
                     <td>{tour.broker || "N/A"}</td>
 
                     <td>
-                      <button
-                        className="btn btn-sm text-white me-2"
-                        style={{
-                          backgroundColor: "#217ae6",
-                          borderColor: "#217ae6",
-                          padding: "4px 12px",
-                        }}
-                        onClick={() => openViewModal(tour)}
-                      >
-                        View Notes
-                      </button>
+                      <div className="d-flex align-items-center flex-nowrap gap-2 overflow-auto">
+                        <button
+                          className="btn btn-sm text-white flex-shrink-0"
+                          style={{
+                            backgroundColor: "#217ae6",
+                            borderColor: "#217ae6",
+                            padding: "4px 12px",
+                            whiteSpace: "nowrap",
+                          }}
+                          onClick={() => openViewModal(tour)}
+                        >
+                          Notes
+                        </button>
 
-                      <button
-                        className="btn btn-sm btn-outline-secondary"
-                        style={{ padding: "4px 12px" }}
-                        onClick={() => openDeleteModal(tour.id)}
-                        disabled={deleteLoading && deleteId === tour.id}
-                      >
-                        {deleteLoading && deleteId === tour.id ? (
-                          <span className="spinner-border spinner-border-sm"></span>
-                        ) : (
-                          <i className="bi bi-trash"></i>
-                        )}
-                      </button>
+                        <button
+                          className="btn btn-sm btn-outline-primary flex-shrink-0"
+                          onClick={() => handleEdit(tour)}
+                        >
+                          <i className="bi bi-pencil"></i>
+                        </button>
+
+                        <button
+                          className="btn btn-sm btn-outline-secondary flex-shrink-0"
+                          onClick={() => openDeleteModal(tour.id)}
+                          disabled={deleteLoading && deleteId === tour.id}
+                        >
+                          {deleteLoading && deleteId === tour.id ? (
+                            <span className="spinner-border spinner-border-sm"></span>
+                          ) : (
+                            <i className="bi bi-trash"></i>
+                          )}
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 ))}
@@ -169,7 +228,7 @@ export const ToursDetails = () => {
               <p>
                 <strong>Notes:</strong>
               </p>
-              <p className="text-muted">
+              <p className="">
                 {selectedTour.notes || "No notes available"}
               </p>
             </>
@@ -217,6 +276,103 @@ export const ToursDetails = () => {
             disabled={deleteLoading}
           >
             {deleteLoading ? "Deleting..." : "Yes, Delete"}
+          </Button>
+        </Modal.Footer>
+      </Modal>
+      <Modal show={editModal} onHide={() => setEditModal(false)} centered>
+        <Modal.Header closeButton>
+          <Modal.Title>Edit Tour</Modal.Title>
+        </Modal.Header>
+
+        <Modal.Body>
+          <div className="mb-2">
+            <label>Date</label>
+            <input
+              type="datetime-local"
+              className="form-control"
+              value={editForm.date?.slice(0, 16)}
+              onChange={(e) =>
+                setEditForm({ ...editForm, date: e.target.value })
+              }
+            />
+          </div>
+
+          <div className="mb-2">
+            <label>Building</label>
+            <input
+              className="form-control"
+              value={editForm.building}
+              disabled={updateLoading}
+              onChange={(e) =>
+                setEditForm({ ...editForm, building: e.target.value })
+              }
+            />
+          </div>
+
+          <div className="mb-2">
+            <label>Floor Suite</label>
+            <input
+              className="form-control"
+              value={editForm.floor_suite}
+              disabled={updateLoading}
+              onChange={(e) =>
+                setEditForm({ ...editForm, floor_suite: e.target.value })
+              }
+            />
+          </div>
+
+          <div className="mb-2">
+            <label>Tenant</label>
+            <input
+              className="form-control"
+              value={editForm.tenant}
+              disabled={updateLoading}
+              onChange={(e) =>
+                setEditForm({ ...editForm, tenant: e.target.value })
+              }
+            />
+          </div>
+
+          <div className="mb-2">
+            <label>Broker</label>
+            <input
+              className="form-control"
+              value={editForm.broker}
+              disabled={updateLoading}
+              onChange={(e) =>
+                setEditForm({ ...editForm, broker: e.target.value })
+              }
+            />
+          </div>
+
+          <div>
+            <label>Notes</label>
+            <textarea
+              className="form-control"
+              rows="3"
+              value={editForm.notes}
+              disabled={updateLoading}
+              onChange={(e) =>
+                setEditForm({ ...editForm, notes: e.target.value })
+              }
+            />
+          </div>
+        </Modal.Body>
+
+        <Modal.Footer>
+          <Button
+            variant="secondary"
+            onClick={handleUpdate}
+            disabled={updateLoading}
+          >
+            {updateLoading ? (
+              <>
+                <span className="spinner-border spinner-border-sm me-2"></span>
+                Updating...
+              </>
+            ) : (
+              "Save Changes"
+            )}
           </Button>
         </Modal.Footer>
       </Modal>

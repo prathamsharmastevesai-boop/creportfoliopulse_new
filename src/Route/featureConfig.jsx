@@ -1,5 +1,4 @@
 export const FEATURE_KEYS = {
-
   DASHBOARD: "building_info_enabled",
   USER_PROFILE: "profile_section",
   HISTORY: "chat_history",
@@ -17,9 +16,9 @@ export const FEATURE_KEYS = {
   COLLEAGUE_CHAT: "employee_contact_enabled",
   MARKET_CHAT: "comps_enabled",
   TENANT_CHAT: "tenant_information_enabled",
-  TENANT_MARKET :"tenants_in_the_market_enabled",
-  FIRESAFETY :"fire_safety_enabled",
-
+  TENANT_MARKET: "tenants_in_the_market_enabled",
+  FIRESAFETY: "fire_safety_enabled",
+  WORKLETTER: "project_management_enabled",
   DCT_CHAT: "dct_enabled",
 
   CHAT_SYSTEM: "gemini_chat_enabled",

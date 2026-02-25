@@ -1,7 +1,6 @@
 import { FEATURE_KEYS } from "./featureConfig";
 
 export const USER_ROUTE_FEATURE_MAP = {
-
   "/dashboard": [FEATURE_KEYS.USER_BUILDING_LIST],
   "/user-profile": [FEATURE_KEYS.USER_PROFILE],
   "/history": [FEATURE_KEYS.HISTORY],
@@ -21,9 +20,10 @@ export const USER_ROUTE_FEATURE_MAP = {
   "/employee-info-chat": [FEATURE_KEYS.COLLEAGUE_CHAT],
   "/building-chat": [FEATURE_KEYS.USER_BUILDING_LIST],
   "/comps-chat": [FEATURE_KEYS.MARKET_CHAT],
-  "/user-fire-safety-building-mechanicals":[FEATURE_KEYS.FIRESAFETY],
+  "/user-fire-safety-building-mechanicals": [FEATURE_KEYS.FIRESAFETY],
+  "user-fire-safety-building-mechanicals-list": [FEATURE_KEYS.FIRESAFETY],
   "/tenent-info-user-building-list": [FEATURE_KEYS.TENANT_CHAT],
-  "/tenant-information-chat":[FEATURE_KEYS.TENANT_CHAT],
+  "/tenant-information-chat": [FEATURE_KEYS.TENANT_CHAT],
   "/dct-chat": [FEATURE_KEYS.DCT_CHAT],
   "/gemini-chat": [FEATURE_KEYS.GEMINI],
   "/user-building-info-list": [FEATURE_KEYS.USER_BUILDING_LIST],
@@ -46,4 +46,7 @@ export const USER_ROUTE_FEATURE_MAP = {
   "/information-collaboration": [FEATURE_KEYS.INFORMATION_COLLABORATION],
   "/benchmark": [FEATURE_KEYS.BENCHMARK],
   "/distilled-comp-tracker": [FEATURE_KEYS.DISTILLED_COMP],
+  "/project-management": [FEATURE_KEYS.WORKLETTER],
+  "/projects": [FEATURE_KEYS.WORKLETTER],
+  "/work-letter": [FEATURE_KEYS.WORKLETTER],
 };

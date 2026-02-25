@@ -8,9 +8,11 @@ import {
   getAdminlistApi,
   inviteAdminApi,
 } from "../../../Networking/SuperAdmin/AdminSuperApi";
+import { useNavigate } from "react-router-dom";
 
 export const AdminManagement = () => {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
 
   const [email, setEmail] = useState("");
   const [admin, setadmin] = useState([]);
@@ -21,8 +23,7 @@ export const AdminManagement = () => {
   const [errors, setErrors] = useState({});
   const [deletingUser, setDeletingUser] = useState({});
   const [showConfirm, setShowConfirm] = useState(false);
-const [selectedEmail, setSelectedEmail] = useState(null);
-
+  const [selectedEmail, setSelectedEmail] = useState(null);
 
   useEffect(() => {
     fetchadmin();
@@ -41,43 +42,40 @@ const [selectedEmail, setSelectedEmail] = useState(null);
   };
 
   const confirmDelete = async () => {
-  if (!selectedEmail) return;
+    if (!selectedEmail) return;
 
-  try {
-    setDeletingUser((prev) => ({ ...prev, [selectedEmail]: true }));
+    try {
+      setDeletingUser((prev) => ({ ...prev, [selectedEmail]: true }));
 
-    const data = await dispatch(DeleteUser(selectedEmail)).unwrap();
-    toast.success(data.message || "User deleted successfully");
+      const data = await dispatch(DeleteUser(selectedEmail)).unwrap();
+      toast.success(data.message || "User deleted successfully");
 
-    fetchadmin();
-    setShowConfirm(false);
-    setSelectedEmail(null);
-  } catch (error) {
-    console.error("Failed to delete user:", error);
-  } finally {
-    setDeletingUser((prev) => ({ ...prev, [selectedEmail]: false }));
-  }
-};
-
+      fetchadmin();
+      setShowConfirm(false);
+      setSelectedEmail(null);
+    } catch (error) {
+      console.error("Failed to delete user:", error);
+    } finally {
+      setDeletingUser((prev) => ({ ...prev, [selectedEmail]: false }));
+    }
+  };
 
   const handleInviteAdmin = async () => {
     const newErrors = {};
 
     const noLeadingSpace = /^\S.*$/;
 
-if (!admin_name)
-  newErrors.admin_name = "Admin Name is required";
-else if (!noLeadingSpace.test(admin_name))
-  newErrors.admin_name = "Enter a valid Admin Name";
-else if (admin_name.length < 3)
-  newErrors.admin_name = "Admin Name must be at least 3 characters";
+    if (!admin_name) newErrors.admin_name = "Admin Name is required";
+    else if (!noLeadingSpace.test(admin_name))
+      newErrors.admin_name = "Enter a valid Admin Name";
+    else if (admin_name.length < 3)
+      newErrors.admin_name = "Admin Name must be at least 3 characters";
 
-if (!company_name)
-  newErrors.company_name = "Company Name is required";
-else if (!noLeadingSpace.test(company_name))
-  newErrors.company_name = "Enter a valid Company Name";
-else if (company_name.length < 3)
-  newErrors.company_name = "Company Name must be at least 3 characters";
+    if (!company_name) newErrors.company_name = "Company Name is required";
+    else if (!noLeadingSpace.test(company_name))
+      newErrors.company_name = "Enter a valid Company Name";
+    else if (company_name.length < 3)
+      newErrors.company_name = "Company Name must be at least 3 characters";
 
     if (!email) {
       newErrors.email = "Email is required";
@@ -97,7 +95,7 @@ else if (company_name.length < 3)
     setInviteLoading(true);
     try {
       await dispatch(
-        inviteAdminApi({ email, company_name, admin_name })
+        inviteAdminApi({ email, company_name, admin_name }),
       ).unwrap();
       setEmail("");
       setcompany_name("");
@@ -105,7 +103,6 @@ else if (company_name.length < 3)
       fetchadmin();
     } catch (err) {
       console.error("Invite failed:", err);
-     
     } finally {
       setInviteLoading(false);
     }
@@ -256,22 +253,35 @@ else if (company_name.length < 3)
                       <td>{user.display || user.name}</td>
                       <td>{new Date(user.created).toLocaleDateString()}</td>
                       <td>
-                        {user.actions?.includes("delete") && (
+                        <div className="d-flex gap-2">
                           <Button
                             size="sm"
-                            variant="outline-danger"
-                           onClick={() => {
-  setSelectedEmail(user.email);
-  setShowConfirm(true);
-}}
-
-                            disabled={deletingUser[user.email]}
+                            variant="outline-primary"
+                            onClick={() =>
+                              navigate("/super-admin/admin-details", {
+                                state: { admin: user },
+                              })
+                            }
                           >
-                            {deletingUser[user.email]
-                              ? "Deleting..."
-                              : "Delete"}
+                            View
                           </Button>
-                        )}
+
+                          {user.actions?.includes("delete") && (
+                            <Button
+                              size="sm"
+                              variant="outline-danger"
+                              onClick={() => {
+                                setSelectedEmail(user.email);
+                                setShowConfirm(true);
+                              }}
+                              disabled={deletingUser[user.email]}
+                            >
+                              {deletingUser[user.email]
+                                ? "Deleting..."
+                                : "Delete"}
+                            </Button>
+                          )}
+                        </div>
                       </td>
                     </tr>
                   ))
@@ -288,56 +298,55 @@ else if (company_name.length < 3)
         </Card.Body>
       </Card>
       {showConfirm && (
-  <div
-    className="modal fade show d-block"
-    tabIndex="-1"
-    style={{ background: "rgba(0,0,0,0.5)" }}
-  >
-    <div className="modal-dialog modal-dialog-centered">
-      <div className="modal-content shadow">
-        <div className="modal-header">
-          <h5 className="modal-title">Confirm Delete</h5>
-          <button
-            type="button"
-            className="btn-close"
-            onClick={() => setShowConfirm(false)}
-            disabled={deletingUser[selectedEmail]}
-          />
+        <div
+          className="modal fade show d-block"
+          tabIndex="-1"
+          style={{ background: "rgba(0,0,0,0.5)" }}
+        >
+          <div className="modal-dialog modal-dialog-centered">
+            <div className="modal-content shadow">
+              <div className="modal-header">
+                <h5 className="modal-title">Confirm Delete</h5>
+                <button
+                  type="button"
+                  className="btn-close"
+                  onClick={() => setShowConfirm(false)}
+                  disabled={deletingUser[selectedEmail]}
+                />
+              </div>
+
+              <div className="modal-body">
+                <p>
+                  Are you sure you want to delete user:
+                  <strong className="ms-1">{selectedEmail}</strong>?
+                </p>
+              </div>
+
+              <div className="modal-footer">
+                <Button
+                  variant="secondary"
+                  onClick={() => setShowConfirm(false)}
+                  disabled={deletingUser[selectedEmail]}
+                >
+                  Cancel
+                </Button>
+
+                <Button
+                  variant="danger"
+                  onClick={confirmDelete}
+                  disabled={deletingUser[selectedEmail]}
+                >
+                  {deletingUser[selectedEmail] ? (
+                    <Spinner animation="border" size="sm" />
+                  ) : (
+                    "Delete"
+                  )}
+                </Button>
+              </div>
+            </div>
+          </div>
         </div>
-
-        <div className="modal-body">
-          <p>
-            Are you sure you want to delete user:
-            <strong className="ms-1">{selectedEmail}</strong>?
-          </p>
-        </div>
-
-        <div className="modal-footer">
-          <Button
-            variant="secondary"
-            onClick={() => setShowConfirm(false)}
-            disabled={deletingUser[selectedEmail]}
-          >
-            Cancel
-          </Button>
-
-          <Button
-            variant="danger"
-            onClick={confirmDelete}
-            disabled={deletingUser[selectedEmail]}
-          >
-            {deletingUser[selectedEmail] ? (
-              <Spinner animation="border" size="sm" />
-            ) : (
-              "Delete"
-            )}
-          </Button>
-        </div>
-      </div>
-    </div>
-  </div>
-)}
-
+      )}
     </div>
   );
 };

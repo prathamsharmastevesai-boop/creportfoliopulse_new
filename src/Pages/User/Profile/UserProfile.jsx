@@ -7,9 +7,10 @@ import { useDispatch, useSelector } from "react-redux";
 import { FaEdit, FaSave, FaTimes } from "react-icons/fa";
 import RAGLoader from "../../../Component/Loader";
 
-
 export const UserProfile = () => {
   const { userdata } = useSelector((state) => state.ProfileSlice);
+  console.log(userdata, "userdata");
+
   const dispatch = useDispatch();
 
   const [name, setName] = useState("");
@@ -20,7 +21,6 @@ export const UserProfile = () => {
   const [loadingProfile, setLoadingProfile] = useState(true);
   const [isEditing, setIsEditing] = useState(false);
   const [errors, setErrors] = useState({});
-
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -40,12 +40,9 @@ export const UserProfile = () => {
     if (userdata) {
       setName(userdata.name || "");
       setNumber(userdata.number || "");
-      
-  
     }
   }, [userdata]);
 
- 
   const cancelEditing = () => {
     setName(userdata.name || "");
     setNumber(userdata.number || "");
@@ -55,57 +52,54 @@ export const UserProfile = () => {
   };
 
   const validate = () => {
-  let tempErrors = {};
+    let tempErrors = {};
 
- if (!name.trim()) {
-  tempErrors.name = "Name is required";
-} else if (name.trim().length < 3) {
-  tempErrors.name = "Name must be at least 3 characters";
-} else if (name.trim().length > 20) {
-  tempErrors.name = "Name must not exceed 20 characters";
-}
+    if (!name.trim()) {
+      tempErrors.name = "Name is required";
+    } else if (name.trim().length < 3) {
+      tempErrors.name = "Name must be at least 3 characters";
+    } else if (name.trim().length > 20) {
+      tempErrors.name = "Name must not exceed 20 characters";
+    }
 
+    if (!number.trim()) {
+      tempErrors.number = "Phone number is required";
+    } else if (!/^\d+$/.test(number)) {
+      tempErrors.number = "Phone number must contain only digits";
+    } else if (number.length < 10 || number.length > 15) {
+      tempErrors.number = "Phone number must be 10–15 digits";
+    }
 
-  if (!number.trim()) {
-    tempErrors.number = "Phone number is required";
-  } else if (!/^\d+$/.test(number)) {
-    tempErrors.number = "Phone number must contain only digits";
-  } else if (number.length < 10 || number.length > 15) {
-    tempErrors.number = "Phone number must be 10–15 digits";
-  }
+    setErrors(tempErrors);
+    return Object.keys(tempErrors).length === 0;
+  };
 
-  setErrors(tempErrors);
-  return Object.keys(tempErrors).length === 0;
-};
+  const handleProfileUpdate = async (e) => {
+    e.preventDefault();
 
+    if (!validate()) return;
 
-const handleProfileUpdate = async (e) => {
-  e.preventDefault();
+    setLoading(true);
 
-  if (!validate()) return;
+    const formData = new FormData();
+    formData.append("name", name);
+    formData.append("number", number);
+    if (photoFile) formData.append("photo", photoFile);
+    if (bgPhotoFile) formData.append("bg_photo", bgPhotoFile);
 
-  setLoading(true);
-
-  const formData = new FormData();
-  formData.append("name", name);
-  formData.append("number", number);
-  if (photoFile) formData.append("photo", photoFile);
-  if (bgPhotoFile) formData.append("bg_photo", bgPhotoFile);
-
-  try {
-    await dispatch(ProfileUpdateApi(formData));
-    dispatch(getProfileDetail());
-    setIsEditing(false);
-    setPhotoFile(null);
-    setBgPhotoFile(null);
-    setErrors({});
-  } catch (error) {
-    console.error("Update failed:", error);
-   
-  } finally {
-    setLoading(false);
-  }
-};
+    try {
+      await dispatch(ProfileUpdateApi(formData));
+      dispatch(getProfileDetail());
+      setIsEditing(false);
+      setPhotoFile(null);
+      setBgPhotoFile(null);
+      setErrors({});
+    } catch (error) {
+      console.error("Update failed:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <>
@@ -163,21 +157,20 @@ const handleProfileUpdate = async (e) => {
                       <label className="form-label">Name</label>
                       <input
                         value={name}
-                      onChange={(e) => {
-                      const value = e.target.value;
+                        onChange={(e) => {
+                          const value = e.target.value;
 
-                      if (value.length > 20) {
-                        setErrors({
-                          ...errors,
-                          name: "Name cannot exceed 20 characters",
-                        });
-                        return;
-                      }
+                          if (value.length > 20) {
+                            setErrors({
+                              ...errors,
+                              name: "Name cannot exceed 20 characters",
+                            });
+                            return;
+                          }
 
-                      setName(value);
-                      setErrors({ ...errors, name: "" });
-                    }}
-
+                          setName(value);
+                          setErrors({ ...errors, name: "" });
+                        }}
                         className={`form-control ${errors.name ? "is-invalid" : ""}`}
                       />
                       {errors.name && (
@@ -197,20 +190,19 @@ const handleProfileUpdate = async (e) => {
                   ) : (
                     <>
                       <label className="form-label">Phone Number</label>
-                     <input
-                      value={number}
-                      onChange={(e) => {
-                        const value = e.target.value.replace(/\D/g, ""); 
-                        setNumber(value);
-                        setErrors({ ...errors, number: "" });
-                      }}
-                      className={`form-control ${errors.number ? "is-invalid" : ""}`}
-                      maxLength={15}
-                    />
-                    {errors.number && (
-                      <div className="invalid-feedback">{errors.number}</div>
-                    )}
-
+                      <input
+                        value={number}
+                        onChange={(e) => {
+                          const value = e.target.value.replace(/\D/g, "");
+                          setNumber(value);
+                          setErrors({ ...errors, number: "" });
+                        }}
+                        className={`form-control ${errors.number ? "is-invalid" : ""}`}
+                        maxLength={15}
+                      />
+                      {errors.number && (
+                        <div className="invalid-feedback">{errors.number}</div>
+                      )}
                     </>
                   )}
                 </div>

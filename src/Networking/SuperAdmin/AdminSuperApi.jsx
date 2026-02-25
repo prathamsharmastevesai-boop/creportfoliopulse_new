@@ -13,7 +13,7 @@ export const inviteAdminApi = createAsyncThunk(
     } catch (error) {
       return rejectWithValue(error.response?.data?.message);
     }
-  }
+  },
 );
 
 export const getAdminlistApi = createAsyncThunk(
@@ -25,5 +25,50 @@ export const getAdminlistApi = createAsyncThunk(
     } catch (error) {
       return rejectWithValue(error.response?.data?.message);
     }
-  }
+  },
+);
+
+export const fetchAdminStatsApi = createAsyncThunk(
+  "admin/fetchStats",
+  async (user_id, { rejectWithValue }) => {
+    try {
+      const token = localStorage.getItem("token");
+
+      const res = await axiosInstance.get(`/admin/stats?user_id=${user_id}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      return res.data;
+    } catch (error) {
+      return rejectWithValue(
+        error.response?.data || "Failed to fetch admin stats",
+      );
+    }
+  },
+);
+
+export const fetchAdminAnalyticsApi = createAsyncThunk(
+  "admin/fetchAnalytics",
+  async ({ user_id, days = 7 }, { rejectWithValue }) => {
+    try {
+      const token = localStorage.getItem("token");
+
+      const res = await axiosInstance.get(
+        `/admin/analytics?days=${days}&user_id=${user_id}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        },
+      );
+
+      return res.data;
+    } catch (error) {
+      return rejectWithValue(
+        error.response?.data || "Failed to fetch admin analytics",
+      );
+    }
+  },
 );

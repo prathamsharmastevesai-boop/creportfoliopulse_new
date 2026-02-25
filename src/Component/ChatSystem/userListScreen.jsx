@@ -1,7 +1,53 @@
 import React, { useEffect, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { getAdminlistApi } from "../../Networking/SuperAdmin/AdminSuperApi";
+import "./chatSystem.css";
+
+const BackIcon = () => (
+  <svg
+    width="22"
+    height="22"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2.5"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  >
+    <polyline points="15 18 9 12 15 6" />
+  </svg>
+);
+
+const SearchIcon = () => (
+  <svg
+    width="18"
+    height="18"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+  >
+    <circle cx="11" cy="11" r="8" />
+    <line x1="21" y1="21" x2="16.65" y2="16.65" />
+  </svg>
+);
+
+const AVATAR_COLORS = [
+  "#1E6B5E",
+  "#2C6E8A",
+  "#6B3F8A",
+  "#8A5C2E",
+  "#2E6B3F",
+  "#7A2E2E",
+  "#2E517A",
+  "#5C2E7A",
+];
+const avatarColor = (name = "") => {
+  const idx = (name.charCodeAt(0) || 0) % AVATAR_COLORS.length;
+  return AVATAR_COLORS[idx];
+};
 
 export const UserListScreen = () => {
   const dispatch = useDispatch();
@@ -9,19 +55,15 @@ export const UserListScreen = () => {
 
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
-
-
-  const { userStatus } = useSelector(
-    (state) => state.chatSystemSlice || {}
-  );
+  const [search, setSearch] = useState("");
 
   const fetchUsers = async () => {
     try {
       setLoading(true);
-      const UsersData = await dispatch(getAdminlistApi()).unwrap();
-      setUsers(UsersData || []);
+      const data = await dispatch(getAdminlistApi()).unwrap();
+      setUsers(data);
     } catch (err) {
-      console.error("Failed to fetch users", err);
+      console.error("Failed to fetch users:", err);
     } finally {
       setLoading(false);
     }
@@ -34,88 +76,113 @@ export const UserListScreen = () => {
   const handleUserClick = (user) => {
     navigate(`/chat/new`, {
       state: {
-        receiver_id: user.id,
+        receiver_id: user.user_id,
         name: user.name,
       },
     });
   };
 
+  const filtered = users.filter((u) =>
+    u.name?.toLowerCase().includes(search.toLowerCase()),
+  );
+
   return (
-    <div className="border-end bg-white h-100 d-flex flex-column">
+    <>
+      <style>{`
+        @keyframes pulse {
+          0%,100% { opacity:0.4 }
+          50%      { opacity:0.75 }
+        }
+        @keyframes slideIn {
+          from { opacity:0; transform:translateY(8px) }
+          to   { opacity:1; transform:translateY(0) }
+        }
+        ::-webkit-scrollbar { width:4px }
+        ::-webkit-scrollbar-track { background:transparent }
+        ::-webkit-scrollbar-thumb { background:var(--border-color); border-radius:4px }
+        .user-item:hover { background:var(--bg-secondary) !important }
+        .back-btn:hover  { background:var(--bg-secondary) !important }
+        .user-item {
+          animation: slideIn 0.2s ease both;
+        }
+      `}</style>
 
-      <div className="p-3 border-bottom fw-bold fs-5">
-        Select contact
-      </div>
+      <div className="userlist-root">
+        <div className="userlist-header">
+          <button
+            className="back-btn"
+            onClick={() => navigate(-1)}
+            title="Back"
+          >
+            <BackIcon />
+          </button>
+          <span className="header-title">New Chat</span>
+        </div>
 
-      <div
-        className="list-group list-group-flush overflow-auto"
-        style={{ maxHeight: "calc(100vh - 70px)" }}
-      >
-        {loading &&
-          Array.from({ length: 6 }).map((_, i) => (
-            <div
-              key={i}
-              className="list-group-item d-flex gap-3 placeholder-glow"
-            >
-              <div
-                className="placeholder rounded-circle"
-                style={{ width: 48, height: 48 }}
-              ></div>
+        <div className="search-wrap">
+          <div className="search-inner">
+            <SearchIcon />
+            <input
+              className="search-input"
+              placeholder="Search name"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+            />
+          </div>
+        </div>
 
-              <div className="flex-grow-1">
-                <span className="placeholder col-6"></span>
-                <span className="placeholder col-9 mt-2"></span>
-              </div>
-            </div>
-          ))}
-
-        {!loading && users.length === 0 && (
-          <div className="text-center text-muted py-4">
-            No users found
+        {!loading && filtered.length > 0 && (
+          <div className="section-label">
+            Contacts on App &nbsp;·&nbsp; {filtered.length}
           </div>
         )}
 
-        {!loading &&
-          users.map((user) => {
-            const isOnline = userStatus?.[user.id]?.online === true;
+        <div className="userlist-list">
+          {loading &&
+            Array.from({ length: 8 }).map((_, i) => (
+              <div className="skel-item">
+                <div className="skel-avatar" />
+                <div className="skel-lines">
+                  <div className="skel-line" style={{ width: "45%" }} />
+                  <div className="skel-line" style={{ width: "65%" }} />
+                </div>
+              </div>
+            ))}
 
-            return (
+          {!loading && filtered.length === 0 && (
+            <div className="empty">
+              <span className="empty-icon">🔍</span>
+              <span className="empty-text">
+                {search ? "No users match your search" : "No users available"}
+              </span>
+            </div>
+          )}
+
+          {!loading &&
+            filtered.map((user, i) => (
               <button
-                key={user.id}
+                key={user.id ?? user.user_id}
+                className="user-item"
+                style={{ animationDelay: `${i * 30}ms` }}
                 onClick={() => handleUserClick(user)}
-                className="list-group-item list-group-item-action d-flex align-items-center gap-3"
               >
-
-                <div className="position-relative">
-                  <div
-                    className="rounded-circle bg-secondary text-white d-flex align-items-center justify-content-center fw-semibold"
-                    style={{ width: 48, height: 48 }}
-                  >
-                    {user.name?.[0]?.toUpperCase() || "U"}
-                  </div>
-
-           
-                  <span
-                    className={`position-absolute bottom-0 end-0 rounded-circle border border-white ${isOnline ? "bg-success" : "bg-secondary"
-                      }`}
-                    style={{ width: 12, height: 12 }}
-                  ></span>
+                <div
+                  className="avatar"
+                  style={{ background: avatarColor(user.name) }}
+                >
+                  {user.name?.[0]?.toUpperCase() || "?"}
                 </div>
 
-       
-                <div className="flex-grow-1 text-start overflow-hidden">
-                  <div className="fw-semibold text-truncate">
-                    {user.name}
-                  </div>
-
-                  <div className="text-muted text-truncate">
-                    {isOnline ? "Online" : "Tap to start chat"}
-                  </div>
+                <div className="text-block">
+                  <div className="name">{user.name}</div>
+                  <div className="sub">Tap to start chat</div>
                 </div>
+
+                <span className="arrow">›</span>
               </button>
-            );
-          })}
+            ))}
+        </div>
       </div>
-    </div>
+    </>
   );
 };

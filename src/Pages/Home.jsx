@@ -24,7 +24,6 @@ export const Home = () => {
     fetchHealth();
   }, [dispatch]);
 
-
   useEffect(() => {
     const token = sessionStorage.getItem("access_token");
     const role = sessionStorage.getItem("role");
@@ -32,7 +31,7 @@ export const Home = () => {
     if (!token || !role) return;
 
     if (role === "user") {
-      navigate("/user-profile", { replace: true });
+      navigate("/dashboard", { replace: true });
     } else if (role === "admin") {
       navigate("/admin-dashboard", { replace: true });
     } else if (role === "superuser") {
@@ -70,7 +69,7 @@ export const Home = () => {
         <div className="d-grid gap-3">
           <button
             className="btn btn-outline-dark btn-lg d-flex align-items-center justify-content-center gap-2"
-            onClick={() => navigate("/login")}
+            onClick={() => navigate("/")}
           >
             <FaUser /> Login
           </button>

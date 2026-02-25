@@ -12,7 +12,7 @@ export const get_Threads_Api = createAsyncThunk(
     } catch (error) {
       return rejectWithValue(error);
     }
-  }
+  },
 );
 
 export const createThread = createAsyncThunk(
@@ -23,10 +23,10 @@ export const createThread = createAsyncThunk(
       return response.data;
     } catch (error) {
       return rejectWithValue(
-        error.response?.data?.message || "Something went wrong"
+        error.response?.data?.message || "Something went wrong",
       );
     }
-  }
+  },
 );
 
 export const deleteThreadsApi = createAsyncThunk(
@@ -34,43 +34,39 @@ export const deleteThreadsApi = createAsyncThunk(
   async ({ thread_id }, { rejectWithValue }) => {
     try {
       const response = await axiosInstance.delete(
-        `/forum/threads/${thread_id}`
+        `/forum/threads/${thread_id}`,
       );
       return { thread_id };
     } catch (error) {
       return rejectWithValue(error.response?.data || error.message);
     }
-  }
+  },
 );
 
 export const createThoughtApi = createAsyncThunk(
-  "forum/createThoughtApi",
-  async ({ thread_id, content }, { rejectWithValue }) => {
-    try {
-      const response = await axiosInstance.post(
-        `/forum/threads/${thread_id}/thoughts`,
-        { content }
-      );
-      return response.data;
-    } catch (error) {
-      return rejectWithValue(error.response?.data || error.message);
-    }
-  }
+  "forum/createThought",
+  async ({ thread_id, data }) => {
+    const res = await axiosInstance.post(
+      `/forum/threads/${thread_id}/thoughts`,
+      data,
+    );
+    return res.data;
+  },
 );
 
 export const updateThoughtApi = createAsyncThunk(
   "updateThoughtApi",
-  async ({ thread_id, thought_id, content }, { rejectWithValue }) => {
+  async ({ thread_id, thought_id, data }, { rejectWithValue }) => {
     try {
       const response = await axiosInstance.patch(
         `/forum/threads/${thread_id}/thoughts/${thought_id}`,
-        { content }
+        data,
       );
       return response.data;
     } catch (error) {
       return rejectWithValue(error.response?.data || error.message);
     }
-  }
+  },
 );
 
 export const getThreadhistory = createAsyncThunk(
@@ -82,7 +78,7 @@ export const getThreadhistory = createAsyncThunk(
     } catch (error) {
       return rejectWithValue(error);
     }
-  }
+  },
 );
 
 export const deleteThoughtApi = createAsyncThunk(
@@ -90,13 +86,13 @@ export const deleteThoughtApi = createAsyncThunk(
   async ({ thread_id, thought_id }, { rejectWithValue }) => {
     try {
       const response = await axiosInstance.delete(
-        `/forum/threads/${thread_id}/thoughts/${thought_id}`
+        `/forum/threads/${thread_id}/thoughts/${thought_id}`,
       );
       return { thread_id, thought_id };
     } catch (error) {
       return rejectWithValue(error.response?.data || error.message);
     }
-  }
+  },
 );
 
 export const getBenchmark = createAsyncThunk(
@@ -114,10 +110,10 @@ export const getBenchmark = createAsyncThunk(
       return response.data;
     } catch (error) {
       return rejectWithValue(
-        error.response?.data || "Failed to fetch benchmark"
+        error.response?.data || "Failed to fetch benchmark",
       );
     }
-  }
+  },
 );
 
 export const toggleForumApi = createAsyncThunk(
@@ -125,15 +121,15 @@ export const toggleForumApi = createAsyncThunk(
   async ({ email, enable }, { rejectWithValue }) => {
     try {
       const response = await axiosInstance.patch(
-        ToggleForum + `?email=${email}&enable=${enable}`
+        ToggleForum + `?email=${email}&enable=${enable}`,
       );
       return response.data;
     } catch (error) {
       return rejectWithValue(
-        error.response?.data?.message || "Failed to toggle Gemini"
+        error.response?.data?.message || "Failed to toggle Gemini",
       );
     }
-  }
+  },
 );
 
 export const toggleUserFeaturesApi = createAsyncThunk(
@@ -142,13 +138,13 @@ export const toggleUserFeaturesApi = createAsyncThunk(
     try {
       const response = await axiosInstance.patch(
         `/feature_toggle/${email}`,
-        features
+        features,
       );
       return response.data;
     } catch (error) {
       return rejectWithValue(
-        error.response?.data?.message || "Failed to update user features"
+        error.response?.data?.message || "Failed to update user features",
       );
     }
-  }
+  },
 );

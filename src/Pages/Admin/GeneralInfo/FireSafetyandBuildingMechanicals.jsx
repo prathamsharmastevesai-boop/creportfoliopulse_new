@@ -3,8 +3,8 @@ import { useLocation } from "react-router-dom";
 
 export const FireSafetyandBuildingMechanicals = () => {
   const location = useLocation();
-  const buildingId = location?.state?.buildingId;
-  const category = "FireSafety"
+  const buildingId = location.state?.office?.buildingId;
+  const category = "FireSafety";
 
   return (
     <DocumentManager

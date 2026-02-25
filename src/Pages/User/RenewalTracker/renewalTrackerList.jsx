@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import "bootstrap-icons/font/bootstrap-icons.css";
 import "bootstrap/dist/css/bootstrap.min.css";
@@ -32,6 +32,10 @@ export const RenewalTrackerList = () => {
   });
   const [detailLoading, setDetailLoading] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+  const [sortConfig, setSortConfig] = useState({
+    key: null,
+    direction: "asc",
+  });
 
   const confirmDelete = (id, name) => {
     setDeleteModal({
@@ -45,6 +49,42 @@ export const RenewalTrackerList = () => {
   useEffect(() => {
     dispatch(GetRenewalTrackerList());
   }, [dispatch]);
+
+  const handleSort = (key) => {
+    setSortConfig((prev) => {
+      if (prev.key === key) {
+        return {
+          key,
+          direction: prev.direction === "asc" ? "desc" : "asc",
+        };
+      }
+      return { key, direction: "asc" };
+    });
+  };
+
+  const sortedList = useMemo(() => {
+    if (!list) return [];
+
+    let sortable = [...list];
+
+    if (!sortConfig.key) return sortable;
+
+    sortable.sort((a, b) => {
+      let valA = a.data[sortConfig.key];
+      let valB = b.data[sortConfig.key];
+
+      if (sortConfig.key.includes("date")) {
+        valA = new Date(valA || 0).getTime();
+        valB = new Date(valB || 0).getTime();
+      }
+
+      if (valA < valB) return sortConfig.direction === "asc" ? -1 : 1;
+      if (valA > valB) return sortConfig.direction === "asc" ? 1 : -1;
+      return 0;
+    });
+
+    return sortable;
+  }, [list, sortConfig]);
 
   const openDetailModal = async (id, edit = false) => {
     setShowModal(true);
@@ -175,7 +215,7 @@ export const RenewalTrackerList = () => {
             q3: detail.data.q3,
             q4: detail.data.q4,
           },
-        })
+        }),
       ).unwrap();
 
       dispatch(GetRenewalTrackerList());
@@ -334,7 +374,6 @@ export const RenewalTrackerList = () => {
         </button>
       </div>
       <div className="container-fuild p-4">
-
         {loading && (
           <div
             style={{
@@ -359,19 +398,40 @@ export const RenewalTrackerList = () => {
             <table className="table align-middle">
               <thead>
                 <tr className="table-light text-uppercase small fw-bold">
-                  <th>Tenant Name</th>
-                  <th>Floor / Suite</th>
-                  <th>Commencement Date</th>
-                  <th>Expiration Date</th>
-                  <th>Headcount</th>
-                  <th>Building Address</th>
-                  <th>Last Edited By</th>
-                  <th className="text-center">Actions</th>
+                  <th className="text-nowrap">Tenant Name</th>
+                  <th className="text-nowrap">Floor / Suite</th>
+                  <th className="text-nowrap">Commencement Date</th>
+
+                  <th
+                    className="text-nowrap"
+                    role="button"
+                    onClick={() => handleSort("lease_expiration_date")}
+                    style={{ cursor: "pointer" }}
+                  >
+                    Expiration Date{" "}
+                    {sortConfig.key === "lease_expiration_date" &&
+                      (sortConfig.direction === "asc" ? " ↑" : " ↓")}
+                  </th>
+
+                  <th
+                    className="text-nowrap"
+                    role="button"
+                    onClick={() => handleSort("tenant_headcount")}
+                    style={{ cursor: "pointer" }}
+                  >
+                    Headcount{" "}
+                    {sortConfig.key === "tenant_headcount" &&
+                      (sortConfig.direction === "asc" ? " ↑" : " ↓")}
+                  </th>
+
+                  <th className="text-nowrap">Building Address</th>
+                  <th className="text-nowrap">Last Edited By</th>
+                  <th className="text-nowrap text-center">Actions</th>
                 </tr>
               </thead>
 
               <tbody className="text-center">
-                {list.map((item) => (
+                {sortedList.map((item) => (
                   <tr key={item.id} className="border-bottom">
                     <td>{item?.data?.tenant_name || "N/A"}</td>
                     <td>{item?.data?.floor_suite || "N/A"}</td>
@@ -417,17 +477,16 @@ export const RenewalTrackerList = () => {
                       >
                         <i className="bi bi-pencil-square"></i>
                       </button>
-                 
-                        <button
-                          className="btn btn-outline-danger btn-sm rounded-circle"
-                          onClick={() =>
-                            confirmDelete(item.id, item?.data?.tenant_name)
-                          }
-                          title="Delete"
-                        >
-                          <i className="bi bi-trash3"></i>
-                        </button>
-              
+
+                      <button
+                        className="btn btn-outline-danger btn-sm rounded-circle"
+                        onClick={() =>
+                          confirmDelete(item.id, item?.data?.tenant_name)
+                        }
+                        title="Delete"
+                      >
+                        <i className="bi bi-trash3"></i>
+                      </button>
                     </td>
                   </tr>
                 ))}
@@ -628,7 +687,7 @@ export const RenewalTrackerList = () => {
                             className="form-control"
                             name="lease_commencement_date"
                             value={formatDateForInput(
-                              detail?.data?.lease_commencement_date
+                              detail?.data?.lease_commencement_date,
                             )}
                             onChange={handleChange}
                           />
@@ -636,7 +695,7 @@ export const RenewalTrackerList = () => {
                           <p className="mb-0">
                             {detail?.data?.lease_commencement_date?.slice(
                               0,
-                              10
+                              10,
                             ) || "N/A"}
                           </p>
                         )}
@@ -652,7 +711,7 @@ export const RenewalTrackerList = () => {
                             className="form-control"
                             name="lease_expiration_date"
                             value={formatDateForInput(
-                              detail?.data?.lease_expiration_date
+                              detail?.data?.lease_expiration_date,
                             )}
                             onChange={handleChange}
                           />
@@ -660,7 +719,7 @@ export const RenewalTrackerList = () => {
                           <p className="mb-0">
                             {detail?.data?.lease_expiration_date?.slice(
                               0,
-                              10
+                              10,
                             ) || "N/A"}
                           </p>
                         )}
@@ -676,7 +735,7 @@ export const RenewalTrackerList = () => {
                             className="form-control"
                             name="notice_of_renewal_date"
                             value={formatDateForInput(
-                              detail?.data?.notice_of_renewal_date
+                              detail?.data?.notice_of_renewal_date,
                             )}
                             onChange={handleChange}
                           />
@@ -684,7 +743,7 @@ export const RenewalTrackerList = () => {
                           <p className="mb-0">
                             {detail?.data?.notice_of_renewal_date?.slice(
                               0,
-                              10
+                              10,
                             ) || "N/A"}
                           </p>
                         )}
@@ -789,11 +848,12 @@ export const RenewalTrackerList = () => {
                         )}
                       </div>
                       <div className="col-12 mt-4">
-                        <h5 className="fw-bold border-bottom pb-2 mb-3">Notes</h5>
+                        <h5 className="fw-bold border-bottom pb-2 mb-3">
+                          Notes
+                        </h5>
                       </div>
 
                       <div className="col-12">
-                     
                         {isEdit ? (
                           <textarea
                             className="form-control"
@@ -804,9 +864,7 @@ export const RenewalTrackerList = () => {
                             placeholder="Enter any notes related to this renewal..."
                           />
                         ) : (
-                          <p className="mb-0">
-                            {detail?.data?.notes || "N/A"}
-                          </p>
+                          <p className="mb-0">{detail?.data?.notes || "N/A"}</p>
                         )}
                       </div>
 

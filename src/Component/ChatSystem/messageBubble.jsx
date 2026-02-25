@@ -1,200 +1,298 @@
-import { useEffect, useRef, useMemo } from "react";
+import { useEffect, useState, useRef } from "react";
+import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { downloadFileApi } from "../../Networking/User/APIs/ChatSystem/chatSystemApi";
+import axiosInstance from "../../Networking/Admin/APIs/AxiosInstance";
+import {
+  fetchFileUrl,
+  fetchMessages,
+} from "../../Networking/User/APIs/ChatSystem/chatSystemApi";
+import "./chatSystem.css";
+import "./userProfile.css";
+import { format, isToday, isYesterday } from "date-fns";
 
-const ChatMessages = ({ messages = [], myUserId, conversationId }) => {
-  const bottomRef = useRef(null);
-  const firstScroll = useRef(false);
+const SpinnerIcon = () => (
+  <svg
+    width="18"
+    height="18"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2.5"
+    strokeLinecap="round"
+    style={{ animation: "spin 0.8s linear infinite" }}
+  >
+    <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83" />
+  </svg>
+);
+
+export const ChatMessages = ({
+  messages,
+  myUserId,
+  conversationId,
+  highlightedMessageId,
+}) => {
   const dispatch = useDispatch();
 
-  const { typingUsers, loading } = useSelector(
-    (state) => state.chatSystemSlice
-  );
+  const fileUrls = useSelector((s) => s.chatSystemSlice.fileUrls);
+  const typingUsers = useSelector((s) => s.chatSystemSlice.typingUsers);
+
+  const [selectedMessages, setSelectedMessages] = useState([]);
+  const [selectionMode, setSelectionMode] = useState(false);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [page, setPage] = useState(1);
+  const [loadingFileId, setLoadingFileId] = useState(null);
+
+  const scrollRef = useRef(null);
+  const atBottomRef = useRef(true);
+  const prevMessagesLengthRef = useRef(messages.length);
+  const lastMessageRef = useRef(null);
+
+  const typing = typingUsers?.[conversationId] || {};
 
   useEffect(() => {
-    if (!messages.length) return;
+    setPage(1);
+    setLoadingMore(false);
+    atBottomRef.current = true;
+    prevMessagesLengthRef.current = messages.length;
+  }, [conversationId]);
 
-    if (!firstScroll.current) {
-      bottomRef.current?.scrollIntoView({ behavior: "auto" });
-      firstScroll.current = true;
-    } else {
-      bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+  const handleScroll = () => {
+    const el = scrollRef.current;
+
+    if (!el) return;
+
+    const threshold = 50;
+    atBottomRef.current =
+      el.scrollHeight - el.scrollTop - el.clientHeight < threshold;
+    if (!loadingMore && el.scrollTop < 5) {
+      setLoadingMore(true);
+      const oldHeight = el.scrollHeight;
+
+      dispatch(fetchMessages({ conversationId, page: page + 1 }))
+        .then(() => {
+          const newHeight = scrollRef.current.scrollHeight;
+          scrollRef.current.scrollTop = newHeight - oldHeight;
+          setPage((p) => p + 1);
+        })
+        .catch((err) => {
+          console.error("Failed to load older messages", err);
+        })
+        .finally(() => {
+          setLoadingMore(false);
+        });
     }
-  }, [messages]);
-
-  const downloadFile = (fileId, fileName) => {
-    dispatch(downloadFileApi({ fileId, fileName }));
   };
 
-  const typingList = useMemo(() => {
-    if (!conversationId || !typingUsers?.[conversationId]) return [];
-    return Object.entries(typingUsers[conversationId]).filter(
-      ([uid, val]) => val && Number(uid) !== Number(myUserId)
-    );
-  }, [typingUsers, conversationId, myUserId]);
+  useEffect(() => {
+    const el = scrollRef.current;
+    if (!el || !messages.length) return;
 
-   if (loading) {
-    return (
-    <div className="flex-grow-1 overflow-auto p-3 d-flex flex-column gap-2">
-        {[1, 2, 3, 4, 5, 6].map((i) => {
-          const isMe = i % 2 === 0;
+    const lastMsg = messages[messages.length - 1];
 
-          return (
-            <div
-              key={i}
-              className={`d-flex ${isMe ? "justify-content-end" : "justify-content-start"}`}
-            >
-              <div
-                className={`placeholder-glow p-3 rounded-4 shadow-sm ${isMe ? "bg-secondary bg-opacity-25" : "bg-light"
-                  }`}
-                style={{
-                  width: `${Math.floor(Math.random() * 25) + 40}%`,
-                  maxWidth: "70%",
-                }}
-              >
-                <span className="placeholder col-8 rounded-pill"></span>
-                <span className="placeholder col-5 mt-2 rounded-pill"></span>
-              </div>
-            </div>
-          );
-        })}
-      </div>
+    const isNewMessage =
+      lastMessageRef.current && lastMsg.id !== lastMessageRef.current.id;
 
-    );
-  }
+    if (isNewMessage && !loadingMore) {
+      el.scrollTop = el.scrollHeight;
+    }
 
+    lastMessageRef.current = lastMsg;
+  }, [messages, loadingMore]);
+
+  const handleFileClick = async (msg) => {
+    let url = fileUrls[msg.file_id];
+
+    try {
+      if (!url && msg.file_id) {
+        setLoadingFileId(msg.file_id);
+
+        const res = await dispatch(fetchFileUrl(msg.file_id));
+
+        if (fetchFileUrl.fulfilled.match(res)) {
+          url = res.payload.url;
+        }
+      }
+
+      if (!url) return alert("File not available");
+
+      window.open(url, "_blank");
+    } catch {
+      alert("Failed to load file");
+    } finally {
+      setLoadingFileId(null);
+    }
+  };
+
+  const deleteSelectedMessages = async () => {
+    if (!window.confirm("Delete selected messages?")) return;
+
+    try {
+      await Promise.all(
+        selectedMessages.map((id) =>
+          axiosInstance.delete(`/messenger/messages/${id}`),
+        ),
+      );
+      setSelectedMessages([]);
+      setSelectionMode(false);
+    } catch {
+      alert("Delete failed");
+    }
+  };
+
+  const toggleSelect = (id) => {
+    setSelectedMessages((prev) => {
+      if (prev.includes(id)) {
+        const updated = prev.filter((i) => i !== id);
+        if (!updated.length) setSelectionMode(false);
+        return updated;
+      }
+      setSelectionMode(true);
+      return [...prev, id];
+    });
+  };
+
+  const groupMessagesByDate = (msgs) => {
+    const groups = [];
+    let current = null;
+    let arr = [];
+
+    msgs.forEach((msg) => {
+      const d = format(new Date(msg?.created_at), "yyyy-MM-dd");
+
+      if (current !== d) {
+        if (arr.length) groups.push({ date: current, messages: arr });
+        current = d;
+        arr = [msg];
+      } else arr.push(msg);
+    });
+
+    if (arr.length) groups.push({ date: current, messages: arr });
+    return groups;
+  };
+
+  const formatDateLabel = (d) => {
+    const date = new Date(d);
+    if (isToday(date)) return "Today";
+    if (isYesterday(date)) return "Yesterday";
+    return format(date, "MMMM d, yyyy");
+  };
+
+  const groupedMessages = groupMessagesByDate(messages);
+
+  const someoneTyping = Object.entries(typing).some(
+    ([id, val]) => val && Number(id) !== Number(myUserId),
+  );
 
   return (
-    <div className="chat-messages overflow-auto p-3 d-flex flex-column gap-2">
-      {messages.map((msg) => {
-        const isMe = Number(msg.sender_id) === Number(myUserId);
-
-        return (
-          <div key={msg.id} className={`chat-bubble-wrapper ${isMe ? "me" : "other"}`}>
-            <div className={`chat-bubble ${isMe ? "me-bubble" : "other-bubble"}`}>
-              {msg.file_id ? (
-                <span
-                  onClick={() => downloadFile(msg.file_id, msg.content)}
-                  className="file-link"
-                >
-                  {msg.content}
-                </span>
-              ) : (
-                msg.content
-              )}
-              {msg.is_temp && <span className="sending-status">Sending…</span>}
-            </div>
-            <div className="timestamp">
-              {new Date(msg.created_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
-            </div>
+    <div
+      className="chat-messages"
+      ref={scrollRef}
+      onScroll={handleScroll}
+      style={{ overflowY: "auto", height: "100%" }}
+    >
+      {selectionMode && (
+        <div className="selection-header">
+          <span>{selectedMessages.length} selected</span>
+          <div className="actions">
+            <button onClick={deleteSelectedMessages}>
+              <i className="ri-delete-bin-line" />
+            </button>
+            <button
+              onClick={() => {
+                setSelectionMode(false);
+                setSelectedMessages([]);
+              }}
+            >
+              <i className="ri-close-line" />
+            </button>
           </div>
-        );
-      })}
-
-      {/* Typing indicator */}
-      {typingList.length > 0 && (
-        <div className="typing-indicator">
-          <div className="dot"></div>
-          <div className="dot"></div>
-          <div className="dot"></div>
         </div>
       )}
 
-      <div ref={bottomRef} />
+      {!messages.length ? (
+        <div className="no-messages">No messages yet</div>
+      ) : (
+        <>
+          {loadingMore && (
+            <div className="chat-loader text-center">
+              <SpinnerIcon />
+            </div>
+          )}
 
-      <style>{`
-        .chat-messages {
-          flex-grow: 1;
-          display: flex;
-          flex-direction: column;
-          gap: 8px;
-        }
+          {groupedMessages.map((group, i) => (
+            <div key={i}>
+              <div className="date-divider">{formatDateLabel(group.date)}</div>
 
-        .chat-bubble-wrapper {
-          display: flex;
-          flex-direction: column;
-          max-width: 70%;
-        }
+              {group.messages.map((msg) => {
+                const isMe = Number(msg.sender_id) === Number(myUserId);
+                const selected = selectedMessages.includes(msg.id);
+                const isHighlighted = msg.id === highlightedMessageId;
 
-        .chat-bubble-wrapper.me {
-          align-self: flex-end;
-        }
+                return (
+                  <div
+                    key={msg.id}
+                    className={`message-row ${isMe ? "me" : "other"} ${selected ? "selected" : ""
+                      } ${isHighlighted ? "highlight" : ""}`}
+                    data-message-id={msg.id}
+                    onClick={() => selectionMode && toggleSelect(msg.id)}
+                    onContextMenu={(e) => {
+                      e.preventDefault();
+                      toggleSelect(msg.id);
+                    }}
+                  >
+                    <div className={`chat-bubble ${isMe ? "me" : "other"}`}>
+                      {msg.content && <div>{msg.content}</div>}
 
-        .chat-bubble-wrapper.other {
-          align-self: flex-start;
-        }
+                      {msg.file_name && (
+                        <div className="file-attachment">
+                          {msg.file_name.match(
+                            /\.(jpg|jpeg|png|gif|webp)$/i,
+                          ) ? (
+                            loadingFileId === msg.file_id ? (
+                              <div className="file-loader">Loading...</div>
+                            ) : (
+                              <img
+                                src={msg.file_url || fileUrls[msg.file_id]}
+                                className="chat-image"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleFileClick(msg);
+                                }}
+                                alt=""
+                              />
+                            )
+                          ) : (
+                            <div
+                              className="file-card"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleFileClick(msg);
+                              }}
+                            >
+                              {loadingFileId === msg.file_id
+                                ? "Loading..."
+                                : `📄 ${msg.file_name}`}
+                            </div>
+                          )}
+                        </div>
+                      )}
 
-        .chat-bubble {
-          padding: 10px 14px;
-          border-radius: 20px;
-          position: relative;
-          word-break: break-word;
-          display: inline-block;
-          max-width: 100%;
-        }
+                      <div className="message-time">
+                        {format(new Date(msg.created_at), "HH:mm")}
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          ))}
+        </>
+      )}
 
-        .me-bubble {
-          background-color: #dcf8c6; /* WhatsApp green */
-          color: #000;
-          border-bottom-right-radius: 4px;
-        }
-
-        .other-bubble {
-          background-color: #fff;
-          color: #000;
-          border-bottom-left-radius: 4px;
-          box-shadow: 0 1px 2px rgba(0,0,0,0.2);
-        }
-
-        .timestamp {
-          font-size: 0.7rem;
-          color: #999;
-          margin-top: 2px;
-          align-self: flex-end;
-        }
-
-        .file-link {
-          text-decoration: underline;
-          cursor: pointer;
-          color: #065fd4;
-        }
-
-        .sending-status {
-          display: block;
-          font-size: 0.7rem;
-          color: #999;
-          margin-top: 2px;
-        }
-
-        .typing-indicator {
-          display: flex;
-          gap: 4px;
-          align-items: center;
-          padding: 6px 10px;
-          background: #f0f0f0;
-          border-radius: 20px;
-          width: fit-content;
-        }
-
-        .typing-indicator .dot {
-          width: 8px;
-          height: 8px;
-          background: #888;
-          border-radius: 50%;
-          animation: blink 1.4s infinite both;
-        }
-
-        .typing-indicator .dot:nth-child(2) { animation-delay: 0.2s; }
-        .typing-indicator .dot:nth-child(3) { animation-delay: 0.4s; }
-
-        @keyframes blink {
-          0% { opacity: 0.2; }
-          20% { opacity: 1; }
-          100% { opacity: 0.2; }
-        }
-      `}</style>
+      {loadingMore && (
+        <div className="chat-loader">Loading more messages...</div>
+      )}
+      {someoneTyping && <div className="typing">Typing...</div>}
     </div>
   );
 };
-
-export default ChatMessages;

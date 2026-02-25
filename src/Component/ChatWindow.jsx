@@ -32,12 +32,12 @@ export const ChatWindow = ({
   const recognitionRef = useRef(null);
 
   const [category, setCategory] = useState(
-    location.state?.type || propCategory
+    location.state?.type || propCategory,
   );
+  console.log(building_id, "building_id");
 
   const [sessionId, setSessionId] = useState(null);
-  console.log(sessionId,"sessionId");
-  
+
   const [messages, setMessages] = useState([]);
 
   const [isSending, setIsSending] = useState(false);
@@ -53,32 +53,40 @@ export const ChatWindow = ({
   const isLoading = isLoadingSession || isLoadingHistory;
 
   const getContentType = (text) => {
-    if (!text || typeof text !== 'string') return "text";
+    if (!text || typeof text !== "string") return "text";
 
     const trimmedText = text.trim();
 
-
-    if (trimmedText.startsWith('http://') ||
-      trimmedText.startsWith('https://') ||
-      trimmedText.startsWith('www.')) {
+    if (
+      trimmedText.startsWith("http://") ||
+      trimmedText.startsWith("https://") ||
+      trimmedText.startsWith("www.")
+    ) {
       try {
-        const url = new URL(trimmedText.startsWith('www.') ? 'https://' + trimmedText : trimmedText);
+        const url = new URL(
+          trimmedText.startsWith("www.")
+            ? "https://" + trimmedText
+            : trimmedText,
+        );
         const path = url.pathname.toLowerCase();
 
         if (path.match(/\.(jpg|jpeg|png|webp|gif|bmp)$/)) return "image";
-        if (path.endsWith('.pdf')) return "pdf";
+        if (path.endsWith(".pdf")) return "pdf";
         return "link";
       } catch {
         return "text";
       }
     }
 
-
     return "text";
   };
 
   useEffect(() => {
-    if (category === "floor_plan" || category === "building_stack" || category === "LOI") {
+    if (
+      category === "floor_plan" ||
+      category === "building_stack" ||
+      category === "LOI"
+    ) {
       setSessionId("building-chat");
       setIsLoadingSession(false);
       return;
@@ -96,41 +104,44 @@ export const ChatWindow = ({
       return;
     }
 
-   const fetchLastSession = async () => {
-  setIsLoadingSession(true);
-  try {
-    const res = await dispatch(
-      get_Session_List_Specific({
-        category,
-        buildingId: building_id,
-      })
-    ).unwrap();
+    const fetchLastSession = async () => {
+      setIsLoadingSession(true);
+      try {
+        const res = await dispatch(
+          get_Session_List_Specific({
+            category,
+            buildingId: building_id,
+          }),
+        ).unwrap();
 
-    const filtered = res.filter((s) => s.category === category);
+        const filtered = res.filter((s) => s.category === category);
 
-    if (filtered.length > 0) {
-      const latestSession = filtered.reduce((latest, current) => {
-        return new Date(current.created_at) > new Date(latest.created_at)
-          ? current
-          : latest;
-      });
+        if (filtered.length > 0) {
+          const latestSession = filtered.reduce((latest, current) => {
+            return new Date(current.created_at) > new Date(latest.created_at)
+              ? current
+              : latest;
+          });
 
-      setSessionId(latestSession.session_id);
-    } else {
-      setSessionId(uuidv4());
-      setMessages([]);
-    }
-  } finally {
-    setIsLoadingSession(false);
-  }
-};
-
+          setSessionId(latestSession.session_id);
+        } else {
+          setSessionId(uuidv4());
+          setMessages([]);
+        }
+      } finally {
+        setIsLoadingSession(false);
+      }
+    };
 
     fetchLastSession();
   }, [category, dispatch]);
 
   useEffect(() => {
-    if (category === "floor_plan" || category === "building_stack" || category === "LOI") {
+    if (
+      category === "floor_plan" ||
+      category === "building_stack" ||
+      category === "LOI"
+    ) {
       setMessages([]);
       setIsLoadingHistory(false);
       return;
@@ -152,7 +163,7 @@ export const ChatWindow = ({
       setIsLoadingHistory(true);
       try {
         const res = await dispatch(
-          get_Chat_History({ session_id: sessionId, building_id })
+          get_Chat_History({ session_id: sessionId, building_id }),
         ).unwrap();
         if (Array.isArray(res) && res.length > 0) {
           const formatted = res.flatMap((item) => [
@@ -254,7 +265,11 @@ export const ChatWindow = ({
 
       let response;
 
-      if (category === "floor_plan" || category === "building_stack" || category === "LOI") {
+      if (
+        category === "floor_plan" ||
+        category === "building_stack" ||
+        category === "LOI"
+      ) {
         const payload = {
           question: userMessage.message,
           building_id,
@@ -289,7 +304,6 @@ export const ChatWindow = ({
       }
 
       if (response?.answer) {
-
         const contentType = getContentType(response.answer);
 
         const adminMessage = {
@@ -329,7 +343,6 @@ export const ChatWindow = ({
     });
   };
 
-
   return (
     <div className="container-fluid py-3" style={{ height: "100vh" }}>
       <div className="row h-100">
@@ -341,7 +354,7 @@ export const ChatWindow = ({
               </div>
 
               <h5
-                className="chat-title text-muted mb-0 text-truncate address-title position-absolute start-50 translate-middle-x text-center"
+                className="chat-title mb-0 text-truncate address-title position-absolute start-50 translate-middle-x text-center"
                 title={address}
               >
                 {heading}
@@ -369,24 +382,18 @@ export const ChatWindow = ({
                 {category === "LOI" && (
                   <button
                     className="btn btn-outline-secondary btn-sm"
-                    onClick={()=>handleNavigation()}
+                    onClick={() => handleNavigation()}
                   >
-                    <i
-                      className="bi bi-upload"
-                      style={{ fontSize: 14 }}
-                    />
+                    <i className="bi bi-upload" style={{ fontSize: 14 }} />
 
-                    <span className="d-none d-md-inline ms-1">
-                      Upload Doc
-                    </span>
+                    <span className="d-none d-md-inline ms-1">Upload Doc</span>
                   </button>
-
                 )}
               </div>
             </div>
           </div>
 
-          <div className="flex-grow-1 overflow-auto p-3 bg-light rounded mb-2 hide-scrollbar">
+          <div className="flex-grow-1 overflow-auto p-3 rounded mb-2 hide-scrollbar">
             {isLoading ? (
               <div
                 className="d-flex justify-content-center align-items-center text-muted w-100"
@@ -409,8 +416,8 @@ export const ChatWindow = ({
                       >
                         <div
                           className={`d-inline-block px-3 py-2 position-relative responsive-box ${msg.sender === "Admin"
-                            ? ""
-                            : "bg-secondary text-light"
+                            ? "bg-secondary-theme "
+                            : "bg-chat-send"
                             }`}
                         >
                           {msg.sender === "Admin" ? (
@@ -423,7 +430,7 @@ export const ChatWindow = ({
                                 style={{
                                   cursor: "pointer",
                                   fontSize: "1rem",
-                                  color: speakingIndex === i ? "#000" : "#ccc",
+                                  color: speakingIndex === i ? "var(--accent-color)" : "var(--text-secondary)",
                                   position: "absolute",
                                   right: "8px",
                                   bottom: "18px",
@@ -509,7 +516,7 @@ export const ChatWindow = ({
           </div>
 
           <div className="pt-2 pb-1">
-            <div className="d-flex align-items-end rounded-pill py-2 px-3 bg-white shadow-sm border">
+            <div className="d-flex align-items-end rounded-pill py-2 px-3 border chat-input-wrapper">
               <textarea
                 ref={textareaRef}
                 rows={1}
