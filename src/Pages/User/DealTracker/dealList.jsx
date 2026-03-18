@@ -6,6 +6,7 @@ import {
   DeleteDealTracker,
 } from "../../../Networking/User/APIs/DealTracker/dealTrackerApi";
 import { FaArrowLeft } from "react-icons/fa";
+import { ChatBotModal } from "../../../Component/chatbotModel";
 
 const DealList = () => {
   const navigate = useNavigate();
@@ -213,6 +214,7 @@ const DealList = () => {
           >
             Create Deal
           </button>
+          <ChatBotModal category={"deal"} />
         </div>
       </div>
       <div className="d-flex justify-content-around align-items-center m-2">
@@ -250,9 +252,7 @@ const DealList = () => {
           )}
         </div>
       </div>
-      <div
-        className="container-fuild p-2 shadow-sm"
-      >
+      <div className="container-fuild p-2 shadow-sm">
         {filteredDeals.length === 0 ? (
           <div className="text-center py-5">
             <div className="mb-3">

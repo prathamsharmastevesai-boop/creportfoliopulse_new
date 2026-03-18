@@ -22,7 +22,7 @@ const loginSlice = createSlice({
       state.loading = false;
       state.Athorization = action.payload.access_token;
       state.Role = action.payload.role;
-      console.log(state.Role, "state.Role");
+
     });
     builder.addCase(LoginSubmit.rejected, (state, action) => {
       state.loading = false;

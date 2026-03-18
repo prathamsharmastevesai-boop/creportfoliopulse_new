@@ -67,8 +67,6 @@ export const AdminBuildingManager = ({
   };
 
   const handleNavigate = (building) => {
-    console.log(building, "building");
-
     navigate(navigateTo, {
       state: navigateStateMapper ? navigateStateMapper(building) : {},
     });

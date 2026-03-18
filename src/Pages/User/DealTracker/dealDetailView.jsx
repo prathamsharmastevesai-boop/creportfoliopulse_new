@@ -6,6 +6,7 @@ import {
 } from "../../../Networking/User/APIs/DealTracker/dealTrackerApi";
 import { useParams } from "react-router-dom";
 import { toast } from "react-toastify";
+import { BackButton } from "../../../Component/backButton";
 
 const DealDetailView = () => {
   const { dealId } = useParams();
@@ -72,7 +73,6 @@ const DealDetailView = () => {
       }
     } catch (err) {
       console.error("Error fetching deal details:", err);
-      // toast.error("Failed to load deal details");
     } finally {
       setLoading(false);
     }
@@ -115,8 +115,6 @@ const DealDetailView = () => {
   const handleSave = async () => {
     if (!dealId) return;
 
-
-
     setSaving(true);
 
     const formPayload = {};
@@ -135,14 +133,13 @@ const DealDetailView = () => {
 
     const stagesPayload = stages.map((stage) => {
       const stageObj = {
-        id: stage.id, 
+        id: stage.id,
         stage_name: stage.stage_name,
         order_index: stage.order_index,
-        is_completed: stage.is_completed, 
+        is_completed: stage.is_completed,
       };
 
       if (stage.is_completed && stage.completed_at) {
-       
         stageObj.completed_at = new Date(
           stage.completed_at + "T00:00:00.000Z",
         ).toISOString();
@@ -170,7 +167,6 @@ const DealDetailView = () => {
 
       setDeal(result);
       setIsEditMode(false);
-
 
       setForm({
         tenant_name: result.tenant_name || "",
@@ -291,6 +287,7 @@ const DealDetailView = () => {
          mx-4"
         >
           <div className="d-flex align-items-center gap-3">
+            <BackButton />
             <h5 className="text-light text-center mb-2 mb-md-0">
               {isEditMode ? "Edit Lease Deal" : "View Lease Deal"} – Deal
               Tracker

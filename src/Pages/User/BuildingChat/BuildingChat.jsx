@@ -10,7 +10,13 @@ export const BuildingChat = () => {
   return (
     <ChatWindow
       category={category}
-      heading="💬 Building Information"
+      heading={
+        category == "floor_plan"
+          ? "Plans / Photos / Flyers"
+          : category == "building_info"
+            ? "Building Info"
+            : "Tenant Information"
+      }
       building_id={buildingId}
     />
   );

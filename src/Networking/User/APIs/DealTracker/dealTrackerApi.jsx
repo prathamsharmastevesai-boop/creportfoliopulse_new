@@ -13,7 +13,7 @@ export const DealFormApi = createAsyncThunk(
     } catch (error) {
       return rejectWithValue(error.response?.data?.message);
     }
-  }
+  },
 );
 
 export const DealTrackerList = createAsyncThunk(
@@ -25,7 +25,7 @@ export const DealTrackerList = createAsyncThunk(
     } catch (error) {
       return rejectWithValue(error);
     }
-  }
+  },
 );
 
 export const getDealTracker = createAsyncThunk(
@@ -37,7 +37,7 @@ export const getDealTracker = createAsyncThunk(
     } catch (error) {
       return rejectWithValue(error.response?.data || error.message);
     }
-  }
+  },
 );
 
 export const updateDealTracker = createAsyncThunk(
@@ -51,7 +51,7 @@ export const updateDealTracker = createAsyncThunk(
       console.error("Update deal error:", error.response || error);
       return rejectWithValue(error.response?.data?.message || error.message);
     }
-  }
+  },
 );
 
 export const DeleteDealTracker = createAsyncThunk(
@@ -62,8 +62,25 @@ export const DeleteDealTracker = createAsyncThunk(
       return response.data;
     } catch (error) {
       return rejectWithValue(
-        error.response?.data?.message || "Deletion failed"
+        error.response?.data?.message || "Deletion failed",
       );
     }
-  }
+  },
+);
+
+export const chatBotApi = createAsyncThunk(
+  "ChatBotApi",
+  async (payload, { rejectWithValue }) => {
+    try {
+      const response = await axiosInstance.post(
+        "/database-chat/database_retrive",
+        payload,
+      );
+      return response.data;
+    } catch (err) {
+      return rejectWithValue(
+        err.response?.data || err.message || "Something went wrong",
+      );
+    }
+  },
 );

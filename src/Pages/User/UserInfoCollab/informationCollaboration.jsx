@@ -1,8 +1,7 @@
 import React, { useState } from "react";
 import { useDispatch } from "react-redux";
-import { Spinner, Form, Button } from "react-bootstrap";
+import { Form, Button } from "react-bootstrap";
 import { toast } from "react-toastify";
-import "bootstrap-icons/font/bootstrap-icons.css";
 import {
   FeedbackSubmit,
   fetchBuildings,
@@ -12,152 +11,323 @@ export const InformationCollaboration = () => {
   const dispatch = useDispatch();
 
   const [category, setCategory] = useState("");
-  const [subcategory, setSubcategory] = useState("");
   const [loading, setLoading] = useState(false);
-
   const [buildings, setBuildings] = useState([]);
   const [selectedBuilding, setSelectedBuilding] = useState("");
   const [buildingLoading, setBuildingLoading] = useState(false);
+  const [formData, setFormData] = useState({});
+  const [errors, setErrors] = useState({});
 
-  const [fields, setFields] = useState([{ key: "", value: "" }]);
+  const fieldsByCategory = {
+    Comps: [
+      { label: "Tenant", key: "tenant", type: "text", required: true },
+      { label: "Address", key: "address", type: "text", required: true },
+      { label: "Submarket", key: "submarket", type: "text", required: true },
+      { label: "Industry", key: "industry", type: "text", required: true },
+      { label: "Size (SF)", key: "size", type: "number", required: true },
+      { label: "Floor", key: "floor", type: "text", required: true },
+      {
+        label: "Rent (PSF)",
+        key: "rent",
+        type: "number",
+        required: true,
+        step: "0.01",
+      },
+      {
+        label: "Term (Yrs)",
+        key: "term",
+        type: "number",
+        required: true,
+        step: "0.1",
+      },
+      {
+        label: "Free Rent (Mos)",
+        key: "freeRent",
+        type: "number",
+        required: true,
+      },
+      { label: "Lease Type", key: "leaseType", type: "text", required: true },
+      {
+        label: "TI Value",
+        key: "tiValue",
+        type: "number",
+        required: true,
+        step: "0.01",
+      },
+      { label: "Broker Name", key: "broker", type: "text", required: true },
+      { label: "Closed Date", key: "closedDate", type: "date", required: true },
+    ],
+    TenantMarket: [
+      { label: "Tenant", key: "tenant", type: "text", required: true },
+      { label: "Industry", key: "industry", type: "text", required: true },
+      {
+        label: "Current Building",
+        key: "currentBuilding",
+        type: "text",
+        required: true,
+      },
+      { label: "Submarket", key: "submarket", type: "text", required: true },
+      {
+        label: "Tenant Requirement (SF)",
+        key: "requirement",
+        type: "number",
+        required: true,
+      },
+      {
+        label: "Tenant Representative",
+        key: "broker",
+        type: "text",
+        required: true,
+      },
+      { label: "LXD", key: "lxd", type: "text", required: true },
+      { label: "Status", key: "status", type: "text", required: true },
+    ],
+    Colleague: [
+      { label: "Contact Name", key: "name", type: "text", required: true },
+      { label: "Title", key: "title", type: "text", required: true },
+      { label: "Email", key: "email", type: "email", required: true },
+      { label: "Contact Number", key: "phone", type: "text", required: true },
+    ],
+    TenantInformation: [
+      { label: "Tenant Name", key: "tenant", type: "text", required: true },
+      { label: "Industry", key: "industry", type: "text", required: true },
+      { label: "Lease Start", key: "start", type: "date", required: true },
+      { label: "Lease End", key: "end", type: "date", required: true },
+      {
+        label: "Rent",
+        key: "rent",
+        type: "number",
+        required: true,
+        step: "0.01",
+      },
+    ],
+    FloorTenant: [
+      { label: "Tenant Name", key: "tenant", type: "text", required: true },
+      { label: "Floors Occupied", key: "floors", type: "text", required: true },
+      { label: "Square Footage", key: "sf", type: "number", required: true },
+      {
+        label: "Industry Category",
+        key: "industry",
+        type: "text",
+        required: true,
+      },
+      {
+        label: "Lease Commencement",
+        key: "leaseStart",
+        type: "date",
+        required: true,
+      },
+      {
+        label: "Lease Expiration",
+        key: "leaseEnd",
+        type: "date",
+        required: true,
+      },
+      {
+        label: "Starting Rent",
+        key: "startRent",
+        type: "number",
+        required: true,
+        step: "0.01",
+      },
+      {
+        label: "Escalated Rent",
+        key: "currentRent",
+        type: "number",
+        required: true,
+        step: "0.01",
+      },
+      {
+        label: "Base Year Type",
+        key: "baseYear",
+        type: "text",
+        required: true,
+      },
+      {
+        label: "Security Deposit",
+        key: "deposit",
+        type: "number",
+        required: true,
+        step: "0.01",
+      },
+      { label: "Guaranty Type", key: "guaranty", type: "text", required: true },
+      { label: "Tenant Broker", key: "broker", type: "text", required: true },
+      {
+        label: "Renewal Options",
+        key: "renewal",
+        type: "text",
+        required: true,
+      },
+      {
+        label: "Termination Options",
+        key: "termination",
+        type: "text",
+        required: true,
+      },
+    ],
+  };
 
-  // Fetch buildings when category changes
   const handleCategoryChange = async (e) => {
     const value = e.target.value;
-
     setCategory(value);
+    setFormData({});
+    setErrors({});
     setSelectedBuilding("");
     setBuildings([]);
-    setSubcategory("");
 
     if (!value) return;
 
     try {
       setBuildingLoading(true);
       const result = await dispatch(fetchBuildings(value)).unwrap();
-      const list = result?.data || result || [];
-      setBuildings(list);
-    } catch (err) {
+      setBuildings(result?.data || result || []);
+    } catch {
       setBuildings([]);
     } finally {
       setBuildingLoading(false);
     }
   };
 
-  const handleFieldChange = (index, name, value) => {
-    const updated = [...fields];
-    updated[index][name] = value;
-    setFields(updated);
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+
+    setErrors((prev) => ({ ...prev, [name]: "" }));
   };
 
-  const addField = () => {
-    setFields([...fields, { key: "", value: "" }]);
+  const validateField = (field, value) => {
+    if (field.required && (!value || value.toString().trim() === "")) {
+      return `${field.label} is required`;
+    }
+    if (value && field.type === "email") {
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(value)) return "Invalid email format";
+    }
+    if (value && field.type === "number") {
+      const num = Number(value);
+      if (isNaN(num)) return "Must be a valid number";
+    }
+    return "";
   };
 
-  const removeField = (index) => {
-    const updated = fields.filter((_, i) => i !== index);
-    setFields(updated);
+  const validateForm = () => {
+    const fields = fieldsByCategory[category];
+    if (!fields) return true;
+
+    const newErrors = {};
+    fields.forEach((field) => {
+      const error = validateField(field, formData[field.key]);
+      if (error) newErrors[field.key] = error;
+    });
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!category) return toast.error("Select category");
-    if (!selectedBuilding) return toast.error("Select building");
-
-    if (category === "BuildingInfo" && !subcategory) {
-      return toast.error("Select subcategory");
+    if (!category) {
+      toast.error("Please select a category");
+      return;
     }
 
-    // Convert dynamic fields to object
-    const keyValueObject = {};
-    fields.forEach((f) => {
-      if (f.key.trim()) {
-        keyValueObject[f.key] = f.value;
-      }
-    });
+    if (!validateForm()) {
+      toast.error("Please fill correct details in the form");
+      return;
+    }
 
     const payload = {
-      category: category,
-      building_id: Number(selectedBuilding),
-      form_data: keyValueObject,
+      category,
+      subcategory: null,
+      form_data: formData,
     };
-
-    if (subcategory) {
-      payload.subcategory = subcategory;
-    }
+    if (selectedBuilding) payload.building_id = Number(selectedBuilding);
 
     try {
       setLoading(true);
-
       const resultAction = await dispatch(FeedbackSubmit(payload));
-
       if (FeedbackSubmit.fulfilled.match(resultAction)) {
         toast.success("Submitted successfully!");
-
-        // Reset form
         setCategory("");
         setSelectedBuilding("");
         setBuildings([]);
-        setSubcategory("");
-        setFields([{ key: "", value: "" }]);
+        setFormData({});
+        setErrors({});
       } else {
         toast.error(resultAction.payload || "Something went wrong");
       }
-    } catch (err) {
+    } catch {
       toast.error("Submission failed");
     } finally {
       setLoading(false);
     }
   };
 
+  const renderCategoryFields = () => {
+    const fields = fieldsByCategory[category];
+    if (!fields) return null;
+
+    return (
+      <div className="row g-3">
+        {fields.map((field) => (
+          <div key={field.key} className="col-md-6">
+            <Form.Label className="fw-bold">
+              {field.label}{" "}
+              {field.required && <span className="text-danger">*</span>}
+            </Form.Label>
+            <Form.Control
+              type={field.type === "number" ? "number" : field.type || "text"}
+              name={field.key}
+              value={formData[field.key] || ""}
+              onChange={handleInputChange}
+              className={`border-primary ${errors[field.key] ? "is-invalid" : ""}`}
+              step={field.step}
+              min={field.type === "number" ? 0 : undefined}
+            />
+            {errors[field.key] && (
+              <div className="invalid-feedback">{errors[field.key]}</div>
+            )}
+          </div>
+        ))}
+      </div>
+    );
+  };
+
   return (
     <div className="container-fluid d-flex align-items-center">
-      <div className="p-3 border_card" style={{ width: "100%" }}>
+      <div className="p-4 mt-2 shadow-sm rounded border position-relative w-100">
         <Form onSubmit={handleSubmit}>
-          {/* CATEGORY */}
           <Form.Group className="mb-4">
-            <Form.Label className="fw-semibold white_text">
-              Select Category
+            <Form.Label className="fw-semibold">
+              Select Category <span className="text-danger">*</span>
             </Form.Label>
-            <Form.Select value={category} onChange={handleCategoryChange}>
+            <Form.Select
+              className="border-primary"
+              value={category}
+              onChange={handleCategoryChange}
+              required
+            >
               <option value="">-- Select category --</option>
-              <option value="TenantMarket">Tenant Market</option>
               <option value="Comps">Comps</option>
+              <option value="TenantMarket">Tenants in The Market</option>
+              <option value="Colleague">Employee Contact Info</option>
               <option value="TenantInformation">Tenant Info</option>
-              <option value="ThirdParty">Third Party</option>
-              <option value="Colleague">Employee</option>
-              <option value="BuildingInfo">Building Info</option>
-              <option value="ComparativeBuilding">
-                Comparative Building Info
-              </option>
-              <option value="FireSafety">
-                Fire Safety & Building Mechanise
-              </option>
-              <option value="Lease&Loi">Lease Agreement & LOI</option>
-              <option value="Gemini">Gemini</option>
-              <option value="portfolio">Portfolio</option>
+              <option value="FloorTenant">Floor Tenant</option>
             </Form.Select>
           </Form.Group>
 
-          {/* BUILDING LOADING */}
           {buildingLoading && (
-            <div className="text-center mb-3">
-              <div className="small text-muted">Loading buildings...</div>
-            </div>
+            <div className="text-center mb-3">Loading buildings...</div>
           )}
-
-          {/* BUILDING SELECT */}
           {!buildingLoading && buildings.length > 0 && (
             <Form.Group className="mb-4">
-              <Form.Label className="fw-semibold white_text">
-                Select Building
-              </Form.Label>
+              <Form.Label className="fw-semibold">Select Building</Form.Label>
               <Form.Select
                 value={selectedBuilding}
                 onChange={(e) => setSelectedBuilding(e.target.value)}
               >
-                <option value="">-- Select building --</option>
+                <option value="">-- Select building (optional) --</option>
                 {buildings.map((b) => (
                   <option key={b.id} value={b.id}>
                     {b.name}
@@ -167,69 +337,10 @@ export const InformationCollaboration = () => {
             </Form.Group>
           )}
 
-          {/* SUBCATEGORY */}
-          {category === "BuildingInfo" && selectedBuilding && (
-            <Form.Group className="mb-4">
-              <Form.Label className="fw-semibold white_text">
-                Select Subcategory
-              </Form.Label>
-              <Form.Select
-                value={subcategory}
-                onChange={(e) => setSubcategory(e.target.value)}
-              >
-                <option value="">-- Select subcategory --</option>
-                <option value="building_info">building_info</option>
-                <option value="tenantinformation">tenantinformation</option>
-              </Form.Select>
-            </Form.Group>
-          )}
+          {category && renderCategoryFields()}
 
-          {/* EXTRA FIELDS */}
-          {category &&
-            !buildingLoading &&
-            (selectedBuilding || buildings.length === 0) && (
-              <div className="mb-4">
-                <Form.Label className="fw-semibold white_text">
-                  Extra Details
-                </Form.Label>
-
-                {fields.map((field, index) => (
-                  <div key={index} className="d-flex gap-2 mb-2">
-                    <Form.Control
-                      placeholder="Key"
-                      value={field.key}
-                      onChange={(e) =>
-                        handleFieldChange(index, "key", e.target.value)
-                      }
-                    />
-                    <Form.Control
-                      placeholder="Value"
-                      value={field.value}
-                      onChange={(e) =>
-                        handleFieldChange(index, "value", e.target.value)
-                      }
-                    />
-
-                    {fields.length > 1 && (
-                      <Button
-                        variant="danger"
-                        onClick={() => removeField(index)}
-                      >
-                        −
-                      </Button>
-                    )}
-                  </div>
-                ))}
-
-                <Button variant="secondary" size="sm" onClick={addField}>
-                  + Add Field
-                </Button>
-              </div>
-            )}
-
-          {/* SUBMIT */}
-          <div className="text-center">
-            {category && (
+          {category && (
+            <div className="text-center mt-4 pt-3">
               <Button
                 type="submit"
                 className="px-5 py-2 fw-semibold"
@@ -237,14 +348,13 @@ export const InformationCollaboration = () => {
                   borderRadius: "25px",
                   background: "#0dcaf0",
                   border: "none",
-                  fontSize: "16px",
                 }}
                 disabled={loading}
               >
-                {loading ? <Spinner size="sm" animation="border" /> : "Submit"}
+                {loading ? "Submitting..." : "Submit"}
               </Button>
-            )}
-          </div>
+            </div>
+          )}
         </Form>
       </div>
     </div>

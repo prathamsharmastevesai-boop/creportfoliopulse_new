@@ -42,8 +42,7 @@ export const PortfolioForum = () => {
   const [threadToDelete, setThreadToDelete] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
 
-  // NEW: controls which screen is shown
-  const [currentView, setCurrentView] = useState("list"); // 'list' or 'thread'
+  const [currentView, setCurrentView] = useState("list");
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "auto" });
@@ -100,7 +99,6 @@ export const PortfolioForum = () => {
       if (selectedThread?.id === threadToDelete) {
         setSelectedThread(null);
         setThreadMessages([]);
-        // If we were viewing the deleted thread, go back to list
         setCurrentView("list");
       }
       toast.success("Thread deleted successfully");
@@ -115,6 +113,8 @@ export const PortfolioForum = () => {
 
   const handlethreadhistory = async (thread) => {
     setSelectedThread(thread);
+    setCurrentView("thread");
+    setThreadMessages([]);
     setLoadingHistory(true);
     setUserdetail(userdata?.id);
     setEditingThoughtId(null);
@@ -125,8 +125,6 @@ export const PortfolioForum = () => {
     try {
       const data = await dispatch(getThreadhistory(thread.id)).unwrap();
       setThreadMessages(data.thoughts || []);
-      // Switch to thread view after loading
-      setCurrentView("thread");
     } catch (error) {
       toast.error("Failed to load thread history");
     } finally {
@@ -210,11 +208,6 @@ export const PortfolioForum = () => {
     });
 
     e.target.value = null;
-  };
-
-  const removeSelectedFile = () => {
-    setSelectedFile(null);
-    setSelectedFilePreview(null);
   };
 
   const handleSend = async () => {
@@ -367,7 +360,9 @@ export const PortfolioForum = () => {
                       className="fw-bold mb-1 text-truncate"
                       style={{ maxWidth: "100%" }}
                     >
-                      {t.author_name}
+                      {t.title?.length > 28
+                        ? t.title.slice(0, 28) + "..."
+                        : t.title}
                     </h6>
                   </div>
 
@@ -394,11 +389,9 @@ export const PortfolioForum = () => {
                 </div>
                 <div className="d-flex justify-content-between align-content-center">
                   <span className="text-center" style={{ fontSize: 14 }}>
-                    {t.title?.length > 28
-                      ? t.title.slice(0, 28) + "..."
-                      : t.title}
+                    {t.author_name}
                   </span>
-                  {/* <span>|</span> */}
+
                   <span className="text-center " style={{ fontSize: 14 }}>
                     last thought at{" "}
                     {t.last_thought_at
@@ -420,13 +413,11 @@ export const PortfolioForum = () => {
               variant="link"
               className="bg-dark text-white d-flex align-items-center justify-content-center mx-2"
               onClick={() => setCurrentView("list")}
-              style={{ fontSize: "1.0rem", color: "#6c757d" }}
+              style={{ color: "#6c757d" }}
             >
               <i className="bi bi-arrow-left"></i>
             </Button>
-            <h3 className="fw-bold m-0 text-truncate">
-              {selectedThread?.title}
-            </h3>
+            <h5 className="fw-bold px-4 px-md-0">{selectedThread?.title}</h5>
             <span className="text-muted ms-auto">
               {selectedThread?.thought_count || 0} thoughts
             </span>
@@ -477,7 +468,7 @@ export const PortfolioForum = () => {
                     }`}
                   >
                     <div className="d-flex justify-content-between align-items-start mb-2">
-                      <h6
+                      <small
                         className={`fw-bold mb-0 ${
                           msg.author_role === "admin" ? "text-primary" : ""
                         }`}
@@ -486,7 +477,7 @@ export const PortfolioForum = () => {
                         {msg.author_role === "admin" && (
                           <span className="badge bg-primary ms-2">Admin</span>
                         )}
-                      </h6>
+                      </small>
                       <span className="text-muted small">
                         {new Date(msg.created_at).toLocaleString()}
                       </span>
@@ -546,7 +537,6 @@ export const PortfolioForum = () => {
             )}
           </div>
 
-          {/* Input area (sticky at bottom) */}
           <div
             style={{
               position: "sticky",
@@ -635,7 +625,6 @@ export const PortfolioForum = () => {
         </div>
       )}
 
-      {/* Delete Thread Modal */}
       <Modal
         show={showDeleteModal}
         onHide={() => setShowDeleteModal(false)}
@@ -669,7 +658,6 @@ export const PortfolioForum = () => {
         </Modal.Footer>
       </Modal>
 
-      {/* Create Thread Modal */}
       <Modal
         show={showCreateModal}
         onHide={() => setShowCreateModal(false)}

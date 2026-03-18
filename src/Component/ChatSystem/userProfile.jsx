@@ -179,7 +179,7 @@ export const UserProfile = ({
     try {
       const result = await dispatch(leaveGroupApi(conversationId));
       if (leaveGroupApi.fulfilled.match(result)) {
-        navigate("/messages");
+        navigate("/messages-center");
       } else {
         toast.error(result.payload || "Failed to leave group");
       }
@@ -411,25 +411,27 @@ export const UserProfile = ({
                 disabled={isLeaving}
               >
                 <i
-                  className={`profile-action-icon ${isLeaving
-                    ? "ri-loader-4-line spinning"
-                    : "ri-logout-box-r-line"
-                    }`}
+                  className={`profile-action-icon ${
+                    isLeaving
+                      ? "ri-loader-4-line spinning"
+                      : "ri-logout-box-r-line"
+                  }`}
                   style={{ color: "#EA4335" }}
                 />
                 <span>{isLeaving ? "Leaving..." : "Exit group"}</span>
               </button>
             ) : (
-              <button
-                className="profile-action-btn"
-                style={{ color: "#EA4335" }}
-              >
-                <i
-                  className="ri-user-unfollow-line profile-action-icon"
-                  style={{ color: "#EA4335" }}
-                />
-                <span>Block {name}</span>
-              </button>
+              ""
+              // <button
+              //   className="profile-action-btn"
+              //   style={{ color: "#EA4335" }}
+              // >
+              //   <i
+              //     className="ri-user-unfollow-line profile-action-icon"
+              //     style={{ color: "#EA4335" }}
+              //   />
+              //   <span>Block {name}</span>
+              // </button>
             )}
           </div>
         </div>
@@ -442,7 +444,7 @@ export const UserProfile = ({
             onClick={(e) => e.stopPropagation()}
           >
             <div className="modal-header">
-              <h3 className="text-dark">Media, links and docs</h3>
+              <h3 className="">Media, links and docs</h3>
               <button
                 className="close-btn"
                 onClick={() => setShowAllMedia(false)}

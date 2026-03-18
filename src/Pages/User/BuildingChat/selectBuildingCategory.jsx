@@ -21,7 +21,7 @@ export const SelectUserBuildingCategory = () => {
   return (
     <>
       <div
-        className="text-center bg-white py-3 mb-4 shadow-sm"
+        className="text-center py-3 mb-4 shadow-sm"
         style={{
           position: "sticky",
           top: 0,

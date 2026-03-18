@@ -24,7 +24,6 @@ export const AdminLogin = () => {
     const role = sessionStorage.getItem("role");
 
     if (!token || !role) return;
-console.log(role,"role");
 
     if (role === "superuser") {
       navigate("/admin-management");
@@ -56,37 +55,37 @@ console.log(role,"role");
   };
 
   const handleGoogleAdminLogin = async (credentialResponse) => {
-  try {
-    setLoading(true);
+    try {
+      setLoading(true);
 
-    const idToken = credentialResponse.credential; 
+      const idToken = credentialResponse.credential;
 
-    const res = await dispatch(
-      googleLoginService(idToken)
-    ).unwrap();
+      const res = await dispatch(
+        googleLoginService(idToken)
+      ).unwrap();
 
-    const { role, access_token } = res;
+      const { role, access_token } = res;
 
-    
-    if (!["admin", "superuser"].includes(role)) {
-      toast.error("You are not authorized to access admin panel");
-      return;
+
+      if (!["admin", "superuser"].includes(role)) {
+        toast.error("You are not authorized to access admin panel");
+        return;
+      }
+
+      sessionStorage.setItem("access_token", access_token);
+      sessionStorage.setItem("role", role);
+
+      toast.success("Admin Google login successful");
+
+      if (role === "admin") navigate("/admin-dashboard");
+      else navigate("/admin-management");
+
+    } catch (err) {
+      toast.error(err || "Google login failed");
+    } finally {
+      setLoading(false);
     }
-
-    sessionStorage.setItem("access_token", access_token);
-    sessionStorage.setItem("role", role);
-
-    toast.success("Admin Google login successful");
-
-    if (role === "admin") navigate("/admin-dashboard");
-    else navigate("/admin-management");
-
-  } catch (err) {
-    toast.error(err || "Google login failed");
-  } finally {
-    setLoading(false);
-  }
-};
+  };
 
 
   const handleLogin = async (e) => {
@@ -96,8 +95,10 @@ console.log(role,"role");
     setLoading(true);
     try {
       const res = await dispatch(
-        LoginSubmit({email: email.trim(),
-      password: password.trim(), role: "admin" })
+        LoginSubmit({
+          email: email.trim(),
+          password: password.trim(), role: "admin"
+        })
       ).unwrap();
 
       const { role, access_token } = res;
@@ -179,9 +180,8 @@ console.log(role,"role");
                 </span>
                 <input
                   type={showPassword ? "text" : "password"}
-                  className={`form-control ${
-                    errors.password ? "is-invalid" : ""
-                  }`}
+                  className={`form-control ${errors.password ? "is-invalid" : ""
+                    }`}
                   placeholder="••••••••"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
@@ -209,12 +209,12 @@ console.log(role,"role");
               Log in
             </button>
             <div className="mb-3">
-  <GoogleLogin
-    onSuccess={handleGoogleAdminLogin}
-    onError={() => toast.error("Google Login Failed")}
-    width="100%"
-  />
-</div>
+              <GoogleLogin
+                onSuccess={handleGoogleAdminLogin}
+                onError={() => toast.error("Google Login Failed")}
+                width="100%"
+              />
+            </div>
 
             <div
               className="text-end"

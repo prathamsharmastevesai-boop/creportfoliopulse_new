@@ -42,9 +42,14 @@ export const FEATURE_CONFIG = {
         backendKey: "calculator_enabled",
       },
       yardi_enabled: { label: "Yardi", backendKey: "yardi_enabled" },
+      Conversation: { label: "Message", backendKey: "Conversation" },
       project_management_enabled: {
         label: "Project Management",
         backendKey: "project_management_enabled",
+      },
+      space_up_enabled: {
+        label: "Space Up",
+        backendKey: "space_up_enabled",
       },
     },
   },
@@ -139,7 +144,8 @@ export const UserManagement = () => {
   const [selectedUser, setSelectedUser] = useState(null);
   const [featureLoading, setFeatureLoading] = useState(false);
   const [features, setFeatures] = useState(DEFAULT_FEATURES);
-
+  const [showForceInvite, setShowForceInvite] = useState(false);
+  const [pendingInviteEmail, setPendingInviteEmail] = useState("");
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
   useEffect(() => {
@@ -162,10 +168,50 @@ export const UserManagement = () => {
     if (!emailRegex.test(email)) return toast.error("Enter valid email");
 
     setInviteLoading(true);
+
     try {
-      await dispatch(inviteUserApi({ email })).unwrap();
+      const res = await dispatch(
+        inviteUserApi({
+          email,
+          role: "user",
+        }),
+      ).unwrap();
+
+      if (res?.warning) {
+        setPendingInviteEmail(res.email);
+        setShowForceInvite(true);
+        return;
+      }
+
+      toast.success("User invited successfully");
       setEmail("");
       fetchUsers();
+    } catch (err) {
+      toast.error("Invite failed");
+    } finally {
+      setInviteLoading(false);
+    }
+  };
+
+  const handleForceInvite = async () => {
+    try {
+      setInviteLoading(true);
+
+      await dispatch(
+        inviteUserApi({
+          email: pendingInviteEmail,
+          role: "user",
+          force_invite: true,
+        }),
+      ).unwrap();
+
+      toast.success("User invited to this company");
+
+      setShowForceInvite(false);
+      setEmail("");
+      fetchUsers();
+    } catch {
+      toast.error("Force invite failed");
     } finally {
       setInviteLoading(false);
     }
@@ -436,6 +482,43 @@ export const UserManagement = () => {
 
                 <Button variant="danger" onClick={handleDelete}>
                   {deleteLoading ? <Spinner size="sm" /> : "Delete"}
+                </Button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+      {showForceInvite && (
+        <div
+          className="modal fade show d-block"
+          style={{ background: "#00000080" }}
+        >
+          <div className="modal-dialog modal-dialog-centered">
+            <div className="modal-content">
+              <div className="modal-header">
+                <h5 className="modal-title">User Already Exists</h5>
+                <button
+                  className="btn-close"
+                  onClick={() => setShowForceInvite(false)}
+                />
+              </div>
+
+              <div className="modal-body">
+                This user is already associated with another company.
+                <br />
+                Do you want to invite them to this company as well?
+              </div>
+
+              <div className="modal-footer">
+                <Button
+                  variant="secondary"
+                  onClick={() => setShowForceInvite(false)}
+                >
+                  Cancel
+                </Button>
+
+                <Button variant="primary" onClick={handleForceInvite}>
+                  {inviteLoading ? <Spinner size="sm" /> : "Agree & Invite"}
                 </Button>
               </div>
             </div>

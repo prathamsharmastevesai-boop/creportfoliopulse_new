@@ -16,8 +16,9 @@ export const ProfileUpdateDetail = "/auth/user/profile/update";
 //BUILDING
 export const CreateBuilding = "/building_operations/create_buildings";
 export const ListBuilding = "/building_operations/list_buildings";
-export const UpdateBuildingEndpoint = "/building_operations/update_building";
+export const UpdateBuildingEndpoint = "/building_operations/update_buildings";
 export const DeleteBuildingEndpoint = "/building_operations/delete_building/";
+export const UploadBuildingImageEndpoint = "/buildings/";
 
 //Lease
 export const CreateLeaseEndpoint = "/lease/create_lease";

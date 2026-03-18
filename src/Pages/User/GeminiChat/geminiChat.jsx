@@ -72,7 +72,6 @@ export const GeminiChat = () => {
   const fileInputRef = useRef(null);
 
   const [sessionId, setSessionId] = useState(location.state?.sessionId || null);
-  console.log(sessionId, "sessionIdsessionId");
 
   const [category, setCategory] = useState(location.state?.type);
   const [messages, setMessages] = useState([]);
@@ -116,14 +115,12 @@ export const GeminiChat = () => {
         const res = await dispatch(get_Session_List_Specific()).unwrap();
 
         const filtered = res.filter((s) => s.category === "Gemini");
-        console.log(filtered, "filtered");
 
         if (filtered.length > 0) {
           filtered.sort(
             (a, b) => new Date(b.created_at) - new Date(a.created_at),
           );
           const latestSession = filtered[0].session_id;
-          console.log(latestSession, "latestSession");
 
           setSessionId(latestSession);
         } else {

@@ -9,7 +9,6 @@ import RAGLoader from "../../../Component/Loader";
 
 export const UserProfile = () => {
   const { userdata } = useSelector((state) => state.ProfileSlice);
-  console.log(userdata, "userdata");
 
   const dispatch = useDispatch();
 

@@ -38,7 +38,7 @@ export const ChatSearch = ({ messages, isOpen, onClose, onJumpToMessage }) => {
     if (results.length > 0) {
       const messageId = results[currentIndex].id;
       onJumpToMessage(messageId);
-      onClose(); 
+      onClose();
     }
   };
 
@@ -48,7 +48,7 @@ export const ChatSearch = ({ messages, isOpen, onClose, onJumpToMessage }) => {
     <div className="search-overlay" onClick={onClose}>
       <div className="search-modal" onClick={(e) => e.stopPropagation()}>
         <div className="search-header">
-          <h3 className="text-light">Search in conversation</h3>
+          <h3>Search in conversation</h3>
           <button className="close-btn" onClick={onClose}>
             <i className="ri-close-line" />
           </button>
@@ -90,9 +90,8 @@ export const ChatSearch = ({ messages, isOpen, onClose, onJumpToMessage }) => {
               {results.map((msg, idx) => (
                 <div
                   key={msg.id}
-                  className={`result-item ${
-                    idx === currentIndex ? "active" : ""
-                  }`}
+                  className={`result-item ${idx === currentIndex ? "active" : ""
+                    }`}
                   onClick={() => {
                     setCurrentIndex(idx);
                     onJumpToMessage(msg.id);

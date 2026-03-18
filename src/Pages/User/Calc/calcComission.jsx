@@ -23,7 +23,6 @@ export const CommissionCalculator = () => {
       currency: "USD",
     }).format(value);
 
-
   const validate = () => {
     const err = {};
 
@@ -46,16 +45,15 @@ export const CommissionCalculator = () => {
       err.commission = "Generate commission rows";
 
     const invalidBaseRent = baseRentList.some(
-      (b) => b.rent === "" || b.rent <= 0
+      (b) => b.rent === "" || b.rent <= 0,
     );
     if (invalidBaseRent)
       err.baseRentValues = "All base rents must be greater than 0";
 
     const invalidRate = commissionList.some(
-      (c) => c.rate_pct === "" || c.rate_pct < 0 || c.rate_pct > 100
+      (c) => c.rate_pct === "" || c.rate_pct < 0 || c.rate_pct > 100,
     );
-    if (invalidRate)
-      err.commissionRates = "Commission rates must be 0–100%";
+    if (invalidRate) err.commissionRates = "Commission rates must be 0–100%";
 
     setErrors(err);
     return Object.keys(err).length === 0;
@@ -69,17 +67,16 @@ export const CommissionCalculator = () => {
       Array.from({ length: years }, (_, i) => ({
         year: i + 1,
         rent: "",
-      }))
+      })),
     );
 
     setCommissionList(
       Array.from({ length: years }, (_, i) => ({
         year: i + 1,
         rate_pct: "",
-      }))
+      })),
     );
   };
-
 
   const updateBaseRent = (index, value) => {
     const arr = [...baseRentList];
@@ -120,12 +117,9 @@ export const CommissionCalculator = () => {
     }
   };
 
-
   return (
     <div className="container-fluid p-3">
       <div className="row g-3">
-
-  
         <div className="col-md-8">
           <div className="card p-3 shadow-sm">
             <h4 className="fw-bold">Deal Parameters</h4>
@@ -134,9 +128,24 @@ export const CommissionCalculator = () => {
             <div className="row">
               {[
                 ["Gross Area (SF)", grossArea, setGrossArea, errors.grossArea],
-                ["Total Term (Years)", termYears, setTermYears, errors.termYears],
-                ["Annual Escalation (%)", annualEscalation, setAnnualEscalation, errors.annualEscalation],
-                ["Free Rent (Months)", freeRentMonths, setFreeRentMonths, errors.freeRentMonths],
+                [
+                  "Total Term (Years)",
+                  termYears,
+                  setTermYears,
+                  errors.termYears,
+                ],
+                [
+                  "Annual Escalation (%)",
+                  annualEscalation,
+                  setAnnualEscalation,
+                  errors.annualEscalation,
+                ],
+                [
+                  "Free Rent (Months)",
+                  freeRentMonths,
+                  setFreeRentMonths,
+                  errors.freeRentMonths,
+                ],
               ].map(([label, val, setter, err], i) => (
                 <div className="col-md-6 mb-3" key={i}>
                   <label className="fw-semibold">{label}</label>
@@ -158,7 +167,6 @@ export const CommissionCalculator = () => {
               Generate Year Rows
             </button>
 
-           
             <h5 className="fw-bold mt-3">Base Rent PSF (Per Year)</h5>
             <hr />
             {baseRentList.map((item, idx) => (
@@ -173,7 +181,6 @@ export const CommissionCalculator = () => {
               </div>
             ))}
 
-           
             <h5 className="fw-bold mt-4">Commission Rates (%)</h5>
             <hr />
             {commissionList.map((item, idx) => (
@@ -183,9 +190,7 @@ export const CommissionCalculator = () => {
                   type="number"
                   className="form-control"
                   value={item.rate_pct}
-                  onChange={(e) =>
-                    updateCommissionRate(idx, e.target.value)
-                  }
+                  onChange={(e) => updateCommissionRate(idx, e.target.value)}
                 />
               </div>
             ))}
@@ -200,14 +205,11 @@ export const CommissionCalculator = () => {
           </div>
         </div>
 
-  
         <div className="col-md-4">
           <div className="card p-3 shadow-sm">
             <h5 className="fw-bold">Calculated Results</h5>
 
-            {!result && (
-              <p className="text-muted">Submit to see result</p>
-            )}
+            {!result && <p className="text-muted">Submit to see result</p>}
 
             {result && (
               <div className="p-2 bg-light rounded">
@@ -219,7 +221,6 @@ export const CommissionCalculator = () => {
             )}
           </div>
         </div>
-
       </div>
     </div>
   );

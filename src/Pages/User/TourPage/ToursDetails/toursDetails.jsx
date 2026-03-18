@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
-import { Container, Modal, Button, Table } from "react-bootstrap";
+import { Modal, Button } from "react-bootstrap";
 import {
   DeleteToursSubmit,
   GeToursList,
@@ -32,6 +32,8 @@ export const ToursDetails = () => {
 
   const [viewModal, setViewModal] = useState(false);
   const [selectedTour, setSelectedTour] = useState(null);
+
+  const [buildingSearch, setBuildingSearch] = useState("");
 
   useEffect(() => {
     const fetchData = async () => {
@@ -71,20 +73,14 @@ export const ToursDetails = () => {
 
   const handleUpdate = async () => {
     setUpdateLoading(true);
-
     try {
-      const payload = {
-        ...editForm,
-      };
-
+      const payload = { ...editForm };
       await dispatch(UpdateToursSubmit({ id: editTourId, payload })).unwrap();
-
       setToursList((prev) =>
         prev.map((item) =>
           item.id === editTourId ? { ...item, ...payload } : item,
         ),
       );
-
       toast.success("Tour updated successfully");
       setEditModal(false);
     } catch (err) {
@@ -96,7 +92,6 @@ export const ToursDetails = () => {
 
   const handleDelete = async () => {
     setDeleteLoading(true);
-
     try {
       await dispatch(DeleteToursSubmit(deleteId)).unwrap();
       setToursList((prev) => prev.filter((item) => item.id !== deleteId));
@@ -120,99 +115,102 @@ export const ToursDetails = () => {
     );
   }
 
+  const filteredTours = toursList.filter((tour) =>
+    tour.building?.toLowerCase().includes(buildingSearch.trim().toLowerCase()),
+  );
+
   return (
     <div>
-      <Container
-        fluid
-        className="shadow-sm"
-        style={{
-          borderRadius: "8px",
-          minHeight: "100vh",
-        }}
-      >
-        {toursList.length === 0 ? (
-          <div className="text-center py-5">
-            <h5>No tours found</h5>
-            <p className="text-muted">No tour activity available.</p>
-          </div>
-        ) : (
-          <div className="table-responsive mt-3">
-            <Table className="align-middle">
-              <thead className="table-light">
-                <tr>
-                  <th>Building</th>
-                  <th>User Email</th>
-                  <th>Date</th>
-                  <th>Floor</th>
-                  <th>Tenant</th>
-                  <th>Broker</th>
-                  <th>Actions</th>
+      <div className="p-1 d-flex justify-content-end">
+        <input
+          type="text"
+          className="form-control w-25"
+          placeholder="Search by Building"
+          value={buildingSearch}
+          onChange={(e) => setBuildingSearch(e.target.value)}
+        />
+      </div>
+
+      {filteredTours.length === 0 ? (
+        <div className="text-center py-5">
+          <h5>No tours found</h5>
+          <p className="text-muted">No tour activity available.</p>
+        </div>
+      ) : (
+        <div className="table-responsive shadow-sm rounded mx-3">
+          <table className="table align-middle">
+            <thead>
+              <tr className="table-light text-uppercase small fw-bold">
+                <th>Building</th>
+                <th>User Email</th>
+                <th>Date</th>
+                <th>Floor</th>
+                <th>Tenant</th>
+                <th>Broker</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+
+            <tbody>
+              {[...filteredTours].reverse().map((tour) => (
+                <tr key={tour.id}>
+                  <td>{tour.building || "N/A"}</td>
+                  <td>{tour.user_email || "N/A"}</td>
+                  <td>{tour.date?.split("T")[0] || "N/A"}</td>
+                  <td>{tour.floor_suite || "N/A"}</td>
+                  <td>{tour.tenant || "N/A"}</td>
+                  <td>{tour.broker || "N/A"}</td>
+                  <td>
+                    <div className="d-flex align-items-center flex-nowrap gap-2 overflow-auto">
+                      <button
+                        className="btn btn-sm text-white flex-shrink-0"
+                        style={{
+                          backgroundColor: "#217ae6",
+                          borderColor: "#217ae6",
+                          padding: "4px 12px",
+                          whiteSpace: "nowrap",
+                        }}
+                        onClick={() => openViewModal(tour)}
+                      >
+                        Notes
+                      </button>
+
+                      <button
+                        className="btn btn-sm btn-outline-primary flex-shrink-0"
+                        onClick={() => handleEdit(tour)}
+                      >
+                        <i className="bi bi-pencil"></i>
+                      </button>
+
+                      <button
+                        className="btn btn-sm btn-outline-secondary flex-shrink-0"
+                        onClick={() => openDeleteModal(tour.id)}
+                        disabled={deleteLoading && deleteId === tour.id}
+                      >
+                        {deleteLoading && deleteId === tour.id ? (
+                          <span className="spinner-border spinner-border-sm"></span>
+                        ) : (
+                          <i className="bi bi-trash"></i>
+                        )}
+                      </button>
+                    </div>
+                  </td>
                 </tr>
-              </thead>
-
-              <tbody>
-                {[...toursList].reverse().map((tour) => (
-                  <tr key={tour.id}>
-                    <td>{tour.building || "N/A"}</td>
-                    <td>{tour.user_email || "N/A"}</td>
-                    <td>{tour.date?.split("T")[0] || "N/A"}</td>
-                    <td>{tour.floor_suite || "N/A"}</td>
-                    <td>{tour.tenant || "N/A"}</td>
-                    <td>{tour.broker || "N/A"}</td>
-
-                    <td>
-                      <div className="d-flex align-items-center flex-nowrap gap-2 overflow-auto">
-                        <button
-                          className="btn btn-sm text-white flex-shrink-0"
-                          style={{
-                            backgroundColor: "#217ae6",
-                            borderColor: "#217ae6",
-                            padding: "4px 12px",
-                            whiteSpace: "nowrap",
-                          }}
-                          onClick={() => openViewModal(tour)}
-                        >
-                          Notes
-                        </button>
-
-                        <button
-                          className="btn btn-sm btn-outline-primary flex-shrink-0"
-                          onClick={() => handleEdit(tour)}
-                        >
-                          <i className="bi bi-pencil"></i>
-                        </button>
-
-                        <button
-                          className="btn btn-sm btn-outline-secondary flex-shrink-0"
-                          onClick={() => openDeleteModal(tour.id)}
-                          disabled={deleteLoading && deleteId === tour.id}
-                        >
-                          {deleteLoading && deleteId === tour.id ? (
-                            <span className="spinner-border spinner-border-sm"></span>
-                          ) : (
-                            <i className="bi bi-trash"></i>
-                          )}
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </Table>
-          </div>
-        )}
-      </Container>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
 
       <Modal
         show={viewModal}
         onHide={() => setViewModal(false)}
         centered
-        size="md"
+        scrollable
       >
         <Modal.Header closeButton>
           <Modal.Title className="fw-semibold">Tour Notes</Modal.Title>
         </Modal.Header>
-
         <Modal.Body>
           {selectedTour && (
             <>
@@ -222,19 +220,14 @@ export const ToursDetails = () => {
               <p>
                 <strong>Date:</strong> {selectedTour?.date?.split("T")[0]}
               </p>
-
               <hr />
-
               <p>
                 <strong>Notes:</strong>
               </p>
-              <p className="">
-                {selectedTour.notes || "No notes available"}
-              </p>
+              <p>{selectedTour.notes || "No notes available"}</p>
             </>
           )}
         </Modal.Body>
-
         <Modal.Footer>
           <Button variant="secondary" onClick={() => setViewModal(false)}>
             Close
@@ -250,7 +243,6 @@ export const ToursDetails = () => {
         <Modal.Header closeButton={!deleteLoading}>
           <Modal.Title>Delete Tour?</Modal.Title>
         </Modal.Header>
-
         <Modal.Body>
           {deleteLoading ? (
             <div className="text-center py-2">
@@ -261,7 +253,6 @@ export const ToursDetails = () => {
             "Are you sure you want to permanently delete this tour?"
           )}
         </Modal.Body>
-
         <Modal.Footer>
           <Button
             variant="secondary"
@@ -279,11 +270,11 @@ export const ToursDetails = () => {
           </Button>
         </Modal.Footer>
       </Modal>
+
       <Modal show={editModal} onHide={() => setEditModal(false)} centered>
         <Modal.Header closeButton>
           <Modal.Title>Edit Tour</Modal.Title>
         </Modal.Header>
-
         <Modal.Body>
           <div className="mb-2">
             <label>Date</label>
@@ -358,7 +349,6 @@ export const ToursDetails = () => {
             />
           </div>
         </Modal.Body>
-
         <Modal.Footer>
           <Button
             variant="secondary"

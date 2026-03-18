@@ -1,10 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
-import {
-  getadminfeedbacksubmit,
-  getuserfeedbacksubmit,
-} from "../../../Networking/Admin/APIs/feedbackApi";
-import { Container, Modal, Button, Table, Form } from "react-bootstrap";
+import { getadminfeedbacksubmit } from "../../../Networking/Admin/APIs/feedbackApi";
+import { Modal, Button, Form } from "react-bootstrap";
 import RAGLoader from "../../../Component/Loader";
 import Pagination from "../../../Component/pagination";
 import { toast } from "react-toastify";
@@ -20,18 +17,13 @@ export const AdminInformationCollaboration = () => {
   const [submissions, setSubmissions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [role, setRole] = useState(null);
+
   const [editModal, setEditModal] = useState(false);
   const [selectedSubmission, setSelectedSubmission] = useState(null);
-  const [editLoading, setEditLoading] = useState(false);
+  const [viewModal, setViewModal] = useState(false);
 
   const [deleteLoading, setDeleteLoading] = useState(false);
   const [deleteId, setDeleteId] = useState(null);
-
-  const [viewModal, setViewModal] = useState(false);
-
-  const [reviewModal, setReviewModal] = useState(false);
-  const [reviewLoading, setReviewLoading] = useState(false);
-  const [reviewDecision, setReviewDecision] = useState(null);
 
   const [updatingStatusId, setUpdatingStatusId] = useState(null);
 
@@ -41,21 +33,22 @@ export const AdminInformationCollaboration = () => {
   const fetchSubmissions = async () => {
     try {
       const data = await dispatch(getadminfeedbacksubmit()).unwrap();
-      setSubmissions(data.entries);
+      setSubmissions(data.entries || []);
       setRole(data.current_user_role);
     } catch (error) {
       console.error("Error fetching submissions:", error);
-      // toast.error("Failed to load submissions");
     } finally {
       setLoading(false);
     }
   };
+
   useEffect(() => {
     fetchSubmissions();
   }, [dispatch]);
 
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+
   const currentSubmissions = submissions
     .slice()
     .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
@@ -73,12 +66,6 @@ export const AdminInformationCollaboration = () => {
 
   const openDeleteModal = (id) => setDeleteId(id);
 
-  const openReviewModal = (submission) => {
-    setSelectedSubmission(submission);
-    setReviewDecision(null);
-    setReviewModal(true);
-  };
-
   const handleDelete = async () => {
     setDeleteLoading(true);
     try {
@@ -86,7 +73,6 @@ export const AdminInformationCollaboration = () => {
       setSubmissions((prev) => prev.filter((item) => item.id !== deleteId));
       toast.success("Deleted successfully");
     } catch (err) {
-      console.error("Delete error:", err);
       toast.error("Delete failed");
     } finally {
       setDeleteLoading(false);
@@ -96,52 +82,22 @@ export const AdminInformationCollaboration = () => {
 
   const handleStatusChange = async (id, newStatus) => {
     if (updatingStatusId) return;
+
     setUpdatingStatusId(id);
     try {
-      const updated = await dispatch(
+      await dispatch(
         ReviewInformationCollaboration({
           id,
           decision: newStatus,
         }),
       ).unwrap();
+
       fetchSubmissions();
-      setSubmissions((prev) =>
-        prev.map((item) =>
-          item.id === updated.id ? { ...item, ...updated } : item,
-        ),
-      );
       toast.success(`Status updated to ${newStatus}`);
     } catch (err) {
       console.error("Status update error:", err);
-      // toast.error("Failed to update status");
     } finally {
       setUpdatingStatusId(null);
-    }
-  };
-
-  const handleReview = async () => {
-    if (!selectedSubmission || !reviewDecision) return;
-    setReviewLoading(true);
-    try {
-      const updated = await dispatch(
-        ReviewInformationCollaboration({
-          id: selectedSubmission.id,
-          decision: reviewDecision,
-        }),
-      ).unwrap();
-
-      setSubmissions((prev) =>
-        prev.map((item) =>
-          item.id === updated.id ? { ...item, ...updated } : item,
-        ),
-      );
-      toast.success(`Submission ${reviewDecision} successfully`);
-      setReviewModal(false);
-    } catch (err) {
-      console.error("Review error:", err);
-      // toast.error("Failed to update status");
-    } finally {
-      setReviewLoading(false);
     }
   };
 
@@ -158,6 +114,13 @@ export const AdminInformationCollaboration = () => {
     }
   };
 
+  const formatLabel = (key) => {
+    return key
+      .trim()
+      .replace(/_/g, " ")
+      .replace(/\b\w/g, (l) => l.toUpperCase());
+  };
+
   if (loading) {
     return (
       <div
@@ -172,114 +135,80 @@ export const AdminInformationCollaboration = () => {
   return (
     <div className="collab-wrapper p-3">
       {submissions.length === 0 ? (
-        <div className="text-center py-5 empty-state">
-          <h5 className="">No submissions found</h5>
-          <p className="text-secondary">
-            Users have not submitted any tenant information yet.
-          </p>
+        <div className="text-center py-5">
+          <h5>No submissions found</h5>
         </div>
       ) : (
         <>
-          <div className="table-responsive collab-table-scroll">
-            <table className="table table-hover align-middle collab-table">
+          <div className="table-responsive">
+            <table className="table table-hover align-middle">
               <thead>
                 <tr>
                   <th>#</th>
-                  <th>User ID</th>
+                  <th>User</th>
                   <th>Category</th>
-                  <th>Tenant Details</th>
                   <th>Submitted</th>
                   <th>Status</th>
-                  <th className="text-end">Actions</th>
+                  <th>Actions</th>
                 </tr>
               </thead>
               <tbody>
                 {currentSubmissions.map((item, index) => (
                   <tr key={item.id}>
                     <td>{indexOfFirstItem + index + 1}</td>
-                    <td>{item.user_id}</td>
+                    <td>{item.user_name}</td>
                     <td>{item.category}</td>
+                    <td>{new Date(item.created_at).toLocaleDateString()}</td>
                     <td>
-                      <div>
-                        <strong>{item.form_data?.tenant_name}</strong>
-                      </div>
-                      <div className="small">
-                        Rent: ₹{item.form_data?.rent?.toLocaleString()} | Floor:{" "}
-                        {item.form_data?.floor} | Area:{" "}
-                        {item.form_data?.area_sqft} sq.ft
-                      </div>
-                      <div className="small text-muted">
-                        Lease: {item.form_data?.lease_start} –{" "}
-                        {item.form_data?.lease_end}
-                      </div>
-                    </td>
-                    <td>
-                      {new Date(item.created_at).toLocaleDateString("en-US", {
-                        month: "2-digit",
-                        day: "2-digit",
-                        year: "2-digit",
-                      })}
-                    </td>
-                    <td>
-                      <div style={{ minWidth: "120px" }}>
-                        {updatingStatusId === item.id ? (
-                          <div className="d-flex justify-content-center align-items-center">
-                            updating...
-                          </div>
-                        ) : (
-                          <Form.Select
-                            size="sm"
-                            value={item.status}
-                            disabled={role !== "admin"}
-                            onChange={(e) =>
-                              handleStatusChange(item.id, e.target.value)
-                            }
-                            className={`border-0 rounded-pill fw-semibold text-center ${getStatusBadge(
-                              item.status
-                            )}`}
-                            style={{ cursor: role === "admin" ? "pointer" : "not-allowed" }}
-                          >
-                            <option value="pending">Pending</option>
-                            <option value="approved">Approved</option>
-                            <option value="rejected">Rejected</option>
-                          </Form.Select>
-                        )}
-                      </div>
-                    </td>
-                    <td className="text-end">
-                      <div className="d-flex justify-content-end align-items-center gap-2">
-                        <button
-                          className="icon-btn view-btn"
-                          title="View"
-                          onClick={() => openViewModal(item)}
+                      {updatingStatusId === item.id ? (
+                        "Updating..."
+                      ) : (
+                        <Form.Select
+                          size="sm"
+                          value={item.status}
+                          disabled={role !== "admin"}
+                          onChange={(e) =>
+                            handleStatusChange(item.id, e.target.value)
+                          }
+                          className={`border-0 rounded-pill ${getStatusBadge(
+                            item.status,
+                          )}`}
                         >
-                          <i className="bi bi-eye"></i>
-                        </button>
-                        {role == "admin" && (
-                          <>
-                            <button
-                              className="icon-btn edit-btn"
-                              title="Edit"
-                              onClick={() => openEditModal(item)}
-                            >
-                              <i className="bi bi-pencil"></i>
-                            </button>
+                          <option disabled value="pending">
+                            Pending
+                          </option>
+                          <option value="approved">Approved</option>
+                          <option value="rejected">Rejected</option>
+                        </Form.Select>
+                      )}
+                    </td>
+                    <td className="text-center table-icons">
+                      <button
+                        className="btn btn-outline-primary btn-sm rounded-circle me-2"
+                        onClick={() => openViewModal(item)}
+                        title="View Details"
+                      >
+                        <i className="bi bi-eye"></i>
+                      </button>
+                      {role === "admin" && (
+                        <>
+                          <button
+                            className="btn btn-outline-warning btn-sm rounded-circle me-2"
+                            onClick={() => openEditModal(item)}
+                            title="Edit"
+                          >
+                            <i className="bi bi-pencil-square"></i>
+                          </button>
 
-                            <button
-                              className="icon-btn delete-btn"
-                              title="Delete"
-                              onClick={() => openDeleteModal(item.id)}
-                              disabled={deleteLoading && deleteId === item.id}
-                            >
-                              {deleteLoading && deleteId === item.id ? (
-                                <span className="spinner-border spinner-border-sm"></span>
-                              ) : (
-                                <i className="bi bi-trash-fill"></i>
-                              )}
-                            </button>
-                          </>
-                        )}
-                      </div>
+                          <button
+                            className="btn btn-outline-danger btn-sm rounded-circle"
+                            onClick={() => openDeleteModal(item.id)}
+                            title="Delete"
+                          >
+                            <i className="bi bi-trash3"></i>
+                          </button>
+                        </>
+                      )}
                     </td>
                   </tr>
                 ))}
@@ -301,73 +230,43 @@ export const AdminInformationCollaboration = () => {
       )}
 
       <Modal
-        className="modal_wrapper"
         show={viewModal}
         onHide={() => setViewModal(false)}
         centered
         size="lg"
       >
         <Modal.Header closeButton>
-          <Modal.Title>Tenant Information Details</Modal.Title>
+          <Modal.Title>Submission Details</Modal.Title>
         </Modal.Header>
         <Modal.Body>
           {selectedSubmission && (
             <>
               <p>
-                <strong>ID:</strong> {selectedSubmission.id}
-              </p>
-              <p>
-                <strong>User ID:</strong> {selectedSubmission.user_id}
+                <strong>User:</strong> {selectedSubmission.user_name}
               </p>
               <p>
                 <strong>Category:</strong> {selectedSubmission.category}
               </p>
               <p>
-                <strong>Building ID:</strong> {selectedSubmission.building_id}
-              </p>
-              <p>
-                <strong>Status:</strong>{" "}
-                <span
-                  className={`badge ${getStatusBadge(
-                    selectedSubmission.status,
-                  )}`}
-                >
-                  {selectedSubmission.status}
-                </span>
+                <strong>Status:</strong> {selectedSubmission.status}
               </p>
               <p>
                 <strong>Submitted:</strong>{" "}
                 {new Date(selectedSubmission.created_at).toLocaleString()}
               </p>
-              {selectedSubmission.reviewed_by && (
-                <p>
-                  <strong>Reviewed by:</strong> {selectedSubmission.reviewed_by}{" "}
-                  at {new Date(selectedSubmission.reviewed_at).toLocaleString()}
-                </p>
-              )}
+
               <hr />
-              <h6>Tenant Information</h6>
-              <div className="border rounded p-3 bg-light">
-                <p className="text-dark">
-                  <strong>Tenant Name:</strong>{" "}
-                  {selectedSubmission.form_data?.tenant_name}
-                </p>
-                <p className="text-dark">
-                  <strong>Lease Period:</strong>{" "}
-                  {selectedSubmission.form_data?.lease_start} to{" "}
-                  {selectedSubmission.form_data?.lease_end}
-                </p>
-                <p className="text-dark">
-                  <strong>Monthly Rent:</strong> ₹
-                  {selectedSubmission.form_data?.rent?.toLocaleString()}
-                </p>
-                <p className="text-dark">
-                  <strong>Floor:</strong> {selectedSubmission.form_data?.floor}
-                </p>
-                <p className="text-dark">
-                  <strong>Area:</strong>{" "}
-                  {selectedSubmission.form_data?.area_sqft} sq.ft
-                </p>
+              <h6>Submitted Information</h6>
+
+              <div className="border rounded p-3">
+                {selectedSubmission.form_data &&
+                  Object.entries(selectedSubmission.form_data).map(
+                    ([key, value]) => (
+                      <p key={key}>
+                        <strong>{formatLabel(key)}:</strong> {value?.toString()}
+                      </p>
+                    ),
+                  )}
               </div>
             </>
           )}
@@ -380,14 +279,13 @@ export const AdminInformationCollaboration = () => {
       </Modal>
 
       <Modal
-        className="modal_wrapper"
         show={editModal}
         onHide={() => setEditModal(false)}
         centered
         size="lg"
       >
         <Modal.Header closeButton>
-          <Modal.Title>Edit Tenant Information</Modal.Title>
+          <Modal.Title>Edit Submission</Modal.Title>
         </Modal.Header>
         <Modal.Body>
           {selectedSubmission && (
@@ -400,17 +298,12 @@ export const AdminInformationCollaboration = () => {
         </Modal.Body>
       </Modal>
 
-      <Modal
-        className="modal_wrapper"
-        show={!!deleteId}
-        onHide={() => setDeleteId(null)}
-        centered
-      >
+      <Modal show={!!deleteId} onHide={() => setDeleteId(null)} centered>
         <Modal.Header closeButton>
           <Modal.Title>Confirm Delete</Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          Are you sure you want to delete this tenant information submission?
+          Are you sure you want to delete this submission?
         </Modal.Body>
         <Modal.Footer>
           <Button variant="secondary" onClick={() => setDeleteId(null)}>

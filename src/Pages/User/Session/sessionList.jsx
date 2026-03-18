@@ -120,7 +120,7 @@ export const SessionList = ({ setShowSessionModal }) => {
 
     switch (session.category) {
       case "ThirdParty":
-        navigate("/third-party-chat", {
+        navigate("/contacts-hub-chat", {
           state: { sessionId: session.session_id, type: session.category },
         });
         break;
@@ -249,10 +249,11 @@ export const SessionList = ({ setShowSessionModal }) => {
                     key={session.session_id}
                     className={`d-flex align-items-center justify-content-between 
                     flex-wrap border rounded-3 mb-2 shadow-sm
-                    ${selectedChatId === session.session_id
+                    ${
+                      selectedChatId === session.session_id
                         ? "bg-dark text-white"
                         : ""
-                      }`}
+                    }`}
                     style={{
                       padding: "10px 12px",
                       transition: "all 0.2s ease-in-out",
@@ -287,9 +288,9 @@ export const SessionList = ({ setShowSessionModal }) => {
                         </span>
                       </div>
                       <button
-                        className={`btn btn-sm ${selectedChatId === session.session_id
-
-                          }`}
+                        className={`btn btn-sm ${
+                          selectedChatId === session.session_id
+                        }`}
                         onClick={(e) => {
                           e.stopPropagation();
                           setSessionToDelete(session.session_id);

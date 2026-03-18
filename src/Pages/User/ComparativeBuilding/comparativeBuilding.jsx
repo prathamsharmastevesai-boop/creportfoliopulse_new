@@ -4,7 +4,6 @@ import { ChatWindow } from "../../../Component/ChatWindow";
 export const ComparativeBuildingChat = () => {
   const location = useLocation();
   const buildingId = location?.state?.office?.buildingId;
-  console.log(buildingId, "buildingId in comparative building");
 
   return (
     <ChatWindow

@@ -19,9 +19,11 @@ export const FEATURE_KEYS = {
   TENANT_MARKET: "tenants_in_the_market_enabled",
   FIRESAFETY: "fire_safety_enabled",
   WORKLETTER: "project_management_enabled",
+  SPACEUP: "space_up_enabled",
+  MAINTENANCEUPDATE: "space_up_enabled",
   DCT_CHAT: "dct_enabled",
 
-  CHAT_SYSTEM: "gemini_chat_enabled",
+  CHAT_SYSTEM: "Conversation",
   GEMINI: "gemini_chat_enabled",
   EMAIL_DRAFTING: "email_drafting_enabled",
   AI_LEASE_ABSTRACT: "ai_lease_abstract_enabled",

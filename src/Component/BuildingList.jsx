@@ -13,10 +13,25 @@ export const BuildingList = ({
   navigateTo,
   navigateStateMapper,
   renderItem,
+  subscriptions = [],
+  onSubscribe,
 }) => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const cardsRef = useRef({});
+
+  const [loadingBell, setLoadingBell] = useState(null);
+
+  const handleBellClick = async (buildingId) => {
+    if (!onSubscribe) return;
+
+    setLoadingBell(buildingId);
+    try {
+      await onSubscribe(buildingId);
+    } finally {
+      setLoadingBell(null);
+    }
+  };
 
   const { data = [], loading } = useSelector(selector);
 
@@ -52,6 +67,13 @@ export const BuildingList = ({
     });
   };
 
+  const isSubscribed = (buildingId) => {
+    const sub = subscriptions?.find(
+      (s) => s.building_id === buildingId && s.section === "Maintenance",
+    );
+    return sub?.app_enabled === true;
+  };
+
   return (
     <>
       <div className="header-bg d-flex justify-content-start px-3 align-items-center sticky-header">
@@ -79,34 +101,47 @@ export const BuildingList = ({
           <div className="alert alert-info">No data found.</div>
         ) : (
           <div className="row">
-            {[...filteredData].reverse().map((item) => (
-              <div className="col-12 mb-3" key={item.id}>
-                <div
-                  ref={(el) => (cardsRef.current[item.id] = el)}
-                  className="card border-0 shadow-sm slide-in-top p-3"
-                  style={{ borderRadius: "16px" }}
-                >
-                  {renderItem ? (
-                    renderItem(item)
-                  ) : (
-                    <div
-                      className="d-flex align-items-center"
-                      style={{ cursor: "pointer" }}
-                      onClick={() =>
-                        navigate(navigateTo, {
-                          state: navigateStateMapper
-                            ? navigateStateMapper(item)
-                            : {},
-                        })
-                      }
-                    >
-                      <i className="bi bi-geo-alt-fill me-2 text-primary"></i>
-                      <div>{item?.[searchKey] || "N/A"}</div>
-                    </div>
-                  )}
+            {[...filteredData].reverse().map((item) => {
+              const subscribed = isSubscribed(item.id);
+
+              return (
+                <div className="col-12 mb-3" key={item.id}>
+                  <div
+                    ref={(el) => (cardsRef.current[item.id] = el)}
+                    className="card border-0 shadow-sm slide-in-top p-3"
+                    style={{ borderRadius: "16px" }}
+                  >
+                    {renderItem ? (
+                      renderItem(item)
+                    ) : (
+                      <div className="d-flex justify-content-between align-items-center">
+                        <div
+                          className="d-flex align-items-center"
+                          style={{ cursor: "pointer" }}
+                          onClick={() => handleNavigate(item)}
+                        >
+                          <i className="bi bi-geo-alt-fill me-2 text-primary"></i>
+                          <div>{item?.[searchKey] || "N/A"}</div>
+                        </div>
+                        {category === "maintenance" && (
+                          <i
+                            className={`bi ${
+                              loadingBell === item.id
+                                ? "bi-arrow-repeat spin"
+                                : subscribed
+                                  ? "bi-bell-fill text-warning"
+                                  : "bi-bell text-secondary"
+                            }`}
+                            style={{ fontSize: "1.5rem", cursor: "pointer" }}
+                            onClick={() => handleBellClick(item.id)}
+                          ></i>
+                        )}
+                      </div>
+                    )}
+                  </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         )}
       </div>

@@ -1,0 +1,10 @@
+import React from "react";
+import DocumentManager from "../../../Component/DocumentManager";
+
+export const ContactsHubUpload = () => (
+  <DocumentManager
+    category="ThirdParty"
+    title="Contacts Hub"
+    description="Upload and manage documents for Contacts Hub"
+  />
+);

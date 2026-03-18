@@ -11,7 +11,7 @@ export const getdashboardApi = createAsyncThunk(
     } catch (error) {
       return rejectWithValue(error.response?.data?.message);
     }
-  }
+  },
 );
 
 export const getsystemtracingApi = createAsyncThunk(
@@ -23,5 +23,29 @@ export const getsystemtracingApi = createAsyncThunk(
     } catch (error) {
       return rejectWithValue(error.response?.data?.message);
     }
-  }
+  },
+);
+
+export const getComplianceStatsApi = createAsyncThunk(
+  "auth/getComplianceLogsApi",
+  async (_, { rejectWithValue }) => {
+    try {
+      const response = await axiosInstance.get("/api/admin/compliance/stats");
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.response?.data?.message);
+    }
+  },
+);
+
+export const getComplianceLogsApi = createAsyncThunk(
+  "auth/getComplianceLogsApi",
+  async (_, { rejectWithValue }) => {
+    try {
+      const response = await axiosInstance.get("/api/admin/compliance/logs");
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.response?.data?.message);
+    }
+  },
 );

@@ -13,6 +13,10 @@ import workLetterdocumentReducer from "../../User/Slice/workLetterDocumentSlice"
 import timelineReducer from "../../User/Slice/timeLineSlice";
 import workLetterChatReducer from "../../User/Slice/workLetterChatSlice";
 import lineItemReducer from "../../User/Slice/lineItemSlice";
+import notificationReducer from "../../../Networking/User/Slice/notificationSlice";
+import spaceUpReducer from "../../User/Slice/spaceUpSlice";
+import buildingStackReducer from "../Slice/buildingStackSlice";
+import maintenaceReducer from "../../User/Slice/maintenanceSlice";
 
 const store = configureStore({
   reducer: {
@@ -30,6 +34,10 @@ const store = configureStore({
     timelineSlice: timelineReducer,
     workLetterChatSlice: workLetterChatReducer,
     lineItemSlice: lineItemReducer,
+    notificationSlice: notificationReducer,
+    spaceUpSlice: spaceUpReducer,
+    buildingStackSlice: buildingStackReducer,
+    maintenaceSlice: maintenaceReducer,
   },
 });
 

@@ -5,6 +5,7 @@ import { useState, useEffect, useCallback, useMemo } from "react";
 import { SessionList } from "../Pages/User/Session/sessionList";
 import { SidebarSkeleton } from "./SidebarSkeleton";
 import ThemeToggle from "./ThemeToggle";
+import { NotificationToggle } from "./notificationToggle";
 
 export const Sidebar = ({ collapsed, setCollapsed }) => {
   const navigate = useNavigate();
@@ -40,6 +41,8 @@ export const Sidebar = ({ collapsed, setCollapsed }) => {
     tour_enabled: false,
     information_collaboration_enabled: false,
     project_management_enabled: false,
+    Conversation: false,
+    space_up_enabled: false,
   });
 
   const role = sessionStorage.getItem("role");
@@ -99,6 +102,8 @@ export const Sidebar = ({ collapsed, setCollapsed }) => {
             userdata?.information_collaboration_enabled || false,
           project_management_enabled:
             userdata?.project_management_enabled || false,
+          Conversation: userdata?.Conversation || false,
+          space_up_enabled: userdata?.space_up_enabled || false,
         });
       } catch (error) {
         console.error("Failed to load profile:", error);
@@ -168,8 +173,9 @@ export const Sidebar = ({ collapsed, setCollapsed }) => {
         >
           <span>{label}</span>
           <i
-            className={`bi ms-2 ${openMenu === menuKey ? "bi-chevron-down" : "bi-chevron-right"
-              }`}
+            className={`bi ms-2 ${
+              openMenu === menuKey ? "bi-chevron-down" : "bi-chevron-right"
+            }`}
           />
         </li>
       );
@@ -284,6 +290,19 @@ export const Sidebar = ({ collapsed, setCollapsed }) => {
             isActivePath={isActive("/space-inquiry")}
           />
 
+          <NavItem
+            path="/admin-spaceup"
+            icon="bi-megaphone"
+            label="Space Up"
+            isActivePath={isActive("/admin-spaceup")}
+          />
+          <NavItem
+            path="/admin-maintenance-building-list"
+            icon="bi-tools"
+            label="Maintenance Update"
+            isActivePath={isActive("/admin-maintenance-building-list")}
+          />
+
           <AccordionHeader menuKey="dataCategories" label="Data Categories" />
 
           {openMenu === "dataCategories" && (
@@ -307,17 +326,17 @@ export const Sidebar = ({ collapsed, setCollapsed }) => {
                 isActivePath={isActive("/tenant-info-building-list")}
               />
               <NavItem
-                path="/third-party-upload"
+                path="/contacts-hub-upload"
                 icon="bi-people"
-                label="Third Party Contact Info"
-                isActivePath={isActive("/third-party-upload")}
+                label="Contacts Hub"
+                isActivePath={isActive("/contacts-hub-upload")}
               />
-              <NavItem
+              {/* <NavItem
                 path="/employee-contact-upload"
                 icon="bi-people-fill"
                 label="Employee Contact Info"
                 isActivePath={isActive("/employee-contact-upload")}
-              />
+              /> */}
 
               <NavItem
                 path="/admin-fire-safety-building-mechanicals-list"
@@ -439,13 +458,13 @@ export const Sidebar = ({ collapsed, setCollapsed }) => {
           isActivePath={isActive("/cre-news")}
           enabled={true}
         />
-        {/* <NavItem
+        <NavItem
           path="/email-drafting"
           icon="bi-envelope-open"
           label="Email Drafting"
           isActivePath={isActive("/email-drafting")}
           enabled={profileData.email_drafting_enabled}
-        /> */}
+        />
 
         {profileData.gemini_chat_enabled && (
           <NavItem
@@ -518,11 +537,11 @@ export const Sidebar = ({ collapsed, setCollapsed }) => {
           enabled={profileData.yardi_enabled}
         />
         <NavItem
-          path="/messages"
+          path="/messages-center"
           icon="bi-journal-text"
-          label="Messages"
-          isActivePath={isActive("/messages")}
-          enabled={profileData.gemini_chat_enabled}
+          label="Message Center"
+          isActivePath={isActive("/messages-center")}
+          enabled={profileData.Conversation}
         />
 
         <NavItem
@@ -531,6 +550,20 @@ export const Sidebar = ({ collapsed, setCollapsed }) => {
           label="Project Management"
           isActivePath={isActive("/project-management")}
           enabled={profileData.project_management_enabled}
+        />
+
+        <NavItem
+          path="/space-up/buildingList"
+          icon="bi-megaphone"
+          label="Space Up"
+          isActivePath={isActive("/space-up/buildingList")}
+          enabled={profileData.space_up_enabled}
+        />
+        <NavItem
+          path="/maintenance-building-list"
+          icon="bi-tools"
+          label="Maintenance Update"
+          isActivePath={isActive("/maintenance-building-list")}
         />
 
         {!collapsed && dataCategoriesEnabled && (
@@ -553,34 +586,34 @@ export const Sidebar = ({ collapsed, setCollapsed }) => {
               isActivePath={isActive("/comps-chat")}
               enabled={profileData.comps_enabled}
             />
-            <NavItem
+            {/* <NavItem
               path="/tenent-info-user-building-list"
               icon="bi-chat-left-text"
               label="Tenant Information"
               isActivePath={isActive("/tenent-info-user-building-list")}
               enabled={profileData.tenant_information_enabled}
-            />
+            /> */}
             <NavItem
-              path="/third-party-chat"
+              path="/contacts-hub-chat"
               icon="bi-telephone-fill"
-              label="Third Party Contact Info"
-              isActivePath={isActive("/third-party-chat")}
+              label="Contacts Hub"
+              isActivePath={isActive("/contacts-hub-chat")}
               enabled={profileData.third_party_enabled}
             />
-            <NavItem
+            {/* <NavItem
               path="/employee-info-chat"
               icon="bi-people-fill"
               label="Employee Contact Info"
               isActivePath={isActive("/employee-info-chat")}
               enabled={profileData.employee_contact_enabled}
-            />
-            <NavItem
+            /> */}
+            {/* <NavItem
               path="/user-building-info-list"
               icon="bi-building"
               label="Building Info Data"
               isActivePath={isActive("/user-building-info-list")}
               enabled={profileData.building_info_enabled}
-            />
+            /> */}
             <NavItem
               path="/comparative-user-building-list"
               icon="bi-cpu"
@@ -655,6 +688,13 @@ export const Sidebar = ({ collapsed, setCollapsed }) => {
               icon="bi-clock-history"
               label="Chat History"
               isActivePath={isActive("/history")}
+              enabled={profileData.chat_history}
+            />
+            <NavItem
+              path="/terms-of-use"
+              icon="bi-file"
+              label="Terms Of Use"
+              isActivePath={isActive("/terms-of-use")}
               enabled={true}
             />
           </>
@@ -685,12 +725,23 @@ export const Sidebar = ({ collapsed, setCollapsed }) => {
   return (
     <>
       <aside
-        className={`sidebar-wrapper d-flex flex-column border-end ${isMobile && !collapsed ? "sidebar-mobile-open" : ""
-          }`}
-        style={{ backgroundColor: 'var(--sidebar-bg)', color: 'var(--text-primary)' }}
+        className={`sidebar-wrapper d-flex flex-column border-end ${
+          isMobile && !collapsed ? "sidebar-mobile-open" : ""
+        }`}
+        style={{
+          backgroundColor: "var(--sidebar-bg)",
+          color: "var(--text-primary)",
+        }}
       >
-        <div className="p-3 border-bottom d-flex justify-content-between align-items-center">
-          {!collapsed && <span className="mb-0 fs-5 creportfoliopulse">creportfoliopulse</span>}
+        <div className="p-3 border-bottom">
+          {!collapsed && (
+            <span className="mb-0 fs-5 creportfoliopulse text-center">
+              creportfoliopulse
+            </span>
+          )}
+          {/* <div className="my-2">
+            <NotificationToggle />
+          </div> */}
           {isMobile && (
             <button
               className="btn btn-sm btn-outline-light"
@@ -698,10 +749,11 @@ export const Sidebar = ({ collapsed, setCollapsed }) => {
               aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
             >
               <i
-                className={`bi ${collapsed
-                  ? "bi-chevron-double-right"
-                  : "bi-chevron-double-left"
-                  }`}
+                className={`bi ${
+                  collapsed
+                    ? "bi-chevron-double-right"
+                    : "bi-chevron-double-left"
+                }`}
               />
             </button>
           )}
@@ -748,8 +800,9 @@ export const Sidebar = ({ collapsed, setCollapsed }) => {
             aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
           >
             <i
-              className={`bi ${collapsed ? "bi-chevron-double-right" : "bi-chevron-double-left"
-                }`}
+              className={`bi ${
+                collapsed ? "bi-chevron-double-right" : "bi-chevron-double-left"
+              }`}
             />
           </button>
         )}

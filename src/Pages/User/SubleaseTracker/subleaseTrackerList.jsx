@@ -18,7 +18,9 @@ export const SubleaseTrackerUserBuildinglist = () => {
 
   useEffect(() => {
     const category = "SubleaseTracker";
-    dispatch(ListBuildingSubmit(category));
+    if (category) {
+      dispatch(ListBuildingSubmit(category));
+    }
   }, [dispatch]);
 
   useEffect(() => {
@@ -36,7 +38,7 @@ export const SubleaseTrackerUserBuildinglist = () => {
     searchTerm.trim() === ""
       ? BuildingList
       : BuildingList.filter((building) =>
-          building.address?.toLowerCase().includes(searchTerm.toLowerCase())
+          building.address?.toLowerCase().includes(searchTerm.toLowerCase()),
         );
 
   const handleSubmit = async (building) => {

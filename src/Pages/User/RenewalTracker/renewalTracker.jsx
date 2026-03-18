@@ -11,7 +11,6 @@ export const RenewalTracker = () => {
 
   const role = sessionStorage.getItem("role");
   const Role = role;
-  console.log(Role, "Role");
 
   const [form, setForm] = useState({
     tenant_name: "",
@@ -25,6 +24,7 @@ export const RenewalTracker = () => {
     tenant_current_rent: "",
     most_recent_building_comp: "",
     tenant_contact_info: "",
+    tenant_broker_contact_info: "", // New field added
     notes: "",
     q1: {
       check_in: false,
@@ -68,6 +68,7 @@ export const RenewalTracker = () => {
       tenant_current_rent: "",
       most_recent_building_comp: "",
       tenant_contact_info: "",
+      tenant_broker_contact_info: "", // New field added to reset
       notes: "",
       q1: {
         check_in: false,
@@ -146,6 +147,7 @@ export const RenewalTracker = () => {
       tenant_current_rent: form.tenant_current_rent,
       most_recent_building_comp: form.most_recent_building_comp,
       tenant_contact_info: form.tenant_contact_info,
+      tenant_broker_contact_info: form.tenant_broker_contact_info, // New field added to payload
       notes: form.notes,
       q1: form.q1,
       q2: form.q2,
@@ -384,7 +386,22 @@ export const RenewalTracker = () => {
               placeholder="Name, Phone, Email, etc."
             />
           </div>
+
+          <div className="col-md-12">
+            <label className="form-label fw-bold">
+              Tenant Broker Contact Information
+            </label>
+            <textarea
+              name="tenant_broker_contact_info"
+              value={form.tenant_broker_contact_info}
+              onChange={handleChange}
+              className="form-control border-primary"
+              rows="3"
+              placeholder="Broker name, Phone, Email, Company, etc."
+            />
+          </div>
         </div>
+
         <h5 className="fw-bold pb-2 border-bottom my-3">Notes</h5>
         <div className="row">
           <div className="col-md-12">

@@ -34,7 +34,6 @@ export const ChatWindow = ({
   const [category, setCategory] = useState(
     location.state?.type || propCategory,
   );
-  console.log(building_id, "building_id");
 
   const [sessionId, setSessionId] = useState(null);
 
@@ -336,11 +335,19 @@ export const ChatWindow = ({
   };
 
   const handleNavigation = () => {
-    navigate("/documents/LOI", {
-      state: {
-        buildingId: building_id,
-      },
-    });
+    if (category == "floor_plan") {
+      navigate("/floor-plan-upload", {
+        state: {
+          buildingId: building_id,
+        },
+      });
+    } else {
+      navigate("/documents/LOI", {
+        state: {
+          buildingId: building_id,
+        },
+      });
+    }
   };
 
   return (
@@ -379,14 +386,17 @@ export const ChatWindow = ({
                     </button>
                   )}
 
-                {category === "LOI" && (
+                {(category === "LOI" || category === "floor_plan") && (
                   <button
                     className="btn btn-outline-secondary btn-sm"
                     onClick={() => handleNavigation()}
                   >
                     <i className="bi bi-upload" style={{ fontSize: 14 }} />
 
-                    <span className="d-none d-md-inline ms-1">Upload Doc</span>
+                    <span className="d-none d-md-inline ms-1">
+                      UPLOAD NEW/{" "}
+                      {category === "LOI" ? "VIEW LOI’s" : "VIEW Plans"}
+                    </span>
                   </button>
                 )}
               </div>
@@ -411,85 +421,88 @@ export const ChatWindow = ({
                     {messages.map((msg, i) => (
                       <div
                         key={i}
-                        className={`mb-2 small ${msg.sender === "Admin" ? "text-start" : "text-end"
-                          }`}
+                        className={`mb-2 small ${
+                          msg.sender === "Admin" ? "text-start" : "text-end"
+                        }`}
                       >
                         <div
-                          className={`d-inline-block px-3 py-2 position-relative responsive-box ${msg.sender === "Admin"
-                            ? "bg-secondary-theme "
-                            : "bg-chat-send"
-                            }`}
+                          className={`d-inline-block px-3 py-2 position-relative responsive-box ${
+                            msg.sender === "Admin"
+                              ? "bg-secondary-theme "
+                              : "bg-chat-send"
+                          }`}
                         >
                           {msg.sender === "Admin" ? (
                             <>
                               <i
-                                className={`bi ${speakingIndex === i
-                                  ? "bi-volume-up-fill"
-                                  : "bi-volume-mute"
-                                  } ms-2`}
+                                className={`bi ${
+                                  speakingIndex === i
+                                    ? "bi-volume-up-fill"
+                                    : "bi-volume-mute"
+                                } ms-2`}
                                 style={{
                                   cursor: "pointer",
                                   fontSize: "1rem",
-                                  color: speakingIndex === i ? "var(--accent-color)" : "var(--text-secondary)",
+                                  color:
+                                    speakingIndex === i
+                                      ? "var(--accent-color)"
+                                      : "var(--text-secondary)",
                                   position: "absolute",
                                   right: "8px",
                                   bottom: "18px",
                                 }}
                                 onClick={() => toggleSpeak(i, msg.message)}
                               ></i>
+
                               <div className="py-3">
-                                <div className="py-3">
-                                  {(!msg.type || msg.type === "text") && (
-                                    <ReactMarkdown>{msg.message}</ReactMarkdown>
-                                  )}
+                                {(!msg.type || msg.type === "text") && (
+                                  <ReactMarkdown>{msg.message}</ReactMarkdown>
+                                )}
 
-                                  {msg.type === "image" && (
-                                    <img
+                                {msg.type === "image" && (
+                                  <img
+                                    src={msg.message}
+                                    alt="response"
+                                    className="img-fluid rounded border"
+                                    style={{
+                                      cursor: "pointer",
+                                      maxHeight: "300px",
+                                    }}
+                                    onClick={() => setPreviewImage(msg.message)}
+                                  />
+                                )}
+
+                                {msg.type === "pdf" && (
+                                  <div
+                                    style={{ cursor: "pointer" }}
+                                    onClick={() => setPreviewPdf(msg.message)}
+                                    className="d-inline-block"
+                                  >
+                                    <iframe
                                       src={msg.message}
-                                      alt="response"
-                                      className="img-fluid rounded border"
+                                      title="PDF Preview"
+                                      className="w-100 rounded border shadow-sm"
                                       style={{
-                                        cursor: "pointer",
-                                        maxHeight: "300px",
+                                        height: "auto",
+                                        maxWidth: "400px",
                                       }}
-                                      onClick={() =>
-                                        setPreviewImage(msg.message)
-                                      }
                                     />
-                                  )}
-
-                                  {msg.type === "pdf" && (
-                                    <div
-                                      style={{ cursor: "pointer" }}
-                                      onClick={() => setPreviewPdf(msg.message)}
-                                      className="d-inline-block"
-                                    >
-                                      <iframe
-                                        src={msg.message}
-                                        title="PDF Preview"
-                                        className="w-100 rounded border shadow-sm"
-                                        style={{
-                                          height: "auto",
-                                          maxWidth: "400px",
-                                        }}
-                                      />
-                                      <div className="text-center text-primary fw-semibold mt-2 small">
-                                        Click to view full PDF
-                                      </div>
+                                    <div className="text-center text-primary fw-semibold mt-2 small">
+                                      Click to view full PDF
                                     </div>
-                                  )}
+                                  </div>
+                                )}
 
-                                  {msg.type === "link" && (
-                                    <a
-                                      href={msg.message}
-                                      target="_blank"
-                                      rel="noopener noreferrer"
-                                      className="text-primary fw-semibold"
-                                    >
-                                      Open File
-                                    </a>
-                                  )}
-                                </div>
+                                {msg.type === "link" && (
+                                  <a
+                                    href={msg.message}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="text-primary fw-semibold"
+                                  >
+                                    Open File
+                                  </a>
+                                )}
                               </div>
                             </>
                           ) : (
@@ -547,14 +560,16 @@ export const ChatWindow = ({
                 </button>
               ) : (
                 <button
-                  className={`btn rounded-circle ${isRecording ? "btn-danger" : "btn-outline-secondary"
-                    }`}
+                  className={`btn rounded-circle ${
+                    isRecording ? "btn-danger" : "btn-outline-secondary"
+                  }`}
                   onClick={startRecording}
                   disabled={isSending || isLoading || !sessionId}
                 >
                   <i
-                    className={`bi ${isRecording ? "bi-mic-mute-fill" : "bi-mic-fill"
-                      }`}
+                    className={`bi ${
+                      isRecording ? "bi-mic-mute-fill" : "bi-mic-fill"
+                    }`}
                   ></i>
                 </button>
               )}
@@ -600,7 +615,7 @@ export const ChatWindow = ({
           onClick={() => setPreviewPdf(null)}
         >
           <div
-            className="modal-dialog modal-dialog-centered modal-xl"
+            className="modal-dialog modal-dialog-centered modal"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="modal-content border-0 bg-transparent">

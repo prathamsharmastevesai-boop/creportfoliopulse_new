@@ -1,17 +1,20 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
   GetSubleaseTrackerList,
   GetSubleaseById,
   DeleteSubleaseById,
   UpdateSubleaseById,
+  fetchSubleaseFiles,
+  deleteSubleaseFile,
 } from "../../../Networking/Admin/APIs/subleaseTrackerApi";
 import "bootstrap-icons/font/bootstrap-icons.css";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
-import { BsPlusLg } from "react-icons/bs";
+import { BsPlusLg, BsFilePdf, BsTrash } from "react-icons/bs";
 import RAGLoader from "../../../Component/Loader";
+import { ChatBotModal } from "../../../Component/chatbotModel";
 
 export const SubleaseTrackerList = () => {
   const dispatch = useDispatch();
@@ -20,11 +23,14 @@ export const SubleaseTrackerList = () => {
 
   const role = sessionStorage.getItem("role");
   const Role = role;
-  console.log(Role, "Role");
+
+  const [sortConfig, setSortConfig] = useState({ key: null, direction: "asc" });
 
   const [showModal, setShowModal] = useState(false);
   const [isEdit, setIsEdit] = useState(false);
   const [detail, setDetail] = useState(null);
+  const [files, setFiles] = useState([]);
+  const [loadingFiles, setLoadingFiles] = useState(false);
 
   const [deleteModal, setDeleteModal] = useState({
     show: false,
@@ -33,8 +39,65 @@ export const SubleaseTrackerList = () => {
     loading: false,
   });
 
+  const [deleteFileModal, setDeleteFileModal] = useState({
+    show: false,
+    fileId: null,
+    fileName: "",
+    subleaseId: null,
+    loading: false,
+  });
+
   const [detailLoading, setDetailLoading] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+
+  const handleSort = (key) => {
+    setSortConfig((prev) => {
+      if (prev.key === key) {
+        return {
+          key,
+          direction: prev.direction === "asc" ? "desc" : "asc",
+        };
+      }
+      return { key, direction: "asc" };
+    });
+  };
+
+  const sortedList = useMemo(() => {
+    if (!list) return [];
+
+    let sortable = [...list];
+
+    if (!sortConfig.key) return sortable;
+
+    sortable.sort((a, b) => {
+      let valA = a.data[sortConfig.key];
+      let valB = b.data[sortConfig.key];
+
+      if (
+        sortConfig.key.includes("date") ||
+        sortConfig.key === "sublease_commencement_date" ||
+        sortConfig.key === "sublease_expiration_date" ||
+        sortConfig.key === "direct_tenant_notice_of_renewal_date"
+      ) {
+        valA = new Date(valA || 0).getTime();
+        valB = new Date(valB || 0).getTime();
+      }
+
+      if (
+        sortConfig.key === "subtenant_headcount" ||
+        sortConfig.key === "days_in_review"
+      ) {
+        valA = Number(valA) || 0;
+        valB = Number(valB) || 0;
+      }
+
+      if (valA < valB) return sortConfig.direction === "asc" ? -1 : 1;
+      if (valA > valB) return sortConfig.direction === "asc" ? 1 : -1;
+      return 0;
+    });
+
+    return sortable;
+  }, [list, sortConfig]);
 
   const confirmDelete = (id, name) => {
     setDeleteModal({
@@ -45,66 +108,143 @@ export const SubleaseTrackerList = () => {
     });
   };
 
+  const confirmDeleteFile = (fileId, fileName, subleaseId) => {
+    setDeleteFileModal({
+      show: true,
+      fileId,
+      fileName,
+      subleaseId,
+      loading: false,
+    });
+  };
+
   useEffect(() => {
     dispatch(GetSubleaseTrackerList());
   }, [dispatch]);
+
+  const loadFiles = async (id) => {
+    setLoadingFiles(true);
+    try {
+      const result = await dispatch(fetchSubleaseFiles(id)).unwrap();
+      setFiles(result || []);
+    } catch (error) {
+      console.error("Failed to load files", error);
+      setFiles([]);
+    } finally {
+      setLoadingFiles(false);
+    }
+  };
+
+  const handleDeleteFile = async () => {
+    if (!deleteFileModal.fileId) return;
+
+    setDeleteFileModal((prev) => ({ ...prev, loading: true }));
+
+    try {
+      await dispatch(deleteSubleaseFile(deleteFileModal.fileId)).unwrap();
+
+      if (deleteFileModal.subleaseId) {
+        await loadFiles(deleteFileModal.subleaseId);
+      }
+
+      toast.success("File deleted successfully!");
+      setDeleteFileModal({
+        show: false,
+        fileId: null,
+        fileName: "",
+        subleaseId: null,
+        loading: false,
+      });
+    } catch (error) {
+      console.error("Error deleting file:", error);
+      toast.error("Failed to delete file. Please try again.");
+      setDeleteFileModal((prev) => ({ ...prev, loading: false }));
+    }
+  };
 
   const openDetailModal = async (id, edit = false) => {
     setShowModal(true);
     setIsEdit(edit);
     setDetailLoading(true);
+    setFiles([]);
 
     try {
       const data = await dispatch(GetSubleaseById(id)).unwrap();
 
       const initializedData = {
         ...data?.data,
-        q1: data?.data?.q1 || {
+        q1: {
           check_in: false,
           headcount_confirmation: false,
           building_update_note_sent: false,
-          holiday_gift: true,
+          holiday_gift: false,
+          ...(data?.data?.q1 || {}),
         },
-        q2: data?.data?.q2 || {
+        q2: {
           check_in: false,
           headcount_confirmation: false,
           building_update_note_sent: false,
-          holiday_gift: true,
+          holiday_gift: false,
+          ...(data?.data?.q2 || {}),
         },
-        q3: data?.data?.q3 || {
+        q3: {
           check_in: false,
           headcount_confirmation: false,
           building_update_note_sent: false,
-          holiday_gift: true,
+          holiday_gift: false,
+          ...(data?.data?.q3 || {}),
         },
-        q4: data?.data?.q4 || {
+        q4: {
           check_in: false,
           headcount_confirmation: false,
           building_update_note_sent: false,
-          holiday_gift: true,
+          holiday_gift: false,
+          ...(data?.data?.q4 || {}),
+        },
+        consent_checklist: {
+          final_term_sheet_uploaded: false,
+          signed_sublease_uploaded: false,
+          subtenant_financials_status: "Pending",
+          subtenant_profile: "",
+          landlord_review_fees: 0,
+          landlord_review_fees_paid: false,
+          insurance_status: "Pending",
+          ...(data?.data?.consent_checklist || {}),
+        },
+        compliance_guardrails: {
+          occupancy_check: false,
+          anti_poaching_check: false,
+          use_covenant: "",
+          master_rent: 0,
+          sublease_rent: 0,
+          ...(data?.data?.compliance_guardrails || {}),
+        },
+        timeline_tracking: {
+          consent_submission_date: "",
+          ...(data?.data?.timeline_tracking || {}),
         },
         notes: data?.data?.notes || "",
+        days_in_review: data?.data?.days_in_review || 0,
       };
 
-      setDetail({ ...data, data: initializedData });
+      setDetail({
+        ...data,
+        data: initializedData,
+      });
 
-      console.log(
-        { ...data, data: initializedData },
-        "detail after initialization"
-      );
+      await loadFiles(id);
     } catch (error) {
       console.error("Error fetching details:", error);
+      toast.error("Failed to load sublease details");
     } finally {
       setDetailLoading(false);
     }
   };
 
   const handleNavigate = () => {
-    {
-      Role === "admin"
-        ? navigate("/sublease-tracker-form")
-        : navigate("/user-sublease-tracker");
-    }
+    Role === "admin"
+      ? navigate("/sublease-tracker-form")
+      : navigate("/user-sublease-tracker");
   };
 
   const handleDelete = async () => {
@@ -155,29 +295,34 @@ export const SubleaseTrackerList = () => {
 
     setIsSaving(true);
     try {
+      const updateData = {
+        sub_tenant_name: detail.data.sub_tenant_name,
+        building_address: detail.data.building_address,
+        floor_suite: detail.data.floor_suite,
+        sublease_commencement_date: detail.data.sublease_commencement_date,
+        sublease_expiration_date: detail.data.sublease_expiration_date,
+        subtenant_headcount: detail.data.subtenant_headcount,
+        direct_tenant_notice_of_renewal_date:
+          detail.data.direct_tenant_notice_of_renewal_date,
+        subtenant_current_rent: detail.data.subtenant_current_rent,
+        direct_tenant_current_rent: detail.data.direct_tenant_current_rent,
+        subtenant_contact_info: detail.data.subtenant_contact_info,
+        direct_tenant_contact_info: detail.data.direct_tenant_contact_info,
+        notes: detail.data.notes || "",
+        q1: detail.data.q1,
+        q2: detail.data.q2,
+        q3: detail.data.q3,
+        q4: detail.data.q4,
+        consent_checklist: detail.data.consent_checklist,
+        compliance_guardrails: detail.data.compliance_guardrails,
+        timeline_tracking: detail.data.timeline_tracking,
+      };
+
       await dispatch(
         UpdateSubleaseById({
           tracker_id: detail.id,
-          data: {
-            sub_tenant_name: detail.data.sub_tenant_name,
-            building_address: detail.data.building_address,
-            floor_suite: detail.data.floor_suite,
-            sublease_commencement_date: detail.data.sublease_commencement_date,
-            sublease_expiration_date: detail.data.sublease_expiration_date,
-            subtenant_headcount: detail.data.subtenant_headcount,
-            direct_tenant_notice_of_renewal_date:
-              detail.data.direct_tenant_notice_of_renewal_date,
-            subtenant_current_rent: detail.data.subtenant_current_rent,
-            direct_tenant_current_rent: detail.data.direct_tenant_current_rent,
-            subtenant_contact_info: detail.data.subtenant_contact_info,
-            direct_tenant_contact_info: detail.data.direct_tenant_contact_info,
-            notes: detail.data.notes || "",
-            q1: detail.data.q1,
-            q2: detail.data.q2,
-            q3: detail.data.q3,
-            q4: detail.data.q4,
-          },
-        })
+          data: updateData,
+        }),
       ).unwrap();
 
       dispatch(GetSubleaseTrackerList());
@@ -186,7 +331,7 @@ export const SubleaseTrackerList = () => {
       toast.success("Sublease updated successfully!");
     } catch (error) {
       console.error("Error updating sublease:", error);
-      alert("Failed to update sublease. Please try again.");
+      toast.error("Failed to update sublease. Please try again.");
     } finally {
       setIsSaving(false);
     }
@@ -195,12 +340,31 @@ export const SubleaseTrackerList = () => {
   const formatDateForInput = (dateString) => {
     if (!dateString) return "";
     const date = new Date(dateString);
+    if (isNaN(date.getTime())) return "";
     return date.toISOString().split("T")[0];
   };
 
+  const formatDateForDisplay = (dateString) => {
+    if (!dateString) return "N/A";
+    const date = new Date(dateString);
+    if (isNaN(date.getTime())) return "N/A";
+    return date
+      .toLocaleDateString("en-US", {
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit",
+      })
+      .replace(/\//g, "-");
+  };
+
+  const formatCurrency = (value) => {
+    if (value === undefined || value === null) return "N/A";
+    return `$${Number(value).toFixed(2)}`;
+  };
+
   const renderQuarterSection = (quarter, quarterName) => (
-    <div className="border p-3 mb-3 rounded">
-      <h6 className="fw-bold mb-3">{quarterName.toUpperCase()}</h6>
+    <div key={quarter} className="border p-3 mb-3 rounded">
+      <h6 className="fw-bold mb-3">{quarterName}</h6>
       <div className="row">
         <div className="col-md-6">
           <div className="form-check mb-2">
@@ -209,7 +373,7 @@ export const SubleaseTrackerList = () => {
                 type="checkbox"
                 className="form-check-input"
                 name={`${quarter}.check_in`}
-                checked={detail?.data?.[quarter]?.check_in ?? false}
+                checked={detail?.data?.[quarter]?.check_in || false}
                 onChange={handleChange}
                 id={`${quarter}-checkin`}
               />
@@ -217,8 +381,9 @@ export const SubleaseTrackerList = () => {
               <input
                 type="checkbox"
                 className="form-check-input"
-                checked={detail?.data?.[quarter]?.check_in ?? false}
+                checked={detail?.data?.[quarter]?.check_in || false}
                 disabled
+                readOnly
               />
             )}
             <label className="form-check-label" htmlFor={`${quarter}-checkin`}>
@@ -233,7 +398,7 @@ export const SubleaseTrackerList = () => {
                 className="form-check-input"
                 name={`${quarter}.headcount_confirmation`}
                 checked={
-                  detail?.data?.[quarter]?.headcount_confirmation ?? false
+                  detail?.data?.[quarter]?.headcount_confirmation || false
                 }
                 onChange={handleChange}
                 id={`${quarter}-headcount`}
@@ -243,9 +408,10 @@ export const SubleaseTrackerList = () => {
                 type="checkbox"
                 className="form-check-input"
                 checked={
-                  detail?.data?.[quarter]?.headcount_confirmation ?? false
+                  detail?.data?.[quarter]?.headcount_confirmation || false
                 }
                 disabled
+                readOnly
               />
             )}
             <label
@@ -265,7 +431,7 @@ export const SubleaseTrackerList = () => {
                 className="form-check-input"
                 name={`${quarter}.building_update_note_sent`}
                 checked={
-                  detail?.data?.[quarter]?.building_update_note_sent ?? false
+                  detail?.data?.[quarter]?.building_update_note_sent || false
                 }
                 onChange={handleChange}
                 id={`${quarter}-note-sent`}
@@ -275,9 +441,10 @@ export const SubleaseTrackerList = () => {
                 type="checkbox"
                 className="form-check-input"
                 checked={
-                  detail?.data?.[quarter]?.building_update_note_sent ?? false
+                  detail?.data?.[quarter]?.building_update_note_sent || false
                 }
                 disabled
+                readOnly
               />
             )}
             <label
@@ -294,7 +461,7 @@ export const SubleaseTrackerList = () => {
                 type="checkbox"
                 className="form-check-input"
                 name={`${quarter}.holiday_gift`}
-                checked={detail?.data?.[quarter]?.holiday_gift ?? false}
+                checked={detail?.data?.[quarter]?.holiday_gift || false}
                 onChange={handleChange}
                 id={`${quarter}-holiday-gift`}
               />
@@ -302,8 +469,9 @@ export const SubleaseTrackerList = () => {
               <input
                 type="checkbox"
                 className="form-check-input"
-                checked={detail?.data?.[quarter]?.holiday_gift ?? false}
+                checked={detail?.data?.[quarter]?.holiday_gift || false}
                 disabled
+                readOnly
               />
             )}
             <label
@@ -318,6 +486,413 @@ export const SubleaseTrackerList = () => {
     </div>
   );
 
+  const renderConsentChecklist = () => (
+    <div className="col-12 mt-4">
+      <h5 className="fw-bold border-bottom pb-2 mb-3">Consent Checklist</h5>
+      <div className="row g-3">
+        <div className="col-md-6">
+          <div className="form-check">
+            {isEdit ? (
+              <input
+                type="checkbox"
+                className="form-check-input"
+                name="consent_checklist.final_term_sheet_uploaded"
+                checked={
+                  detail?.data?.consent_checklist?.final_term_sheet_uploaded ||
+                  false
+                }
+                onChange={handleChange}
+                id="finalTermSheet"
+              />
+            ) : (
+              <input
+                type="checkbox"
+                className="form-check-input"
+                checked={
+                  detail?.data?.consent_checklist?.final_term_sheet_uploaded ||
+                  false
+                }
+                disabled
+                readOnly
+              />
+            )}
+            <label className="form-check-label" htmlFor="finalTermSheet">
+              Final Term Sheet Uploaded
+            </label>
+          </div>
+        </div>
+
+        <div className="col-md-6">
+          <div className="form-check">
+            {isEdit ? (
+              <input
+                type="checkbox"
+                className="form-check-input"
+                name="consent_checklist.signed_sublease_uploaded"
+                checked={
+                  detail?.data?.consent_checklist?.signed_sublease_uploaded ||
+                  false
+                }
+                onChange={handleChange}
+                id="signedSublease"
+              />
+            ) : (
+              <input
+                type="checkbox"
+                className="form-check-input"
+                checked={
+                  detail?.data?.consent_checklist?.signed_sublease_uploaded ||
+                  false
+                }
+                disabled
+                readOnly
+              />
+            )}
+            <label className="form-check-label" htmlFor="signedSublease">
+              Signed Sublease Uploaded
+            </label>
+          </div>
+        </div>
+
+        <div className="col-md-6">
+          <label className="form-label fw-bold">
+            Subtenant Financials Status
+          </label>
+          {isEdit ? (
+            <select
+              className="form-select"
+              name="consent_checklist.subtenant_financials_status"
+              value={
+                detail?.data?.consent_checklist?.subtenant_financials_status ||
+                "Pending"
+              }
+              onChange={handleChange}
+            >
+              <option value="Pending">Pending</option>
+              <option value="Received">Received</option>
+              <option value="Verified">Verified</option>
+              <option value="Rejected">Rejected</option>
+            </select>
+          ) : (
+            <p className="mb-0">
+              {detail?.data?.consent_checklist?.subtenant_financials_status ||
+                "N/A"}
+            </p>
+          )}
+        </div>
+
+        <div className="col-md-6">
+          <label className="form-label fw-bold">Subtenant Profile</label>
+          {isEdit ? (
+            <input
+              type="text"
+              className="form-control"
+              name="consent_checklist.subtenant_profile"
+              value={detail?.data?.consent_checklist?.subtenant_profile || ""}
+              onChange={handleChange}
+              placeholder="e.g., Tech startup - AI SaaS"
+            />
+          ) : (
+            <p className="mb-0">
+              {detail?.data?.consent_checklist?.subtenant_profile || "N/A"}
+            </p>
+          )}
+        </div>
+
+        <div className="col-md-6">
+          <label className="form-label fw-bold">Landlord Review Fees ($)</label>
+          {isEdit ? (
+            <input
+              type="number"
+              className="form-control"
+              name="consent_checklist.landlord_review_fees"
+              value={
+                detail?.data?.consent_checklist?.landlord_review_fees || ""
+              }
+              onChange={handleChange}
+              step="0.01"
+            />
+          ) : (
+            <p className="mb-0">
+              {formatCurrency(
+                detail?.data?.consent_checklist?.landlord_review_fees,
+              )}
+            </p>
+          )}
+        </div>
+
+        <div className="col-md-6">
+          <div className="form-check mt-4">
+            {isEdit ? (
+              <input
+                type="checkbox"
+                className="form-check-input"
+                name="consent_checklist.landlord_review_fees_paid"
+                checked={
+                  detail?.data?.consent_checklist?.landlord_review_fees_paid ||
+                  false
+                }
+                onChange={handleChange}
+                id="feesPaid"
+              />
+            ) : (
+              <input
+                type="checkbox"
+                className="form-check-input"
+                checked={
+                  detail?.data?.consent_checklist?.landlord_review_fees_paid ||
+                  false
+                }
+                disabled
+                readOnly
+              />
+            )}
+            <label className="form-check-label" htmlFor="feesPaid">
+              Landlord Review Fees Paid
+            </label>
+          </div>
+        </div>
+
+        <div className="col-md-6">
+          <label className="form-label fw-bold">Insurance Status</label>
+          {isEdit ? (
+            <select
+              className="form-select"
+              name="consent_checklist.insurance_status"
+              value={
+                detail?.data?.consent_checklist?.insurance_status || "Pending"
+              }
+              onChange={handleChange}
+            >
+              <option value="Pending">Pending</option>
+              <option value="Verified">Verified</option>
+              <option value="Not Required">Not Required</option>
+            </select>
+          ) : (
+            <p className="mb-0">
+              {detail?.data?.consent_checklist?.insurance_status || "N/A"}
+            </p>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+
+  const renderComplianceGuardrails = () => (
+    <div className="col-12 mt-4">
+      <h5 className="fw-bold border-bottom pb-2 mb-3">Compliance Guardrails</h5>
+      <div className="row g-3">
+        <div className="col-md-6">
+          <div className="form-check">
+            {isEdit ? (
+              <input
+                type="checkbox"
+                className="form-check-input"
+                name="compliance_guardrails.occupancy_check"
+                checked={
+                  detail?.data?.compliance_guardrails?.occupancy_check || false
+                }
+                onChange={handleChange}
+                id="occupancyCheck"
+              />
+            ) : (
+              <input
+                type="checkbox"
+                className="form-check-input"
+                checked={
+                  detail?.data?.compliance_guardrails?.occupancy_check || false
+                }
+                disabled
+                readOnly
+              />
+            )}
+            <label className="form-check-label" htmlFor="occupancyCheck">
+              Occupancy Check Passed
+            </label>
+          </div>
+        </div>
+
+        <div className="col-md-6">
+          <div className="form-check">
+            {isEdit ? (
+              <input
+                type="checkbox"
+                className="form-check-input"
+                name="compliance_guardrails.anti_poaching_check"
+                checked={
+                  detail?.data?.compliance_guardrails?.anti_poaching_check ||
+                  false
+                }
+                onChange={handleChange}
+                id="antiPoachingCheck"
+              />
+            ) : (
+              <input
+                type="checkbox"
+                className="form-check-input"
+                checked={
+                  detail?.data?.compliance_guardrails?.anti_poaching_check ||
+                  false
+                }
+                disabled
+                readOnly
+              />
+            )}
+            <label className="form-check-label" htmlFor="antiPoachingCheck">
+              Anti-Poaching Check Passed
+            </label>
+          </div>
+        </div>
+
+        <div className="col-md-6">
+          <label className="form-label fw-bold">Use Covenant</label>
+          {isEdit ? (
+            <input
+              type="text"
+              className="form-control"
+              name="compliance_guardrails.use_covenant"
+              value={detail?.data?.compliance_guardrails?.use_covenant || ""}
+              onChange={handleChange}
+              placeholder="e.g., General Office"
+            />
+          ) : (
+            <p className="mb-0">
+              {detail?.data?.compliance_guardrails?.use_covenant || "N/A"}
+            </p>
+          )}
+        </div>
+
+        <div className="col-md-6">
+          <label className="form-label fw-bold">Master Rent ($/sf)</label>
+          {isEdit ? (
+            <input
+              type="number"
+              className="form-control"
+              name="compliance_guardrails.master_rent"
+              value={detail?.data?.compliance_guardrails?.master_rent || ""}
+              onChange={handleChange}
+              step="0.01"
+            />
+          ) : (
+            <p className="mb-0">
+              {formatCurrency(detail?.data?.compliance_guardrails?.master_rent)}
+            </p>
+          )}
+        </div>
+
+        <div className="col-md-6">
+          <label className="form-label fw-bold">Sublease Rent ($/sf)</label>
+          {isEdit ? (
+            <input
+              type="number"
+              className="form-control"
+              name="compliance_guardrails.sublease_rent"
+              value={detail?.data?.compliance_guardrails?.sublease_rent || ""}
+              onChange={handleChange}
+              step="0.01"
+            />
+          ) : (
+            <p className="mb-0">
+              {formatCurrency(
+                detail?.data?.compliance_guardrails?.sublease_rent,
+              )}
+            </p>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+
+  const renderTimelineTracking = () => (
+    <div className="col-12 mt-4">
+      <h5 className="fw-bold border-bottom pb-2 mb-3">Timeline Tracking</h5>
+      <div className="row g-3">
+        <div className="col-md-6">
+          <label className="form-label fw-bold">Consent Submission Date</label>
+          {isEdit ? (
+            <input
+              type="date"
+              className="form-control"
+              name="timeline_tracking.consent_submission_date"
+              value={formatDateForInput(
+                detail?.data?.timeline_tracking?.consent_submission_date,
+              )}
+              onChange={handleChange}
+            />
+          ) : (
+            <p className="mb-0">
+              {formatDateForDisplay(
+                detail?.data?.timeline_tracking?.consent_submission_date,
+              )}
+            </p>
+          )}
+        </div>
+
+        <div className="col-md-6">
+          <label className="form-label fw-bold">Days in Review</label>
+          <p className="mb-0 fw-bold text-primary">
+            {detail?.data?.days_in_review || 0} days
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+
+  const renderFilesSection = () => (
+    <div className="col-12 mt-4">
+      <h5 className="fw-bold border-bottom pb-2 mb-3">Documents</h5>
+      {loadingFiles ? (
+        <div className="text-center py-3">
+          <div
+            className="spinner-border spinner-border-sm text-primary"
+            role="status"
+          >
+            <span className="visually-hidden">Loading...</span>
+          </div>
+          <span className="ms-2">Loading files...</span>
+        </div>
+      ) : files.length > 0 ? (
+        <div className="list-group">
+          {files.map((file) => (
+            <div
+              key={file.id}
+              className="list-group-item d-flex justify-content-between align-items-center"
+            >
+              <div className="d-flex align-items-center">
+                <BsFilePdf className="text-danger me-2" size={20} />
+                <span>{file.file_name}</span>
+              </div>
+              <div>
+                <a
+                  href={file.view_url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="btn btn-sm btn-outline-primary me-2"
+                >
+                  <i className="bi bi-eye me-1"></i>
+                  View
+                </a>
+                {isEdit && (
+                  <button
+                    className="btn btn-sm btn-outline-danger"
+                    onClick={() =>
+                      confirmDeleteFile(file.id, file.file_name, detail?.id)
+                    }
+                    title="Delete File"
+                  >
+                    <BsTrash />
+                  </button>
+                )}
+              </div>
+            </div>
+          ))}
+        </div>
+      ) : (
+        <p className="text-muted fst-italic">No documents uploaded</p>
+      )}
+    </div>
+  );
+
   return (
     <>
       <div className="header-bg d-flex justify-content-between flex-wrap px-3 align-items-center sticky-header">
@@ -329,9 +904,10 @@ export const SubleaseTrackerList = () => {
         >
           <BsPlusLg /> Add Sublease
         </button>
+        <ChatBotModal category={"sublease"} />
       </div>
 
-      <div className="container-fuild p-4">
+      <div className="container-fluid p-4">
         {loading && (
           <div
             style={{
@@ -345,42 +921,90 @@ export const SubleaseTrackerList = () => {
           </div>
         )}
 
-        {!loading && list?.length === 0 && (
+        {!loading && (!list || list.length === 0) && (
           <div className="text-center my-5">
             <p className="text-muted fs-5">No entries found.</p>
           </div>
         )}
 
         {!loading && list?.length > 0 && (
-          <div className="table-responsive shadow-sm bg-white rounded">
+          <div className="table-responsive shadow-sm rounded">
             <table className="table align-middle">
               <thead>
                 <tr className="table-light text-uppercase small fw-bold">
-                  <th>Sub-Tenant Name</th>
-                  <th>Floor / Suite</th>
-                  <th>Commencement Date</th>
-                  <th>Expiration Date</th>
-                  <th>Headcount</th>
-                  <th>Building Address</th>
-                  <th>Last Edited By</th>
-                  <th className="text-center">Actions</th>
+                  <th className="text-nowrap">Sub-Tenant Name</th>
+                  <th className="text-nowrap">Floor / Suite</th>
+
+                  <th
+                    role="button"
+                    onClick={() => handleSort("sublease_commencement_date")}
+                    style={{ cursor: "pointer" }}
+                    className="text-nowrap"
+                  >
+                    Commencement Date{" "}
+                    {sortConfig.key === "sublease_commencement_date" &&
+                      (sortConfig.direction === "asc" ? " ↑" : " ↓")}
+                  </th>
+
+                  <th
+                    role="button"
+                    onClick={() => handleSort("sublease_expiration_date")}
+                    style={{ cursor: "pointer" }}
+                    className="text-nowrap"
+                  >
+                    Expiration Date{" "}
+                    {sortConfig.key === "sublease_expiration_date" &&
+                      (sortConfig.direction === "asc" ? " ↑" : " ↓")}
+                  </th>
+
+                  <th
+                    role="button"
+                    onClick={() => handleSort("subtenant_headcount")}
+                    style={{ cursor: "pointer" }}
+                    className="text-nowrap"
+                  >
+                    Headcount{" "}
+                    {sortConfig.key === "subtenant_headcount" &&
+                      (sortConfig.direction === "asc" ? " ↑" : " ↓")}
+                  </th>
+
+                  <th
+                    role="button"
+                    onClick={() => handleSort("days_in_review")}
+                    style={{ cursor: "pointer" }}
+                    className="text-nowrap"
+                  >
+                    Days in Review{" "}
+                    {sortConfig.key === "days_in_review" &&
+                      (sortConfig.direction === "asc" ? " ↑" : " ↓")}
+                  </th>
+                  <th className="text-nowrap">Building Address</th>
+                  <th className="text-nowrap">Last Edited By</th>
+                  <th className="text-nowrap">Actions</th>
                 </tr>
               </thead>
 
-              <tbody className="text-center">
-                {list.map((item) => (
+              <tbody>
+                {sortedList.map((item) => (
                   <tr key={item.id} className="border-bottom">
                     <td>{item?.data?.sub_tenant_name || "N/A"}</td>
                     <td>{item?.data?.floor_suite || "N/A"}</td>
                     <td>
-                      {item?.data?.sublease_commencement_date?.slice(0, 10) ||
-                        "N/A"}
+                      {formatDateForDisplay(
+                        item?.data?.sublease_commencement_date,
+                      )}
                     </td>
                     <td>
-                      {item?.data?.sublease_expiration_date?.slice(0, 10) ||
-                        "N/A"}
+                      {formatDateForDisplay(
+                        item?.data?.sublease_expiration_date,
+                      )}
                     </td>
-                    <td>{item?.data?.subtenant_headcount}</td>
+                    <td>{item?.data?.subtenant_headcount || 0}</td>
+                    <td>
+                      <span className="badge bg-info">
+                        {item?.data?.days_in_review || 0}
+                      </span>
+                    </td>
                     <td
                       style={{
                         maxWidth: "200px",
@@ -388,6 +1012,7 @@ export const SubleaseTrackerList = () => {
                         overflow: "hidden",
                         textOverflow: "ellipsis",
                       }}
+                      title={item?.data?.building_address}
                     >
                       {item?.data?.building_address || "N/A"}
                     </td>
@@ -395,8 +1020,9 @@ export const SubleaseTrackerList = () => {
                       <div
                         className="text-truncate"
                         style={{ maxWidth: "100px" }}
+                        title={item?.updated_by_email}
                       >
-                        {item?.updated_by_email}
+                        {item?.updated_by_email || "N/A"}
                       </div>
                     </td>
 
@@ -433,75 +1059,14 @@ export const SubleaseTrackerList = () => {
           </div>
         )}
 
-        {deleteModal.show && (
-          <div
-            className="modal fade show"
-            style={{ display: "block", background: "rgba(0,0,0,0.5)" }}
-          >
-            <div className="modal-dialog modal-dialog-centered">
-              <div className="modal-content">
-                <div className="modal-header">
-                  <h5 className="modal-title">Confirm Delete</h5>
-                  <button
-                    className="btn-close"
-                    onClick={() =>
-                      setDeleteModal({
-                        show: false,
-                        id: null,
-                        name: "",
-                        loading: false,
-                      })
-                    }
-                    disabled={deleteModal.loading}
-                  ></button>
-                </div>
-                <div className="modal-body">
-                  Are you sure you want to delete{" "}
-                  <strong>{deleteModal.name || "this sublease"}</strong>?
-                </div>
-                <div className="modal-footer">
-                  <button
-                    className="btn btn-secondary"
-                    onClick={() =>
-                      setDeleteModal({
-                        show: false,
-                        id: null,
-                        name: "",
-                        loading: false,
-                      })
-                    }
-                    disabled={deleteModal.loading}
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    className="btn btn-danger"
-                    onClick={handleDelete}
-                    disabled={deleteModal.loading}
-                  >
-                    {deleteModal.loading ? (
-                      <>
-                        <span
-                          className="spinner-border spinner-border-sm me-2"
-                          role="status"
-                          aria-hidden="true"
-                        ></span>
-                        Deleting...
-                      </>
-                    ) : (
-                      "Delete"
-                    )}
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
-
         {showModal && (
           <div
             className="modal fade show"
-            style={{ display: "block", background: "rgba(0,0,0,0.5)" }}
+            style={{
+              display: "block",
+              backgroundColor: "rgba(0,0,0,0.5)",
+              zIndex: deleteFileModal.show ? 1040 : 1050,
+            }}
           >
             <div className="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
               <div className="modal-content">
@@ -510,12 +1075,17 @@ export const SubleaseTrackerList = () => {
                     {isEdit ? "Edit Sublease" : "Sublease Details"}
                   </h5>
                   <button
+                    type="button"
                     className="btn-close"
                     onClick={() => {
                       setShowModal(false);
                       setIsEdit(false);
+                      setDetail(null);
+                      setFiles([]);
                     }}
-                    disabled={isSaving || detailLoading}
+                    disabled={
+                      isSaving || detailLoading || deleteFileModal.loading
+                    }
                   ></button>
                 </div>
 
@@ -538,6 +1108,7 @@ export const SubleaseTrackerList = () => {
                           Basic Information
                         </h5>
                       </div>
+
                       <div className="col-md-6">
                         <label className="form-label fw-bold">
                           Sub-Tenant Name:
@@ -549,10 +1120,12 @@ export const SubleaseTrackerList = () => {
                             name="sub_tenant_name"
                             value={detail?.data?.sub_tenant_name || ""}
                             onChange={handleChange}
+                            placeholder="Enter sub-tenant name"
+                            disabled={deleteFileModal.loading}
                           />
                         ) : (
                           <p className="mb-0">
-                            {detail?.data?.sub_tenant_name}
+                            {detail?.data?.sub_tenant_name || "N/A"}
                           </p>
                         )}
                       </div>
@@ -568,9 +1141,13 @@ export const SubleaseTrackerList = () => {
                             name="floor_suite"
                             value={detail?.data?.floor_suite || ""}
                             onChange={handleChange}
+                            placeholder="Enter floor/suite"
+                            disabled={deleteFileModal.loading}
                           />
                         ) : (
-                          <p className="mb-0">{detail?.data?.floor_suite}</p>
+                          <p className="mb-0">
+                            {detail?.data?.floor_suite || "N/A"}
+                          </p>
                         )}
                       </div>
 
@@ -585,10 +1162,12 @@ export const SubleaseTrackerList = () => {
                             name="building_address"
                             value={detail?.data?.building_address || ""}
                             onChange={handleChange}
+                            placeholder="Enter building address"
+                            disabled={deleteFileModal.loading}
                           />
                         ) : (
                           <p className="mb-0">
-                            {detail?.data?.building_address}
+                            {detail?.data?.building_address || "N/A"}
                           </p>
                         )}
                       </div>
@@ -602,12 +1181,23 @@ export const SubleaseTrackerList = () => {
                             name="subtenant_headcount"
                             value={detail?.data?.subtenant_headcount || 0}
                             onChange={handleChange}
+                            min="0"
+                            disabled={deleteFileModal.loading}
                           />
                         ) : (
                           <p className="mb-0">
-                            {detail?.data?.subtenant_headcount}
+                            {detail?.data?.subtenant_headcount || 0}
                           </p>
                         )}
+                      </div>
+
+                      <div className="col-md-6">
+                        <label className="form-label fw-bold">
+                          Days in Review:
+                        </label>
+                        <p className="mb-0 fw-bold text-primary">
+                          {detail?.data?.days_in_review || 0} days
+                        </p>
                       </div>
 
                       <div className="col-12 mt-4">
@@ -626,15 +1216,15 @@ export const SubleaseTrackerList = () => {
                             className="form-control"
                             name="sublease_commencement_date"
                             value={formatDateForInput(
-                              detail?.data?.sublease_commencement_date
+                              detail?.data?.sublease_commencement_date,
                             )}
                             onChange={handleChange}
+                            disabled={deleteFileModal.loading}
                           />
                         ) : (
                           <p className="mb-0">
-                            {detail?.data?.sublease_commencement_date?.slice(
-                              0,
-                              10
+                            {formatDateForDisplay(
+                              detail?.data?.sublease_commencement_date,
                             )}
                           </p>
                         )}
@@ -650,15 +1240,15 @@ export const SubleaseTrackerList = () => {
                             className="form-control"
                             name="sublease_expiration_date"
                             value={formatDateForInput(
-                              detail?.data?.sublease_expiration_date
+                              detail?.data?.sublease_expiration_date,
                             )}
                             onChange={handleChange}
+                            disabled={deleteFileModal.loading}
                           />
                         ) : (
                           <p className="mb-0">
-                            {detail?.data?.sublease_expiration_date?.slice(
-                              0,
-                              10
+                            {formatDateForDisplay(
+                              detail?.data?.sublease_expiration_date,
                             )}
                           </p>
                         )}
@@ -674,15 +1264,17 @@ export const SubleaseTrackerList = () => {
                             className="form-control"
                             name="direct_tenant_notice_of_renewal_date"
                             value={formatDateForInput(
-                              detail?.data?.direct_tenant_notice_of_renewal_date
+                              detail?.data
+                                ?.direct_tenant_notice_of_renewal_date,
                             )}
                             onChange={handleChange}
+                            disabled={deleteFileModal.loading}
                           />
                         ) : (
                           <p className="mb-0">
-                            {detail?.data?.direct_tenant_notice_of_renewal_date?.slice(
-                              0,
-                              10
+                            {formatDateForDisplay(
+                              detail?.data
+                                ?.direct_tenant_notice_of_renewal_date,
                             )}
                           </p>
                         )}
@@ -705,10 +1297,12 @@ export const SubleaseTrackerList = () => {
                             name="subtenant_current_rent"
                             value={detail?.data?.subtenant_current_rent || ""}
                             onChange={handleChange}
+                            placeholder="Enter rent amount"
+                            disabled={deleteFileModal.loading}
                           />
                         ) : (
                           <p className="mb-0">
-                            {detail?.data?.subtenant_current_rent}
+                            {detail?.data?.subtenant_current_rent || "N/A"}
                           </p>
                         )}
                       </div>
@@ -726,10 +1320,12 @@ export const SubleaseTrackerList = () => {
                               detail?.data?.direct_tenant_current_rent || ""
                             }
                             onChange={handleChange}
+                            placeholder="Enter rent amount"
+                            disabled={deleteFileModal.loading}
                           />
                         ) : (
                           <p className="mb-0">
-                            {detail?.data?.direct_tenant_current_rent}
+                            {detail?.data?.direct_tenant_current_rent || "N/A"}
                           </p>
                         )}
                       </div>
@@ -751,13 +1347,16 @@ export const SubleaseTrackerList = () => {
                             name="subtenant_contact_info"
                             value={detail?.data?.subtenant_contact_info || ""}
                             onChange={handleChange}
+                            placeholder="Enter contact info"
+                            disabled={deleteFileModal.loading}
                           />
                         ) : (
                           <p className="mb-0">
-                            {detail?.data?.subtenant_contact_info}
+                            {detail?.data?.subtenant_contact_info || "N/A"}
                           </p>
                         )}
                       </div>
+
                       <div className="col-md-6">
                         <label className="form-label fw-bold">
                           Direct Tenant Contact Info:
@@ -771,16 +1370,23 @@ export const SubleaseTrackerList = () => {
                               detail?.data?.direct_tenant_contact_info || ""
                             }
                             onChange={handleChange}
+                            placeholder="Enter contact info"
+                            disabled={deleteFileModal.loading}
                           />
                         ) : (
                           <p className="mb-0">
-                            {detail?.data?.direct_tenant_contact_info}
+                            {detail?.data?.direct_tenant_contact_info || "N/A"}
                           </p>
                         )}
                       </div>
 
+                      <div className="col-12 mt-4">
+                        <h5 className="fw-bold border-bottom pb-2 mb-3">
+                          Notes
+                        </h5>
+                      </div>
+
                       <div className="col-12">
-                        <label className="form-label fw-bold">Notes:</label>
                         {isEdit ? (
                           <textarea
                             className="form-control"
@@ -789,6 +1395,7 @@ export const SubleaseTrackerList = () => {
                             value={detail?.data?.notes || ""}
                             onChange={handleChange}
                             placeholder="Enter any additional notes here..."
+                            disabled={deleteFileModal.loading}
                           />
                         ) : (
                           <div className="p-3 bg-light rounded">
@@ -806,30 +1413,45 @@ export const SubleaseTrackerList = () => {
                           Quarterly Checks
                         </h5>
                       </div>
-                      {renderQuarterSection("q1", "Quarter 1")}
-                      {renderQuarterSection("q2", "Quarter 2")}
-                      {renderQuarterSection("q3", "Quarter 3")}
-                      {renderQuarterSection("q4", "Quarter 4")}
+
+                      {renderQuarterSection("q1", "Quarter 1 (Jan-Mar)")}
+                      {renderQuarterSection("q2", "Quarter 2 (Apr-Jun)")}
+                      {renderQuarterSection("q3", "Quarter 3 (Jul-Sep)")}
+                      {renderQuarterSection("q4", "Quarter 4 (Oct-Dec)")}
+
+                      {renderConsentChecklist()}
+
+                      {renderComplianceGuardrails()}
+
+                      {renderTimelineTracking()}
+
+                      {renderFilesSection()}
                     </div>
                   )}
                 </div>
 
                 <div className="modal-footer">
                   <button
+                    type="button"
                     className="btn btn-secondary"
                     onClick={() => {
                       setShowModal(false);
                       setIsEdit(false);
+                      setDetail(null);
+                      setFiles([]);
                     }}
-                    disabled={isSaving || detailLoading}
+                    disabled={
+                      isSaving || detailLoading || deleteFileModal.loading
+                    }
                   >
                     {isEdit ? "Cancel" : "Close"}
                   </button>
                   {isEdit && !detailLoading && (
                     <button
+                      type="button"
                       className="btn btn-primary"
                       onClick={handleSave}
-                      disabled={isSaving}
+                      disabled={isSaving || deleteFileModal.loading}
                     >
                       {isSaving ? (
                         <>
@@ -841,10 +1463,159 @@ export const SubleaseTrackerList = () => {
                           Saving...
                         </>
                       ) : (
-                        "Save"
+                        "Save Changes"
                       )}
                     </button>
                   )}
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {deleteModal.show && (
+          <div
+            className="modal fade show"
+            style={{
+              display: "block",
+              backgroundColor: "rgba(0,0,0,0.5)",
+              zIndex: 1060,
+            }}
+          >
+            <div className="modal-dialog modal-dialog-centered">
+              <div className="modal-content">
+                <div className="modal-header">
+                  <h5 className="modal-title">Confirm Delete Sublease</h5>
+                  <button
+                    type="button"
+                    className="btn-close"
+                    onClick={() =>
+                      setDeleteModal({
+                        show: false,
+                        id: null,
+                        name: "",
+                        loading: false,
+                      })
+                    }
+                    disabled={deleteModal.loading}
+                  ></button>
+                </div>
+                <div className="modal-body">
+                  Are you sure you want to delete{" "}
+                  <strong>{deleteModal.name || "this sublease"}</strong>? This
+                  action cannot be undone and will also delete all associated
+                  files.
+                </div>
+                <div className="modal-footer">
+                  <button
+                    type="button"
+                    className="btn btn-secondary"
+                    onClick={() =>
+                      setDeleteModal({
+                        show: false,
+                        id: null,
+                        name: "",
+                        loading: false,
+                      })
+                    }
+                    disabled={deleteModal.loading}
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="button"
+                    className="btn btn-danger"
+                    onClick={handleDelete}
+                    disabled={deleteModal.loading}
+                  >
+                    {deleteModal.loading ? (
+                      <>
+                        <span
+                          className="spinner-border spinner-border-sm me-2"
+                          role="status"
+                          aria-hidden="true"
+                        ></span>
+                        Deleting...
+                      </>
+                    ) : (
+                      "Delete Sublease"
+                    )}
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {deleteFileModal.show && (
+          <div
+            className="modal fade show"
+            style={{
+              display: "block",
+              backgroundColor: "rgba(0,0,0,0.5)",
+              zIndex: 1070,
+            }}
+          >
+            <div className="modal-dialog modal-dialog-centered">
+              <div className="modal-content">
+                <div className="modal-header">
+                  <h5 className="modal-title">Confirm Delete File</h5>
+                  <button
+                    type="button"
+                    className="btn-close"
+                    onClick={() =>
+                      setDeleteFileModal({
+                        show: false,
+                        fileId: null,
+                        fileName: "",
+                        subleaseId: null,
+                        loading: false,
+                      })
+                    }
+                    disabled={deleteFileModal.loading}
+                  ></button>
+                </div>
+                <div className="modal-body">
+                  Are you sure you want to delete file{" "}
+                  <strong>{deleteFileModal.fileName}</strong>? This action
+                  cannot be undone.
+                </div>
+                <div className="modal-footer">
+                  <button
+                    type="button"
+                    className="btn btn-secondary"
+                    onClick={() =>
+                      setDeleteFileModal({
+                        show: false,
+                        fileId: null,
+                        fileName: "",
+                        subleaseId: null,
+                        loading: false,
+                      })
+                    }
+                    disabled={deleteFileModal.loading}
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="button"
+                    className="btn btn-danger"
+                    onClick={handleDeleteFile}
+                    disabled={deleteFileModal.loading}
+                  >
+                    {deleteFileModal.loading ? (
+                      <>
+                        <span
+                          className="spinner-border spinner-border-sm me-2"
+                          role="status"
+                          aria-hidden="true"
+                        ></span>
+                        Deleting...
+                      </>
+                    ) : (
+                      "Delete File"
+                    )}
+                  </button>
                 </div>
               </div>
             </div>
@@ -854,4 +1625,3 @@ export const SubleaseTrackerList = () => {
     </>
   );
 };
-

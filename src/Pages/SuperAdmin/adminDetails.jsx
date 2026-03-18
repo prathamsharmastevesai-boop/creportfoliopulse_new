@@ -13,7 +13,7 @@ export const AdminDetails = () => {
   const admin = state?.admin;
 
   const [stats, setStats] = useState(null);
-  console.log(stats, "stats");
+
 
   const [analytics, setAnalytics] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -37,8 +37,6 @@ export const AdminDetails = () => {
           }),
         ).unwrap(),
       ]);
-      console.log("fgdsgfhk");
-      console.log(statsData, analyticsData, "analyticsData");
 
       setStats(statsData);
       setAnalytics(analyticsData);

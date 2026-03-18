@@ -12,6 +12,8 @@ import {
   GetRenewalTrackerList,
   UpdateRenewalById,
 } from "../../../Networking/Admin/APIs/RenewalTrackeApi";
+import { BsChatDots } from "react-icons/bs";
+import { ChatBotModal } from "../../../Component/chatbotModel";
 
 export const RenewalTrackerList = () => {
   const dispatch = useDispatch();
@@ -365,13 +367,17 @@ export const RenewalTrackerList = () => {
     <>
       <div className="header-bg d-flex justify-content-between px-3 align-items-center sticky-header">
         <h5 className="mb-0 text-light mx-4">Renewal Tracker List</h5>
-        <button
-          className="btn btn-secondary d-flex align-items-center gap-2"
-          onClick={() => handleNavigate()}
-          style={{ fontWeight: "600", padding: "0.5rem 1rem" }}
-        >
-          <BsPlusLg /> Add Renewal
-        </button>
+        <div className="d-flex">
+          <button
+            className="btn btn-secondary d-flex align-items-center me-2"
+            onClick={() => handleNavigate()}
+            style={{ fontWeight: "600", padding: "0.5rem 1rem" }}
+          >
+            <BsPlusLg className="me-1" /> Add Renewal
+          </button>
+
+          <ChatBotModal category={"renewal"} />
+        </div>
       </div>
       <div className="container-fuild p-4">
         {loading && (
@@ -394,7 +400,7 @@ export const RenewalTrackerList = () => {
         )}
 
         {!loading && list?.length > 0 && (
-          <div className="table-responsive shadow-sm bg-white rounded">
+          <div className="table-responsive shadow-sm rounded">
             <table className="table align-middle">
               <thead>
                 <tr className="table-light text-uppercase small fw-bold">

@@ -78,8 +78,9 @@ export const ListBuilding = () => {
       };
 
       await dispatch(UpdateBuildingSubmit(payload)).unwrap();
-
-      await dispatch(ListBuildingSubmit(category));
+      if (category) {
+        await dispatch(ListBuildingSubmit(category));
+      }
 
       setEditBuildingId(null);
     } catch (error) {
@@ -93,7 +94,9 @@ export const ListBuilding = () => {
     try {
       setDeleteLoading(true);
       await dispatch(DeleteBuilding(buildingId));
-      await dispatch(ListBuildingSubmit(category));
+      if (category) {
+        await dispatch(ListBuildingSubmit(category));
+      }
     } catch (error) {
       console.error("Delete failed:", error);
     } finally {
@@ -115,8 +118,9 @@ export const ListBuilding = () => {
       ];
 
       await dispatch(CreateBuildingSubmit(payload)).unwrap();
-
-      await dispatch(ListBuildingSubmit(category));
+      if (category) {
+        await dispatch(ListBuildingSubmit(category));
+      }
 
       setAddress("");
     } catch (error) {
@@ -129,14 +133,12 @@ export const ListBuilding = () => {
   const handleSubmit = (building) => {
     const buildingId = building.id;
     const address = building.address;
-    console.log(building, "buildingId");
 
     if (category === "Lease&Loi") {
       navigate("/admin-select-lease-loi", {
         state: { office: { buildingId } },
       });
     } else if (category === "workletter") {
-      console.log("Navigating with address:", address);
       navigate("/projects", { state: { office: { buildingId, address } } });
     }
   };
@@ -240,9 +242,7 @@ export const ListBuilding = () => {
         }}
       >
         <h4 className="fw-bold">Building List</h4>
-        <p className="mb-3">
-          Here’s a summary of all the submitted buildings.
-        </p>
+        <p className="mb-3">Here’s a summary of all the submitted buildings.</p>
         <input
           type="search"
           placeholder="Search by building name or address"

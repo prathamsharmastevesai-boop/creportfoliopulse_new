@@ -15,15 +15,17 @@ export const UserBuildingInfolist = () => {
 
   useEffect(() => {
     const category = "BuildingInfo";
-    dispatch(ListBuildingSubmit(category));
+    if (category) {
+      dispatch(ListBuildingSubmit(category));
+    }
   }, [dispatch]);
 
   const filteredBuildings =
     searchTerm.trim() === ""
       ? BuildingList
       : BuildingList.filter((b) =>
-        b.address?.toLowerCase().includes(searchTerm.toLowerCase()),
-      );
+          b.address?.toLowerCase().includes(searchTerm.toLowerCase()),
+        );
 
   useEffect(() => {
     filteredBuildings.forEach((building, i) => {
@@ -39,6 +41,10 @@ export const UserBuildingInfolist = () => {
   const goToChat = (buildingId, category) => {
     if (category === "tenant_info") {
       navigate("/tenant-information-chat", {
+        state: { buildingId, category },
+      });
+    } else if (category === "building_stack") {
+      navigate("/user-building-stack-floor", {
         state: { buildingId, category },
       });
     } else {
@@ -93,12 +99,13 @@ export const UserBuildingInfolist = () => {
 
                       <div className="d-flex align-items-center mt-1">
                         <i
-                          className={`bi bi-people-fill me-2 ${building.current_occupancy > 80
+                          className={`bi bi-people-fill me-2 ${
+                            building.current_occupancy > 80
                               ? "text-success"
                               : building.current_occupancy > 50
                                 ? "text-warning"
                                 : "text-danger"
-                            }`}
+                          }`}
                         ></i>
                         <span className="fw-semibold">
                           {building.current_occupancy ?? 0}%
@@ -111,7 +118,7 @@ export const UserBuildingInfolist = () => {
                         className="btn btn-dark btn-sm"
                         onClick={() => goToChat(building.id, "floor_plan")}
                       >
-                        Floor Plan
+                        Plans / Photos / Flyers
                       </button>
 
                       <button

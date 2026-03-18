@@ -45,8 +45,6 @@ export const Notes = () => {
     return bTime - aTime;
   });
 
-  console.log(sortedNotes, "sortedNotes");
-
   const openNewNote = () => {
     setIsEditing(false);
     setCurrentNote({
@@ -236,7 +234,13 @@ export const Notes = () => {
           </div>
         )}
 
-        <Modal show={showModal} onHide={closeModal} backdrop="static" centered>
+        <Modal
+          show={showModal}
+          onHide={closeModal}
+          backdrop="static"
+          centered
+          size="lg"
+        >
           <Form onSubmit={handleSave}>
             <Modal.Header closeButton={!saving}>
               <Modal.Title>{isEditing ? "Edit Note" : "Add Note"}</Modal.Title>

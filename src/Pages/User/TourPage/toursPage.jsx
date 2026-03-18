@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { Button, Card } from "react-bootstrap";
 import { ToursDetails } from "./ToursDetails/toursDetails";
 import { Tours } from "./Tours/tours";
+import { ChatBotModal } from "../../../Component/chatbotModel";
 
 export const ToursPage = () => {
   const [activeTab, setActiveTab] = useState("form");
@@ -10,15 +11,8 @@ export const ToursPage = () => {
 
   return (
     <>
-      <div
-        className="d-flex justify-content-between align-items-center px-3 py-3 sticky-top"
-        style={{
-          backgroundColor: "#212529",
-          zIndex: 10,
-        }}
-      >
+      <div className="header-bg d-flex justify-content-between px-3 align-items-center sticky-header">
         <h5 className="text-white m-0 ms-4">{headerTitle}</h5>
-
         <div className="d-flex gap-2">
           <Button
             variant={activeTab === "form" ? "light" : "outline-light"}
@@ -33,13 +27,14 @@ export const ToursPage = () => {
           >
             View Tours
           </Button>
+          <ChatBotModal category={"tour"} />
         </div>
       </div>
 
-      <Card className="">
+      <div>
         {activeTab === "form" && <Tours />}
         {activeTab === "list" && <ToursDetails />}
-      </Card>
+      </div>
     </>
   );
 };

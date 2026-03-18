@@ -12,7 +12,7 @@ export const SubleaseTrackerSubmit = createAsyncThunk(
     } catch (error) {
       return rejectWithValue(error);
     }
-  }
+  },
 );
 
 export const UpdateSubleaseById = createAsyncThunk(
@@ -25,7 +25,7 @@ export const UpdateSubleaseById = createAsyncThunk(
       console.error("UpdateSubleaseById Error:", error);
       return rejectWithValue(error.response?.data || error.message);
     }
-  }
+  },
 );
 
 export const GetSubleaseTrackerList = createAsyncThunk(
@@ -37,7 +37,7 @@ export const GetSubleaseTrackerList = createAsyncThunk(
     } catch (error) {
       return rejectWithValue(error?.response?.data || error.message);
     }
-  }
+  },
 );
 
 export const GetSubleaseById = createAsyncThunk(
@@ -49,7 +49,7 @@ export const GetSubleaseById = createAsyncThunk(
     } catch (error) {
       return rejectWithValue(error?.response?.data || error.message);
     }
-  }
+  },
 );
 
 export const DeleteSubleaseById = createAsyncThunk(
@@ -61,5 +61,56 @@ export const DeleteSubleaseById = createAsyncThunk(
     } catch (error) {
       return rejectWithValue(error?.response?.data || error.message);
     }
-  }
+  },
 );
+
+export const uploadSubleaseFile = createAsyncThunk(
+  "sublease/uploadFile",
+  async ({ id, file }, { rejectWithValue }) => {
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+
+      const response = await axiosInstance.post(
+        `/sublease/${id}/upload`,
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        },
+      );
+      return response.data;
+    } catch (error) {
+      console.error("uploadSubleaseFile Error:", error);
+      return rejectWithValue(error.response?.data || error.message);
+    }
+  },
+);
+
+export const fetchSubleaseFiles = createAsyncThunk(
+  "sublease/fetchFiles",
+  async (id, { rejectWithValue }) => {
+    try {
+      const response = await axiosInstance.get(`/sublease/${id}/files`);
+      return response.data;
+    } catch (error) {
+      console.error("fetchSubleaseFiles Error:", error);
+      return rejectWithValue(error.response?.data || error.message);
+    }
+  },
+);
+
+export const deleteSubleaseFile = createAsyncThunk(
+  "sublease/deleteFile",
+  async (fileId, { rejectWithValue }) => {
+    try {
+      const response = await axiosInstance.delete(`/sublease/file/${fileId}`);
+      return response.data;
+    } catch (error) {
+      console.error("deleteSubleaseFile Error:", error);
+      return rejectWithValue(error.response?.data || error.message);
+    }
+  },
+);
+

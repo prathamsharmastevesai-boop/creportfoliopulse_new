@@ -45,7 +45,6 @@ export const DocumentList = ({ projectId }) => {
       dispatch(fetchDocumentsApi({ projectId }));
       const res = await dispatch(fetchLineItemsApi({ projectId })).unwrap();
 
-      console.log(res, "res");
     } catch (err) {
       console.error("Upload failed", err);
     } finally {

@@ -30,8 +30,12 @@ export const fetchBuildings = createAsyncThunk(
   async (category, { rejectWithValue }) => {
     try {
       const response = await axiosInstance.get(
-        `${getinfocollaborationbuildings}?category=${category}`,
+        getinfocollaborationbuildings, {
+        params: { category: category },
+      }
       );
+
+
       return response.data;
     } catch (error) {
       return rejectWithValue(error.response?.data?.message);
@@ -55,15 +59,14 @@ export const UpdateFeedback = createAsyncThunk(
   "UpdateFeedback",
   async ({ id, category, building_id, form_data }, { rejectWithValue }) => {
     try {
-      console.log(id, "id");
-
+      const data = {
+        category,
+        building_id: (building_id),
+        form_data,
+      }
       const response = await axiosInstance.put(
         `/information_collaboration/admin/update/${id}`,
-        {
-          category,
-          building_id: Number(building_id),
-          form_data,
-        },
+        data
       );
 
       return response.data;
@@ -101,36 +104,3 @@ export const ReviewInformationCollaboration = createAsyncThunk(
     }
   },
 );
-
-// export default UpdateFeedback = createAsyncThunk(
-//   "UpdateFeedback",
-//   async ({ feedback_id, feedback }, { rejectWithValue }) => {
-//     try {
-//       const response = await axiosInstance.patch(
-//         `${updatefeedback}${feedback_id}`,
-//         {
-//           feedback,
-//         },
-//       );
-
-//       return response.data;
-//     } catch (error) {
-//       return rejectWithValue(error.response?.data?.message);
-//     }
-//   },
-// );
-
-// export const DeleteFeedbackSubmit = createAsyncThunk(
-//   "DeleteFeedbackSubmit",
-//   async (id, { rejectWithValue }) => {
-//     try {
-//       const response = await axiosInstance.delete(
-//         `/feedback/?feedback_id=${id}`,
-//       );
-//       toast.success(response.data.message);
-//       return response.data;
-//     } catch (error) {
-//       return rejectWithValue(error.response?.data?.message);
-//     }
-//   },
-// );

@@ -22,10 +22,13 @@ export const LoginSubmit = createAsyncThunk(
         return rejectWithValue("Invalid email or password.");
       }
 
-      toast.error(errMsg);
+      const errMsg =
+        error.response?.data?.detail ||
+        error.response?.data?.message ||
+        "Login failed. Please try again.";
       return rejectWithValue(errMsg);
     }
-  }
+  },
 );
 
 export const SignUpSubmit = createAsyncThunk(
@@ -53,7 +56,7 @@ export const SignUpSubmit = createAsyncThunk(
         "Signup failed";
       return rejectWithValue(message);
     }
-  }
+  },
 );
 
 export const DeleteUser = createAsyncThunk(
@@ -61,7 +64,7 @@ export const DeleteUser = createAsyncThunk(
   async (email, { rejectWithValue }) => {
     try {
       const response = await axiosInstance.delete(
-        `${UserDelete}?email=${email}`
+        `${UserDelete}?email=${email}`,
       );
 
       return response.data;
@@ -69,16 +72,16 @@ export const DeleteUser = createAsyncThunk(
       const message = error.response?.data?.message;
       return rejectWithValue(message);
     }
-  }
+  },
 );
 
 export const googleLoginService = createAsyncThunk(
   "auth/googleLoginService",
   async (idToken, { rejectWithValue }) => {
     try {
-      const response = await axiosInstance.post(
-        "/auth/auth/google", { token: idToken }
-      );
+      const response = await axiosInstance.post("/auth/auth/google", {
+        token: idToken,
+      });
 
       return response.data;
     } catch (error) {
@@ -88,5 +91,94 @@ export const googleLoginService = createAsyncThunk(
 
       return rejectWithValue(errMsg);
     }
-  }
+  },
+);
+
+export const fetchAUPStatus = createAsyncThunk(
+  "aup/fetchStatus",
+  async (_, { rejectWithValue }) => {
+    try {
+      const response = await axiosInstance.get("/api/aup/status");
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(
+        error.response?.data || "Failed to fetch AUP status",
+      );
+    }
+  },
+);
+
+export const agreeAUP = createAsyncThunk(
+  "aup/agree",
+  async ({ aup_version }, { rejectWithValue }) => {
+    try {
+      const response = await axiosInstance.post("/api/aup/agree", {
+        aup_version,
+      });
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.response?.data || "Failed to agree to AUP");
+    }
+  },
+);
+
+export const fetchPortfolios = createAsyncThunk(
+  "auth/fetchPortfolios",
+  async (_, { getState, rejectWithValue }) => {
+    try {
+      const response = await axiosInstance.get("/auth/portfolios");
+      return response.data;
+    } catch (error) {
+      const errMsg =
+        error.response?.data?.detail ||
+        error.response?.data?.message ||
+        "Failed to fetch portfolios";
+      return rejectWithValue(errMsg);
+    }
+  },
+);
+
+export const selectPortfolio = createAsyncThunk(
+  "auth/selectPortfolio",
+  async ({ company_id }, { getState, rejectWithValue }) => {
+    try {
+      const response = await axiosInstance.post("/auth/select-portfolio", {
+        company_id,
+      });
+
+      if (response.data) {
+        const { role, aup_required, aup_version } = response.data;
+        sessionStorage.setItem("role", role);
+        sessionStorage.setItem("company_id", String(company_id));
+
+        return response.data;
+      }
+    } catch (error) {
+      const errMsg =
+        error.response?.data?.detail ||
+        error.response?.data?.message ||
+        "Failed to select company";
+      return rejectWithValue(errMsg);
+    }
+  },
+);
+
+export const getPortfolios = createAsyncThunk(
+  "auth/getPortfolios",
+  async (_, { rejectWithValue }) => {
+    try {
+      const response = await axiosInstance.get("/auth/portfolios");
+
+      if (response.data) {
+        return response.data;
+      }
+    } catch (error) {
+      const errMsg =
+        error.response?.data?.detail ||
+        error.response?.data?.message ||
+        "Failed to fetch companies";
+
+      return rejectWithValue(errMsg);
+    }
+  },
 );

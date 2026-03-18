@@ -21,7 +21,7 @@ export const SelectBuildingCategory = () => {
   return (
     <>
       <div
-        className="text-center bg-white py-3 mb-4 shadow-sm"
+        className="text-center py-3 mb-4 shadow-sm"
         style={{
           position: "sticky",
           top: 0,
@@ -54,9 +54,12 @@ export const SelectBuildingCategory = () => {
           <Col xs={12} sm={10} md={6} lg={5}>
             <Card className="shadow-lg border-0 h-100">
               <Card.Body className="d-flex flex-column justify-content-center align-items-center text-center p-4">
-                <Card.Title className="fs-4 mb-3">Floor Plan</Card.Title>
+                <Card.Title className="fs-4 mb-3">
+                  Plans / Photos / Flyers
+                </Card.Title>
                 <Card.Text className="fs-6 mb-4">
-                  Upload documents related to <strong>Floor Plan</strong>.
+                  Upload documents related to{" "}
+                  <strong>Plans / Photos / Flyers</strong>.
                 </Card.Text>
                 <Button
                   variant="dark"
@@ -64,7 +67,7 @@ export const SelectBuildingCategory = () => {
                   className="w-100"
                   onClick={() => handleCategory("floor_plan")}
                 >
-                  Upload Floor Plan
+                  Upload Plans / Photos / Flyers
                 </Button>
               </Card.Body>
             </Card>

@@ -14,7 +14,7 @@ export const ComparativeBuildingList = () => (
     createAction={CreateBuildingSubmit}
     updateAction={UpdateBuildingSubmit}
     deleteAction={DeleteBuilding}
-    navigateTo="/comparative-building-chat"
+    navigateTo="/comparative-building-upload"
     navigateStateMapper={(b) => ({ office: { buildingId: b.id } })}
   />
 );

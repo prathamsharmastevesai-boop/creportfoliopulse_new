@@ -61,7 +61,7 @@ export const EmailDrafting = () => {
     }
   }, [detail, isEditable]);
 
-  useEffect(() => { }, [selectedTemplateId]);
+  useEffect(() => {}, [selectedTemplateId]);
 
   const openIn = (service) => {
     if (!detail.trim()) {
@@ -70,7 +70,7 @@ export const EmailDrafting = () => {
     }
 
     const selectedTemplate = templates.find(
-      (t) => String(t.id) === String(selectedTemplateId)
+      (t) => String(t.id) === String(selectedTemplateId),
     );
     const subject = selectedTemplate?.title || "Email Draft";
     const encodedBody = encodeURIComponent(detail);
@@ -79,11 +79,11 @@ export const EmailDrafting = () => {
 
     if (service === "gmail") {
       url = `https://mail.google.com/mail/?view=cm&fs=1&su=${encodeURIComponent(
-        subject
+        subject,
       )}&body=${encodedBody}`;
     } else if (service === "outlook") {
       url = `https://outlook.office.com/mail/deeplink/compose?subject=${encodeURIComponent(
-        subject
+        subject,
       )}&body=${encodedBody}`;
     }
 
@@ -115,7 +115,7 @@ export const EmailDrafting = () => {
           template_id: editId,
           title: editTitle,
           content: editContent,
-        })
+        }),
       ).unwrap();
       toast.success("Template updated successfully!");
       await fetchData();
@@ -156,14 +156,14 @@ export const EmailDrafting = () => {
     }
 
     const selectedTemplate = templates.find(
-      (t) => String(t.id) === String(selectedTemplateId)
+      (t) => String(t.id) === String(selectedTemplateId),
     );
 
     if (!selectedTemplate) return;
 
     if (detail.trim() && isEditable) {
       const confirm = window.confirm(
-        "You have an unsaved draft. Loading a new template will replace it. Continue?"
+        "You have an unsaved draft. Loading a new template will replace it. Continue?",
       );
       if (!confirm) return;
     }
@@ -192,7 +192,7 @@ export const EmailDrafting = () => {
         newEmailTemplateAPI({
           title: newInfoTitle,
           content: newInfoContent,
-        })
+        }),
       ).unwrap();
       toast.success("Template added successfully!");
       await fetchData();
@@ -207,7 +207,7 @@ export const EmailDrafting = () => {
   const handleClearDraft = () => {
     if (detail.trim()) {
       const confirm = window.confirm(
-        "Are you sure you want to clear the draft?"
+        "Are you sure you want to clear the draft?",
       );
       if (confirm) {
         setDetail("");
@@ -248,14 +248,16 @@ export const EmailDrafting = () => {
                     variant="light"
                   >
                     {selectedTemplateId
-                      ? templates.find((t) => t.id === selectedTemplateId)?.title ||
-                      "-- Select Template --"
+                      ? templates.find((t) => t.id === selectedTemplateId)
+                          ?.title || "-- Select Template --"
                       : "-- Select Email Template --"}
                   </Dropdown.Toggle>
 
                   <Dropdown.Menu className="w-100 mt-1 p-0">
                     {templates.length === 0 ? (
-                      <div className="px-3 py-2 text-muted">No templates found</div>
+                      <div className="px-3 py-2 text-muted">
+                        No templates found
+                      </div>
                     ) : (
                       templates.map((template) => (
                         <div
@@ -264,10 +266,13 @@ export const EmailDrafting = () => {
                           style={{ cursor: "pointer" }}
                           onClick={() => {
                             setSelectedTemplateId(template.id);
-                            setShowDropdown(false); 
+                            setShowDropdown(false);
                           }}
                         >
-                          <span className="text-truncate" style={{ maxWidth: "65%" }}>
+                          <span
+                            className="text-truncate"
+                            style={{ maxWidth: "65%" }}
+                          >
                             {template.title}
                           </span>
 
@@ -280,10 +285,13 @@ export const EmailDrafting = () => {
                               }}
                             />
                             <i
-                              className={`bi bi-trash text-danger ${deleteLoading ? "opacity-50" : ""
-                                }`}
+                              className={`bi bi-trash text-danger ${
+                                deleteLoading ? "opacity-50" : ""
+                              }`}
                               style={{
-                                cursor: deleteLoading ? "not-allowed" : "pointer",
+                                cursor: deleteLoading
+                                  ? "not-allowed"
+                                  : "pointer",
                               }}
                               onClick={(e) => {
                                 e.stopPropagation();

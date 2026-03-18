@@ -4,198 +4,244 @@ import { useNavigate } from "react-router-dom";
 import { ListBuildingSubmit } from "../../../Networking/Admin/APIs/BuildingApi";
 import RAGLoader from "../../../Component/Loader";
 
+const DonutCircle = ({ occupancy = 0 }) => {
+  const pct = Math.min(Math.max(occupancy, 0), 100);
+  const radius = 26;
+  const circumference = 2 * Math.PI * radius;
+  const offset = circumference - (pct / 100) * circumference;
+
+  const getColor = () =>
+    pct > 80
+      ? "var(--donut-high)"
+      : pct > 50
+        ? "var(--donut-mid)"
+        : "var(--donut-low)";
+
+  const color = getColor();
+
+  return (
+    <div className="po-donut-wrap">
+      <svg width="68" height="68" style={{ transform: "rotate(-90deg)" }}>
+        <circle
+          cx="34"
+          cy="34"
+          r={radius}
+          fill="none"
+          stroke="var(--po-donut-track)"
+          strokeWidth="6"
+        />
+        <circle
+          cx="34"
+          cy="34"
+          r={radius}
+          fill="none"
+          stroke={color}
+          strokeWidth="6"
+          strokeDasharray={circumference}
+          strokeDashoffset={offset}
+          strokeLinecap="round"
+          style={{ transition: "stroke-dashoffset 0.6s ease" }}
+        />
+      </svg>
+      <div className="po-donut-label" style={{ color }}>
+        {pct}%
+      </div>
+    </div>
+  );
+};
+
+const Sparkline = ({ colorVar }) => (
+  <svg width="72" height="20" className="po-sparkline">
+    <polyline
+      points="0,16 10,12 20,14 30,8 40,10 50,5 60,7 70,2"
+      fill="none"
+      stroke={colorVar}
+      strokeWidth="1.5"
+      strokeLinejoin="round"
+    />
+  </svg>
+);
+
+const StatCard = ({ label, value, colorVar }) => (
+  <div className="po-stat-card">
+    <span className="po-stat-label">{label}</span>
+    <div className="po-stat-bottom">
+      <span className="po-stat-value" style={{ color: colorVar }}>
+        {value}
+      </span>
+      <Sparkline colorVar={colorVar} />
+    </div>
+  </div>
+);
+
+const BuildingCard = ({ building, cardRef, onGoToChat }) => {
+  const imageUrl =
+    building.photos?.find((p) => p?.url)?.url ||
+    "https://via.placeholder.com/90x72?text=Bldg";
+  const occupancy = building.current_occupancy || 0;
+
+  const actions = [
+    { icon: "bi-image", cat: "floor_plan", title: "Plans / Photos / Flyers" },
+    { icon: "bi-stack", cat: "building_stack", title: "Building Stack" },
+    { icon: "bi-info-circle", cat: "building_info", title: "Building Info" },
+    { icon: "bi-list-ul", cat: "tenant_info", title: "Tenant Info" },
+  ];
+
+  return (
+    <div ref={cardRef} className="po-card slide-in-top">
+      <div className="po-card__left">
+        <img src={imageUrl} alt="building" className="po-card__img" />
+        <div className="po-card__address">{building.address || "N/A"}</div>
+      </div>
+      <div className="po-card__right">
+        <div className="po-card__top">
+          <DonutCircle occupancy={occupancy} />
+          <div className="po-card__meta">
+            <div className="po-card__rows">
+              <span className="po-card__key">SQUARE FOOTAGE</span>
+              <span className="po-card__val">
+                {building.total_vacant_sf
+                  ? Number(building.total_vacant_sf).toLocaleString()
+                  : "0"}
+              </span>
+            </div>
+            <div className="po-card__row">
+              <span className="po-card__key">CURRECT TENANT COUNT</span>
+              <span className="po-card__val">
+                {building.summary.current_listings_count ?? "0"}
+              </span>
+            </div>
+            <div className="po-card__row">
+              <span className="po-card__key">CURRENT LISTIING COUNTWANG</span>
+              <span className="po-card__val">{building.lease_term || "0"}</span>
+            </div>
+          </div>
+        </div>
+        <div className="po-card__actions">
+          {actions.map(({ icon, cat, title }) => (
+            <button
+              key={cat}
+              className="po-action-btn"
+              title={title}
+              onClick={() => onGoToChat(building.id, cat)}
+            >
+              <i className={`bi ${icon}`}></i>
+            </button>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+};
+
 export const Dashboard = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-
+  const companyName = sessionStorage.getItem("company_name");
   const cardsRef = useRef({});
-
-  const [requestingPermissionId, setRequestingPermissionId] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
-
   const { BuildingList, loading } = useSelector((state) => state.BuildingSlice);
+  console.log(BuildingList, "BuildingList");
 
   useEffect(() => {
-    const category = "BuildingInfo";
-    dispatch(ListBuildingSubmit(category));
+    dispatch(ListBuildingSubmit("BuildingInfo"));
   }, [dispatch]);
 
-  useEffect(() => {
-    filteredBuildings.forEach((building, i) => {
-      const card = cardsRef.current[building.id];
-      if (card) {
-        setTimeout(() => {
-          card.classList.add("visible");
-        }, i * 150);
-      }
-    });
-  }, [BuildingList, searchTerm]);
+  const filteredBuildings = BuildingList.filter((b) =>
+    b.address?.toLowerCase().includes(searchTerm.toLowerCase()),
+  );
 
-  const filteredBuildings =
-    searchTerm.trim() === ""
-      ? BuildingList
-      : BuildingList.filter((building) =>
-        building.address?.toLowerCase().includes(searchTerm.toLowerCase()),
-      );
+  useEffect(() => {
+    filteredBuildings.forEach((b, i) => {
+      const card = cardsRef.current[b.id];
+      if (card) setTimeout(() => card.classList.add("visible"), i * 120);
+    });
+  }, [filteredBuildings]);
+
+  const avgOccupancy = filteredBuildings.length
+    ? Math.round(
+        filteredBuildings.reduce(
+          (sum, b) => sum + (b.current_occupancy || 0),
+          0,
+        ) / filteredBuildings.length,
+      )
+    : 0;
 
   const goToChat = (buildingId, category) => {
-    if (category === "tenant_info") {
-      navigate("/tenant-information-chat", {
-        state: { buildingId, category },
-      });
-    } else {
-      navigate("/building-chat", {
-        state: { buildingId, category },
-      });
-    }
+    const routes = {
+      tenant_info: "/tenant-information-chat",
+      building_stack: "/user-building-stack-floor",
+      default: "/building-chat",
+    };
+    navigate(routes[category] || routes.default, {
+      state: { buildingId, category },
+    });
   };
 
   return (
-    <div style={{ position: "relative" }}>
-      {requestingPermissionId && (
-        <div
-          style={{
-            position: "fixed",
-            top: 0,
-            left: 0,
-            width: "100vw",
-            height: "100vh",
-            backdropFilter: "blur(5px)",
-            backgroundColor: "rgba(0,0,0,0.3)",
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-            zIndex: 2000,
-          }}
-        >
-          <div
-            className="spinner-border text-warning"
-            style={{ width: "3rem", height: "3rem" }}
-            role="status"
-          >
-            <span className="visually-hidden">Loading...</span>
-          </div>
-        </div>
-      )}
-
-      <section
-        style={{ backgroundColor: "var(--bg-secondary)", color: "var(--text-primary)" }}
-        className="hero-section d-flex align-items-center justify-content-center text-center"
-      >
-        <div>
-          <img
-            src="https://cdn-icons-png.flaticon.com/512/6789/6789463.png"
-            alt="Under Construction"
-            className="dashboard_logo mb-3 animate__animated animate__fadeInDown"
-          />
-          <h1 className="display-4 fw-bold text-white animate__fadeInUp">
-            Welcome to Portfolio Pulse
-          </h1>
-        </div>
+    <div className="po-root">
+      <section className="hero-section d-flex align-items-center justify-content-center text-center border-bottom">
+        <h1 className="fw-bold text-white animate__fadeInUp">
+          Welcome to {companyName} AI
+        </h1>
       </section>
 
-      <div className="container-fuild p-3">
-        <div className="row align-items-center my-4">
-          <div className="col-md-8">
-            <div className="d-flex align-items-center mb-2">
-              <h2 className="text-start mb-0 fw-bold">Building Info</h2>
-            </div>
-          </div>
-          <div className="col-md-12 py-2">
-            <input
-              type="search"
-              style={{
-                borderWidth: "0.1px",
-                borderColor: "#cacacaff",
-                borderRadius: "16px",
-              }}
-              className="form-control bg-white text-dark dark-placeholder"
-              placeholder="Search address..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              aria-label="Search Buildings by Address"
-              autoComplete="off"
-            />
-          </div>
+      <div className="po-header">
+        <h1 className="po-title">Portfolio Overview</h1>
+
+        <div className="po-search-wrap">
+          <i className="bi bi-search po-search-icon"></i>
+          <input
+            type="search"
+            className="po-search"
+            placeholder="Search properties..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            autoComplete="off"
+          />
         </div>
 
-        <hr />
+        <div className="po-stats-row">
+          <StatCard
+            label="PORTFOLIO OCCUPANCY:"
+            value={`${avgOccupancy}%`}
+            colorVar="var(--donut-high)"
+          />
+          <StatCard
+            label="TOTAL REVENUE:"
+            value={`$${(filteredBuildings.length * 0.12).toFixed(1)}M`}
+            colorVar="var(--accent-color)"
+          />
+        </div>
 
+        <div className="po-filter-row">
+          <button className="po-filter-btn">
+            Property Type <i className="bi bi-chevron-down"></i>
+          </button>
+        </div>
+      </div>
+
+      <div className="po-list">
         {loading ? (
-          <div className="text-center py-5">
+          <div className="po-loading">
             <RAGLoader />
-            <p className="mt-3 text-muted">Loading buildings...</p>
+            <p className="text-muted mt-2">Loading buildings...</p>
           </div>
         ) : filteredBuildings.length === 0 ? (
-          <div className="alert alert-info">
+          <div className="alert alert-info m-3">
             No buildings found matching your search.
           </div>
         ) : (
-          <div className="row">
-            {[...filteredBuildings].reverse().map((building) => (
-              <div className="col-12 mb-3" key={building.id}>
-                <div
-                  ref={(el) => (cardsRef.current[building.id] = el)}
-                  className="card border-0 shadow-sm slide-in-top p-3"
-                  style={{ borderRadius: "16px" }}
-                >
-                  <div className="d-flex align-items-center justify-content-between ">
-                    <div className="d-flex flex-column">
-                      <div className="d-flex align-items-center">
-                        <i className="bi bi-geo-alt-fill me-2"></i>
-                        <span className="fw-semibold">
-                          {building.address || "N/A"}
-                        </span>
-                      </div>
-
-                      <div className="d-flex align-items-center mt-1">
-                        <i
-                          className={`bi bi-people-fill me-2 ${building.current_occupancy > 80
-                            ? "text-success"
-                            : building.current_occupancy > 50
-                              ? "text-warning"
-                              : "text-danger"
-                            }`}
-                        ></i>
-                        <span className="fw-semibold">
-                          {building.current_occupancy ?? 0}%
-                        </span>
-                      </div>
-                    </div>
-
-                    <div className="d-flex gap-2 flex-wrap align-items-center justify-content-end">
-                      <button
-                        className="btn btn-dark btn-sm"
-                        onClick={() => goToChat(building.id, "floor_plan")}
-                      >
-                        Floor Plan
-                      </button>
-
-                      <button
-                        className="btn btn-dark btn-sm"
-                        onClick={() => goToChat(building.id, "building_stack")}
-                      >
-                        Building Stack
-                      </button>
-
-                      <button
-                        className="btn btn-dark btn-sm"
-                        onClick={() => goToChat(building.id, "building_info")}
-                      >
-                        Building Info
-                      </button>
-                      <button
-                        className="btn btn-dark btn-sm"
-                        onClick={() => goToChat(building.id, "tenant_info")}
-                      >
-                        Tenant Info
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
+          [...filteredBuildings]
+            .reverse()
+            .map((building) => (
+              <BuildingCard
+                key={building.id}
+                building={building}
+                cardRef={(el) => (cardsRef.current[building.id] = el)}
+                onGoToChat={goToChat}
+              />
+            ))
         )}
       </div>
     </div>

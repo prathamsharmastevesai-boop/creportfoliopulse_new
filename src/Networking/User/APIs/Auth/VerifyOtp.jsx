@@ -9,7 +9,7 @@ export const Forget_passwordSubmit = createAsyncThunk(
     try {
       const response = await axiosInstance.post(ForgetPassword, credentials);
       toast.success(response?.data?.message);
-      console.log("response", response);
+   
       return response.data;
     } catch (error) {
       console.log(error, "response");

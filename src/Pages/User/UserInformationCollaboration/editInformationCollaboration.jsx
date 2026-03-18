@@ -20,7 +20,6 @@ export const EditInformationCollaboration = ({ data, onClose, onSuccess }) => {
 
   useEffect(() => {
     if (!data) return;
-    console.log(data, "data");
 
     setCategory(data.category || "");
     setSelectedBuilding(data.building_id ? String(data.building_id) : "");
@@ -93,9 +92,9 @@ export const EditInformationCollaboration = ({ data, onClose, onSuccess }) => {
         UpdateFeedback({
           id: data.id,
           category,
-          building_id: selectedBuilding ? Number(selectedBuilding) : null,
+          ...(selectedBuilding && { building_id: selectedBuilding }),
           form_data: obj,
-        }),
+        })
       ).unwrap();
 
       toast.success("Updated successfully");

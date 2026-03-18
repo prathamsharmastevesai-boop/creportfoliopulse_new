@@ -5,7 +5,7 @@ const ProfileSlice = createSlice({
   name: "ProfileSlice",
   initialState: {
     loading: false,
-    userdata: "",
+    userdata: null,
     error: null,
   },
   extraReducers: (builder) => {

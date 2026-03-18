@@ -69,11 +69,10 @@ export const updateNoteApi = createAsyncThunk(
 export const deleteNoteFileApi = createAsyncThunk(
   "notes/deleteFile",
   async ({ fileId }, { rejectWithValue }) => {
-    console.log(fileId,"fileId");
-    
+
     try {
       const res = await axiosInstance.delete(`/notes/files/${fileId}`);
-      return { fileId }; 
+      return { fileId };
     } catch (err) {
       return rejectWithValue(err.response?.data);
     }

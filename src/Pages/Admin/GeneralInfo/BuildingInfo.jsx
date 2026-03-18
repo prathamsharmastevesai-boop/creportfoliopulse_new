@@ -9,7 +9,13 @@ export const BuildingInfo = () => {
   return (
     <DocumentManager
       category={category}
-      title="Building Information Data"
+      title={
+        category == "floor_plan"
+          ? "Plans / Photos / Flyers"
+          : category == "building_info"
+            ? "Building Info"
+            : "Tenant Information"
+      }
       description={`Upload and manage documents for ${category}`}
       building_Id={buildingId}
     />
