@@ -8,9 +8,6 @@ import {
   Gemini_Chat_History,
 } from "../../../NWconfig";
 
-const getErrorMsg = (error, fallback = "Something went wrong") =>
-  error?.response?.data?.message || error?.response?.data?.detail || fallback;
-
 export const get_Session_List_Specific = createAsyncThunk(
   "auth/get_Session_List_Specific",
   async ({ category = null, buildingId = null } = {}, { rejectWithValue }) => {
@@ -24,7 +21,9 @@ export const get_Session_List_Specific = createAsyncThunk(
 
       return response.data;
     } catch (error) {
-      return rejectWithValue(getErrorMsg(error));
+      const err =
+        error?.response?.data?.message || error?.response?.data?.detail;
+      return rejectWithValue(err);
     }
   },
 );
@@ -40,22 +39,9 @@ export const Delete_Chat_Session = createAsyncThunk(
     } catch (error) {
       console.error("Delete_Chat_Session error:", error);
 
-      const status = error.response?.status;
-      const message =
-        error.response?.data?.detail || error.response?.data?.message;
+      const err = error.response?.data?.detail || error.response?.data?.message;
 
-      if (status === 401) {
-        toast.error("Session expired. Please log in again.");
-        sessionStorage.clear();
-        window.location.href = "/";
-        return rejectWithValue("Session expired");
-      }
-
-      const errorMessage =
-        message ||
-        "An unexpected error occurred while deleting the chat session.";
-
-      return rejectWithValue(errorMessage);
+      return rejectWithValue(err);
     }
   },
 );
@@ -87,8 +73,6 @@ export const get_Chat_History = createAsyncThunk(
 
       return response.data;
     } catch (error) {
-      console.error("get_Chat_History error:", error);
-
       const status = error.response?.status;
       const message =
         error.response?.data?.detail ||

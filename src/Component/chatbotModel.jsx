@@ -72,7 +72,7 @@ export const ChatBotModal = ({ category, buildingId }) => {
   return (
     <>
       <button onClick={() => setOpen(true)} className="chatbot-button shadow">
-        <BsChatDots size={22} />
+        <BsChatDots size={22} className="activity-log"/>
       </button>
 
       {open && (
@@ -85,13 +85,13 @@ export const ChatBotModal = ({ category, buildingId }) => {
               className="chatbot-close-btn"
               onClick={() => setOpen(false)}
             >
-              <BsX size={24} />
+              <BsX size={24} className="activity-log" />
             </button>
           </div>
 
           <div className="chatbot-body">
             {messages.length === 0 && (
-              <div className="text-center mt-5" style={{ opacity: 0.6 }}>
+              <div className="text-center activity-log mt-5" style={{ opacity: 0.6 }}>
                 Ask me here...
               </div>
             )}

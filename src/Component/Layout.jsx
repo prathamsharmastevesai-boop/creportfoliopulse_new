@@ -113,6 +113,7 @@ export const DashboardLayout = () => {
       "/maintenance-building-list",
       "/admin-maintenance-update",
       "/admin-maintenance-building-list",
+      "/loi-audit",
       "/comparative-user-building-list",
       "/comparative-building-upload",
       "/tenent-info-user-building-list",

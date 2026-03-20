@@ -2,10 +2,9 @@ import { useEffect, useRef } from "react";
 import { Navigate, useLocation, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { useDispatch, useSelector } from "react-redux";
-import { getProfileDetail } from "../Networking/User/APIs/Profile/ProfileApi";
 import { USER_ROUTE_FEATURE_MAP } from "./userRouteFeatureMap";
+import { getProfileDetail } from "../Networking/User/APIs/Profile/ProfileApi";
 
-const LAST_ALLOWED_ROUTE = "last_allowed_route";
 const IDLE_TIMEOUT = 3 * 60 * 1000;
 
 const matchRoute = (pathname, routeMap) => {
@@ -23,9 +22,8 @@ const ProtectedRoute = ({ children, allowedRoles = [] }) => {
   const role = sessionStorage.getItem("role");
 
   const location = useLocation();
-  const dispatch = useDispatch();
   const navigate = useNavigate();
-
+  const dispatch = useDispatch();
   const toastShownRef = useRef(false);
   const idleTimerRef = useRef(null);
 
@@ -103,12 +101,6 @@ const ProtectedRoute = ({ children, allowedRoles = [] }) => {
       toastShownRef.current = true;
     }
   }, [hasFeatureAccess]);
-
-  useEffect(() => {
-    if (hasFeatureAccess) {
-      sessionStorage.setItem(LAST_ALLOWED_ROUTE, location.pathname);
-    }
-  }, [hasFeatureAccess, location.pathname]);
 
   if (!token || !role) {
     return <Navigate to="/" replace />;

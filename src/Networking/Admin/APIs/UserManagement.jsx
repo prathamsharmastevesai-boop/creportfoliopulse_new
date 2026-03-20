@@ -12,10 +12,10 @@ export const inviteUserApi = createAsyncThunk(
       return response.data;
     } catch (error) {
       return rejectWithValue(
-        error.response?.data?.message || "Failed to invite user"
+        error.response?.data?.message || "Failed to invite user",
       );
     }
-  }
+  },
 );
 
 export const getUserlistApi = createAsyncThunk(
@@ -26,10 +26,10 @@ export const getUserlistApi = createAsyncThunk(
       return response.data;
     } catch (error) {
       return rejectWithValue(
-        error.response?.data?.message || "Failed to fetch user list"
+        error.response?.data?.message || "Failed to fetch user list",
       );
     }
-  }
+  },
 );
 
 export const toggleGeminiApi = createAsyncThunk(
@@ -37,13 +37,13 @@ export const toggleGeminiApi = createAsyncThunk(
   async ({ email, enable }, { rejectWithValue }) => {
     try {
       const response = await axiosInstance.patch(
-        ToggleGemini + `?email=${email}&enable=${enable}`
+        ToggleGemini + `?email=${email}&enable=${enable}`,
       );
       return response.data;
     } catch (error) {
       return rejectWithValue(
-        error.response?.data?.message || "Failed to toggle Gemini"
+        error.response?.data?.message || "Failed to toggle Gemini",
       );
     }
-  }
+  },
 );

@@ -24,16 +24,13 @@ export const UploadDocSubmit = createAsyncThunk(
       const response = await axiosInstance.post(
         `${baseURL}${UploadDoc}`,
         formData,
-        {
-          headers: { "Content-Type": "multipart/form-data" },
-        }
       );
 
       return response.data;
     } catch (error) {
       return rejectWithValue(error);
     }
-  }
+  },
 );
 
 export const UpdateDocSubmit = createAsyncThunk(
@@ -49,16 +46,13 @@ export const UpdateDocSubmit = createAsyncThunk(
       const response = await axiosInstance.patch(
         `${baseURL}${UpdateDoc}`,
         formData,
-        {
-          headers: { "Content-Type": "multipart/form-data" },
-        }
       );
 
       return response.data;
     } catch (error) {
       return rejectWithValue(error);
     }
-  }
+  },
 );
 
 export const ListDocSubmit = createAsyncThunk(
@@ -72,7 +66,7 @@ export const ListDocSubmit = createAsyncThunk(
     } catch (error) {
       return rejectWithValue(error);
     }
-  }
+  },
 );
 
 export const DeleteDocSubmit = createAsyncThunk(
@@ -87,7 +81,7 @@ export const DeleteDocSubmit = createAsyncThunk(
     } catch (error) {
       return rejectWithValue(error);
     }
-  }
+  },
 );
 
 export const AskQuestionAPI = createAsyncThunk(
@@ -96,12 +90,12 @@ export const AskQuestionAPI = createAsyncThunk(
     try {
       const response = await axiosInstance.post(
         `${baseURL}${AskQuestion}`,
-        data
+        data,
       );
 
       return response.data;
     } catch (error) {
       return rejectWithValue(error);
     }
-  }
+  },
 );

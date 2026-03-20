@@ -31,6 +31,8 @@ const BuildingSlice = createSlice({
     builder.addCase(ListBuildingSubmit.fulfilled, (state, action) => {
       state.loading = false;
       state.BuildingList = action.payload;
+      console.log(state.BuildingList,"state.BuildingList");
+      
     });
     builder.addCase(ListBuildingSubmit.rejected, (state, action) => {
       state.loading = false;

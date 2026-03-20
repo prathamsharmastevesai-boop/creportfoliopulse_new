@@ -26,11 +26,6 @@ export const UploadfloorStack = createAsyncThunk(
       const response = await axiosInstance.post(
         "/building/files/upload",
         formData,
-        {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-        }
       );
 
       return response.data;
@@ -38,7 +33,7 @@ export const UploadfloorStack = createAsyncThunk(
       console.error("Upload error:", error);
       return rejectWithValue(error.response?.data?.message || "Upload failed");
     }
-  }
+  },
 );
 
 export const UploadGeneralDocSubmit = createAsyncThunk(
@@ -49,45 +44,41 @@ export const UploadGeneralDocSubmit = createAsyncThunk(
       formData.append("files", file);
 
       let url = `/admin_user_chat/upload?category=${encodeURIComponent(
-        category
+        category,
       )}`;
 
       if (building_Id) {
         url += `&building_id=${encodeURIComponent(building_Id)}`;
       }
 
-      const response = await axiosInstance.post(url, formData, {
-        headers: { "Content-Type": "multipart/form-data" },
-      });
+      const response = await axiosInstance.post(url, formData);
 
       return response.data;
     } catch (error) {
       return rejectWithValue(error.response?.data?.message);
     }
-  }
+  },
 );
 
 export const UploadgeminiDocSubmit = createAsyncThunk(
   "UploadgeminiDocSubmit",
-  async ({ file, session_id  }, { rejectWithValue }) => {
+  async ({ file, session_id }, { rejectWithValue }) => {
     try {
       const formData = new FormData();
       formData.append("files", file);
-      if(session_id){
-      formData.append("session_id",session_id);
+      if (session_id) {
+        formData.append("session_id", session_id);
       }
 
-      let url = "/gemini/upload"
+      let url = "/gemini/upload";
 
-      const response = await axiosInstance.post(url, formData, {
-        headers: { "Content-Type": "multipart/form-data" },
-      });
+      const response = await axiosInstance.post(url, formData);
 
       return response.data;
     } catch (error) {
       return rejectWithValue(error.response?.data?.message);
     }
-  }
+  },
 );
 
 export const ListGeminiDoc = createAsyncThunk(
@@ -98,10 +89,10 @@ export const ListGeminiDoc = createAsyncThunk(
       return response.data;
     } catch (error) {
       return rejectWithValue(
-        error.response?.data?.message || "Failed to fetch list"
+        error.response?.data?.message || "Failed to fetch list",
       );
     }
-  }
+  },
 );
 
 export const DeleteGeneralDocSubmit = createAsyncThunk(
@@ -109,15 +100,14 @@ export const DeleteGeneralDocSubmit = createAsyncThunk(
   async ({ file_id }, { rejectWithValue }) => {
     try {
       const response = await axiosInstance.delete(`/gemini/files/${file_id}`);
-      return response.data; 
+      return response.data;
     } catch (error) {
       return rejectWithValue(
-        error.response?.data?.message || "Failed to delete document"
+        error.response?.data?.message || "Failed to delete document",
       );
     }
-  }
+  },
 );
-
 
 export const UpdateGeneralDocSubmit = createAsyncThunk(
   "general/UpdateGeneralDocSubmit",
@@ -128,17 +118,16 @@ export const UpdateGeneralDocSubmit = createAsyncThunk(
 
       const response = await axiosInstance.patch(
         `${updateGenralDoc}?file_id=${file_id}&category=${encodeURIComponent(
-          category
+          category,
         )}`,
         formData,
-        { headers: { "Content-Type": "multipart/form-data" } }
       );
 
       return response.data;
     } catch (error) {
       return rejectWithValue(error.response?.data?.message);
     }
-  }
+  },
 );
 
 export const FloorPlanStackDeleteSubmit = createAsyncThunk(
@@ -146,14 +135,14 @@ export const FloorPlanStackDeleteSubmit = createAsyncThunk(
   async ({ file_id }, { rejectWithValue }) => {
     try {
       const response = await axiosInstance.delete(
-        `/building/files/bs_and_fp_delete?file_id=${file_id}`
+        `/building/files/bs_and_fp_delete?file_id=${file_id}`,
       );
-     toast.success(response.data.message);
+      toast.success(response.data.message);
       return response.data;
     } catch (error) {
       return rejectWithValue(error.response?.data?.message);
     }
-  }
+  },
 );
 
 export const GeneralInfoSubmit = createAsyncThunk(
@@ -164,11 +153,11 @@ export const GeneralInfoSubmit = createAsyncThunk(
 
       if (buildingId) {
         response = await axiosInstance.get(
-          `/chatbot/files/?building_id=${buildingId}&category=${category}`
+          `/chatbot/files/?building_id=${buildingId}&category=${category}`,
         );
       } else {
         response = await axiosInstance.get(
-          `/chatbot/files/?category=${category}`
+          `/chatbot/files/?category=${category}`,
         );
       }
 
@@ -176,7 +165,7 @@ export const GeneralInfoSubmit = createAsyncThunk(
     } catch (error) {
       return rejectWithValue(error.response?.data?.message);
     }
-  }
+  },
 );
 
 export const FloorPlanStackListSubmit = createAsyncThunk(
@@ -187,11 +176,11 @@ export const FloorPlanStackListSubmit = createAsyncThunk(
 
       if (buildingId) {
         response = await axiosInstance.get(
-          `/building/files/bs_fp_list?building_id=${buildingId}&category=${category}`
+          `/building/files/bs_fp_list?building_id=${buildingId}&category=${category}`,
         );
       } else {
         response = await axiosInstance.get(
-          `/building/files/bs_fp_list?category=${category}`
+          `/building/files/bs_fp_list?category=${category}`,
         );
       }
 
@@ -199,7 +188,7 @@ export const FloorPlanStackListSubmit = createAsyncThunk(
     } catch (error) {
       return rejectWithValue(error.response?.data?.message);
     }
-  }
+  },
 );
 
 export const AskQuestionBuildingAPI = createAsyncThunk(
@@ -208,15 +197,15 @@ export const AskQuestionBuildingAPI = createAsyncThunk(
     try {
       const response = await axiosInstance.post(
         ASkQuestionbuildingEndpoint,
-        Data
+        Data,
       );
       return response.data;
     } catch (error) {
       return rejectWithValue(
-        error.response?.data?.message || "Question not sent"
+        error.response?.data?.message || "Question not sent",
       );
     }
-  }
+  },
 );
 
 export const AskQuestionGeminiAPI = createAsyncThunk(
@@ -227,10 +216,10 @@ export const AskQuestionGeminiAPI = createAsyncThunk(
       return response.data;
     } catch (error) {
       return rejectWithValue(
-        error.response?.data?.message || "Question not sent"
+        error.response?.data?.message || "Question not sent",
       );
     }
-  }
+  },
 );
 
 export const AskQuestionReportAPI = createAsyncThunk(
@@ -239,13 +228,13 @@ export const AskQuestionReportAPI = createAsyncThunk(
     try {
       const response = await axiosInstance.post(
         AskQuestionReportEndpoint,
-        Data
+        Data,
       );
       return response.data;
     } catch (error) {
       return rejectWithValue(
-        error.response?.data?.message || "Question not sent"
+        error.response?.data?.message || "Question not sent",
       );
     }
-  }
+  },
 );

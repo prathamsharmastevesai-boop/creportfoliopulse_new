@@ -1,6 +1,10 @@
 import { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { createSpace } from "../../../Networking/User/APIs/spaceUp/spaceUpApi";
+import {
+  createSpace,
+  getSpacesByBuilding,
+  getSpaceUpAssginBuildings,
+} from "../../../Networking/User/APIs/spaceUp/spaceUpApi";
 import { toast } from "react-toastify";
 
 export const AddSpaceModal = ({ show, onClose, buildingId }) => {
@@ -53,6 +57,7 @@ export const AddSpaceModal = ({ show, onClose, buildingId }) => {
     };
 
     const result = await dispatch(createSpace({ buildingId, payload }));
+    await dispatch(getSpacesByBuilding(buildingId));
 
     if (createSpace.fulfilled.match(result)) {
       toast.success("Space added successfully");

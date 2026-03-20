@@ -147,7 +147,6 @@
 }
 
 @keyframes typing {
-
   0%,
   60%,
   100% {
@@ -888,7 +887,6 @@
 }
 
 @keyframes pulse {
-
   0%,
   100% {
     opacity: 0.4;
@@ -1117,7 +1115,6 @@
 }
 
 @keyframes typingAnimation {
-
   0%,
   60%,
   100% {
@@ -1457,24 +1454,6 @@
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
-}
-
-.badge {
-  min-width: 20px;
-  height: 20px;
-  border-radius: 10px;
-  background: #00a884;
-  color: white;
-  font-size: 11px;
-  font-weight: 700;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0 5px;
-  margin-left: 6px;
-  font-size: 16px;
-  line-height: 20px;
-  padding: 20px 15px;
 }
 
 .empty {
@@ -2040,12 +2019,6 @@
   background: var(--bg-secondary);
 }
 
-.chat-title {
-  font-size: 20px;
-  font-weight: 600;
-  color: var(--text-primary);
-}
-
 .header-actions {
   display: flex;
   gap: 8px;
@@ -2310,8 +2283,6 @@
 .empty-text {
   font-size: 16px;
 }
-
-
 
 .modal-overlay {
   position: fixed;

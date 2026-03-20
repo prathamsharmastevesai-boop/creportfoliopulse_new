@@ -66,31 +66,57 @@ const StatCard = ({ label, value, colorVar }) => (
   <div className="po-stat-card">
     <span className="po-stat-label">{label}</span>
     <div className="po-stat-bottom">
-      <span className="po-stat-value" style={{ color: colorVar }}>
-        {value}
-      </span>
+      <span className="po-stat-value">{value}</span>
       <Sparkline colorVar={colorVar} />
     </div>
   </div>
 );
 
 const BuildingCard = ({ building, cardRef, onGoToChat }) => {
-  const imageUrl =
-    building.photos?.find((p) => p?.url)?.url ||
-    "https://via.placeholder.com/90x72?text=Bldg";
+  const imageUrl = building.photos?.find((p) => p?.url)?.url;
+
   const occupancy = building.current_occupancy || 0;
 
   const actions = [
-    { icon: "bi-image", cat: "floor_plan", title: "Plans / Photos / Flyers" },
-    { icon: "bi-stack", cat: "building_stack", title: "Building Stack" },
-    { icon: "bi-info-circle", cat: "building_info", title: "Building Info" },
-    { icon: "bi-list-ul", cat: "tenant_info", title: "Tenant Info" },
+    {
+      icon: "bi-image",
+      cat: "floor_plan",
+      title: "Plans / Photos / Flyers",
+      label: "Plans / Photos / Flyers",
+    },
+    {
+      icon: "bi-stack",
+      cat: "building_stack",
+      title: "Building Stack",
+      label: "Building Stack",
+    },
+    {
+      icon: "bi-info-circle",
+      cat: "building_info",
+      title: "Building Info",
+      label: "Building Info",
+    },
+    {
+      icon: "bi-list-ul",
+      cat: "tenant_info",
+      title: "Tenant Info",
+      label: "Tenant Info",
+    },
   ];
 
   return (
     <div ref={cardRef} className="po-card slide-in-top">
       <div className="po-card__left">
-        <img src={imageUrl} alt="building" className="po-card__img" />
+        {imageUrl ? (
+          <img src={imageUrl} alt="building" className="po-card__img" />
+        ) : (
+          <img
+            src="../../../../public/default_image.jpg"
+            alt="building"
+            className="po-card__img"
+          />
+        )}
+
         <div className="po-card__address">{building.address || "N/A"}</div>
       </div>
       <div className="po-card__right">
@@ -100,25 +126,27 @@ const BuildingCard = ({ building, cardRef, onGoToChat }) => {
             <div className="po-card__rows">
               <span className="po-card__key">SQUARE FOOTAGE</span>
               <span className="po-card__val">
-                {building.total_vacant_sf
-                  ? Number(building.total_vacant_sf).toLocaleString()
+                {building?.total_vacant_sf
+                  ? Number(building?.summary?.total_vacant_sf).toLocaleString()
                   : "0"}
               </span>
             </div>
-            <div className="po-card__row">
+            <div className="po-card__rows">
               <span className="po-card__key">CURRECT TENANT COUNT</span>
               <span className="po-card__val">
-                {building.summary.current_listings_count ?? "0"}
+                {building?.summary?.current_listings_count ?? "0"}
               </span>
             </div>
-            <div className="po-card__row">
+            <div className="po-card__rows">
               <span className="po-card__key">CURRENT LISTIING COUNTWANG</span>
-              <span className="po-card__val">{building.lease_term || "0"}</span>
+              <span className="po-card__val">
+                {building?.lease_term || "0"}
+              </span>
             </div>
           </div>
         </div>
         <div className="po-card__actions">
-          {actions.map(({ icon, cat, title }) => (
+          {actions.map(({ icon, cat, title, label }) => (
             <button
               key={cat}
               className="po-action-btn"
@@ -126,6 +154,7 @@ const BuildingCard = ({ building, cardRef, onGoToChat }) => {
               onClick={() => onGoToChat(building.id, cat)}
             >
               <i className={`bi ${icon}`}></i>
+              <span className="po-action-label">{label}</span>
             </button>
           ))}
         </div>
@@ -141,7 +170,6 @@ export const Dashboard = () => {
   const cardsRef = useRef({});
   const [searchTerm, setSearchTerm] = useState("");
   const { BuildingList, loading } = useSelector((state) => state.BuildingSlice);
-  console.log(BuildingList, "BuildingList");
 
   useEffect(() => {
     dispatch(ListBuildingSubmit("BuildingInfo"));
@@ -204,20 +232,18 @@ export const Dashboard = () => {
         <div className="po-stats-row">
           <StatCard
             label="PORTFOLIO OCCUPANCY:"
-            value={`${avgOccupancy}%`}
+            value={`${filteredBuildings[0]?.total_occupancy_pct_all || "N/A"}%`}
             colorVar="var(--donut-high)"
           />
           <StatCard
-            label="TOTAL REVENUE:"
-            value={`$${(filteredBuildings.length * 0.12).toFixed(1)}M`}
+            label="TOTAL VACANT SF:"
+            value={`${filteredBuildings[0]?.total_vacant_sf_all || "N/A"}-SF`}
             colorVar="var(--accent-color)"
           />
         </div>
 
         <div className="po-filter-row">
-          <button className="po-filter-btn">
-            Property Type <i className="bi bi-chevron-down"></i>
-          </button>
+          <button className="po-filter-btn">Building Info</button>
         </div>
       </div>
 

@@ -229,7 +229,7 @@ const ComplianceTable = ({ users }) => {
   return (
     <div className="table-responsive shadow-sm rounded">
       <table className="table align-middle">
-        <thead>
+        <thead className="text-center">
           <tr className="table-light text-uppercase small fw-bold">
             <th>User Name</th>
             <th>Email</th>

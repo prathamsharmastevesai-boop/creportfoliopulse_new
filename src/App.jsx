@@ -100,20 +100,9 @@ import { MaintenanceUpdate } from "./Pages/Admin/MaintennaceUpdate/maintenanceUp
 import { MaintenanceBuildinglist } from "./Pages/Admin/MaintennaceUpdate/maintenanceBuildingList";
 import { TermsOfUse } from "./Pages/User/TermsOfUse/termsOfUse";
 import { FloorPlanUpload } from "./Pages/User/Dashboard/floorPlanUpload";
+import { LoiAudit } from "./Pages/User/LoiAudit/loiAudit";
 
 function App() {
-  useEffect(() => {
-    const expiry = sessionStorage.getItem("tokenExpiry");
-
-    if (expiry && Date.now() > parseInt(expiry)) {
-      toast.warning("Your session has expired.");
-      sessionStorage.removeItem("token");
-      sessionStorage.removeItem("auth");
-      sessionStorage.removeItem("tokenExpiry");
-      window.location.href = "/";
-    }
-  }, []);
-
   return (
     <Provider store={store}>
       <NotificationProvider>
@@ -297,7 +286,6 @@ function App() {
                       path="/admin-portfolio-forum"
                       element={<PortfolioForum />}
                     />
-                    <Route path="/create-forum" element={<CreateThread />} />
 
                     <Route path="/space-inquiry" element={<SpaceInquiry />} />
                   </Route>
@@ -398,6 +386,8 @@ function App() {
                       path="/maintenance-update"
                       element={<MaintenanceUpdate />}
                     />
+
+                    <Route path="/loi-audit" element={<LoiAudit />} />
 
                     <Route
                       path="/contacts-hub-chat"

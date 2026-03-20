@@ -98,7 +98,7 @@ export const ActivityLog = ({ buildingId, activities }) => {
               })}
             </span>
 
-            <span className="bs-log-msg d-block">
+            <span className="activity-log d-block">
               {formatActivityMessage(activity)}
             </span>
 

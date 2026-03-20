@@ -1,6 +1,6 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
 import axiosInstance from "./AxiosInstance";
-import { subleasetrackerendpoint } from "../../NWconfig";
+import { subleaseEndpoint, subleasetrackerendpoint } from "../../NWconfig";
 
 export const SubleaseTrackerSubmit = createAsyncThunk(
   "SubleaseTracker",
@@ -19,7 +19,10 @@ export const UpdateSubleaseById = createAsyncThunk(
   "sublease/update",
   async ({ tracker_id, data }, { rejectWithValue }) => {
     try {
-      const response = await axiosInstance.put("/sublease/" + tracker_id, data);
+      const response = await axiosInstance.put(
+        subleaseEndpoint + tracker_id,
+        data,
+      );
       return response.data;
     } catch (error) {
       console.error("UpdateSubleaseById Error:", error);
@@ -32,7 +35,7 @@ export const GetSubleaseTrackerList = createAsyncThunk(
   "SubleaseTrackerList",
   async (_, { rejectWithValue }) => {
     try {
-      const response = await axiosInstance.get("/sublease/all");
+      const response = await axiosInstance.get(`${subleaseEndpoint}all`);
       return response.data;
     } catch (error) {
       return rejectWithValue(error?.response?.data || error.message);
@@ -44,7 +47,7 @@ export const GetSubleaseById = createAsyncThunk(
   "GetSubleaseById",
   async (id, { rejectWithValue }) => {
     try {
-      const response = await axiosInstance.get(`/sublease/${id}`);
+      const response = await axiosInstance.get(`${subleaseEndpoint}${id}`);
       return response.data;
     } catch (error) {
       return rejectWithValue(error?.response?.data || error.message);
@@ -56,7 +59,7 @@ export const DeleteSubleaseById = createAsyncThunk(
   "DeleteSubleaseById",
   async (id, { rejectWithValue }) => {
     try {
-      const response = await axiosInstance.delete(`/sublease/${id}`);
+      const response = await axiosInstance.delete(`${subleaseEndpoint}${id}`);
       return response.data;
     } catch (error) {
       return rejectWithValue(error?.response?.data || error.message);
@@ -74,11 +77,6 @@ export const uploadSubleaseFile = createAsyncThunk(
       const response = await axiosInstance.post(
         `/sublease/${id}/upload`,
         formData,
-        {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-        },
       );
       return response.data;
     } catch (error) {
@@ -92,7 +90,9 @@ export const fetchSubleaseFiles = createAsyncThunk(
   "sublease/fetchFiles",
   async (id, { rejectWithValue }) => {
     try {
-      const response = await axiosInstance.get(`/sublease/${id}/files`);
+      const response = await axiosInstance.get(
+        `${subleaseEndpoint}${id}/files`,
+      );
       return response.data;
     } catch (error) {
       console.error("fetchSubleaseFiles Error:", error);
@@ -105,7 +105,9 @@ export const deleteSubleaseFile = createAsyncThunk(
   "sublease/deleteFile",
   async (fileId, { rejectWithValue }) => {
     try {
-      const response = await axiosInstance.delete(`/sublease/file/${fileId}`);
+      const response = await axiosInstance.delete(
+        `${subleaseEndpoint}file/${fileId}`,
+      );
       return response.data;
     } catch (error) {
       console.error("deleteSubleaseFile Error:", error);
@@ -113,4 +115,3 @@ export const deleteSubleaseFile = createAsyncThunk(
     }
   },
 );
-

@@ -270,7 +270,16 @@ export const Login = () => {
   const modalBodyRef = useRef(null);
 
   useEffect(() => {
-    sessionStorage.clear();
+    const token = sessionStorage.getItem("access_token");
+    const role = sessionStorage.getItem("role");
+
+    if (token && role) {
+      if (role === "user") navigate("/cre-news", { replace: true });
+      else if (role === "admin")
+        navigate("/admin-dashboard", { replace: true });
+      else if (role === "superuser")
+        navigate("/admin-management", { replace: true });
+    }
   }, []);
 
   const handleScroll = () => {
@@ -290,7 +299,7 @@ export const Login = () => {
   };
 
   const navigateBasedOnRole = (role) => {
-    if (role === "user") navigate("/dashboard");
+    if (role === "user") navigate("/cre-news");
     else if (role === "admin") navigate("/admin-dashboard");
     else if (role === "superuser") navigate("/admin-management");
   };

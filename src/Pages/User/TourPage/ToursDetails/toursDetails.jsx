@@ -130,7 +130,6 @@ export const ToursDetails = () => {
           onChange={(e) => setBuildingSearch(e.target.value)}
         />
       </div>
-
       {filteredTours.length === 0 ? (
         <div className="text-center py-5">
           <h5>No tours found</h5>
@@ -201,7 +200,7 @@ export const ToursDetails = () => {
           </table>
         </div>
       )}
-
+      v
       <Modal
         show={viewModal}
         onHide={() => setViewModal(false)}
@@ -234,7 +233,6 @@ export const ToursDetails = () => {
           </Button>
         </Modal.Footer>
       </Modal>
-
       <Modal
         show={!!deleteId}
         centered
@@ -270,7 +268,6 @@ export const ToursDetails = () => {
           </Button>
         </Modal.Footer>
       </Modal>
-
       <Modal show={editModal} onHide={() => setEditModal(false)} centered>
         <Modal.Header closeButton>
           <Modal.Title>Edit Tour</Modal.Title>

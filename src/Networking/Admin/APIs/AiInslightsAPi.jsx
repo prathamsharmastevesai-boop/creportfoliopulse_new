@@ -1,5 +1,4 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
-import { toast } from "react-toastify";
 import axiosInstance from "./AxiosInstance";
 import {
   ActivitySummary,
@@ -21,7 +20,7 @@ export const getAnalyticApi = createAsyncThunk(
     } catch (error) {
       return rejectWithValue(error.response?.data?.message);
     }
-  }
+  },
 );
 
 export const getInslightApi = createAsyncThunk(
@@ -34,7 +33,7 @@ export const getInslightApi = createAsyncThunk(
     } catch (error) {
       return rejectWithValue(error.response?.data?.message);
     }
-  }
+  },
 );
 
 export const getRecentQuestionApi = createAsyncThunk(
@@ -47,7 +46,7 @@ export const getRecentQuestionApi = createAsyncThunk(
     } catch (error) {
       return rejectWithValue(error.response?.data?.message);
     }
-  }
+  },
 );
 
 export const getUsageTreadApi = createAsyncThunk(
@@ -60,7 +59,7 @@ export const getUsageTreadApi = createAsyncThunk(
     } catch (error) {
       return rejectWithValue(error.response?.data?.message);
     }
-  }
+  },
 );
 
 export const getActivitySummaryApi = createAsyncThunk(
@@ -74,7 +73,7 @@ export const getActivitySummaryApi = createAsyncThunk(
     } catch (error) {
       return rejectWithValue(error.response?.data?.message);
     }
-  }
+  },
 );
 
 export const DownloadGeneratedLease1 = createAsyncThunk(
@@ -82,14 +81,14 @@ export const DownloadGeneratedLease1 = createAsyncThunk(
   async (fileId, { rejectWithValue }) => {
     try {
       const response = await axiosInstance.get(
-        `/generate_lease/files/${fileId}`
+        `/generate_lease/files/${fileId}`,
       );
 
       return response.data;
     } catch (error) {
       return rejectWithValue(
-        error.response?.data?.message || "Failed to fetch lease download link"
+        error.response?.data?.message || "Failed to fetch lease download link",
       );
     }
-  }
+  },
 );

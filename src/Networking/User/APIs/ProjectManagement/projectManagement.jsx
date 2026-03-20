@@ -1,11 +1,15 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
 import axiosInstance from "../../../Admin/APIs/AxiosInstance";
+import {
+  projectManagemantEndpoint,
+  projectManagemantGetSummaryEndpoint,
+} from "../../../NWconfig";
 
 export const getProjectsApi = createAsyncThunk(
   "getProjectsApi",
   async ({ buildingId, skip = 0, limit = 100 } = {}, { rejectWithValue }) => {
     try {
-      const response = await axiosInstance.get("/work-letter/projects", {
+      const response = await axiosInstance.get(projectManagemantEndpoint, {
         params: {
           building_id: buildingId,
           skip,
@@ -36,7 +40,7 @@ export const createProjectApi = createAsyncThunk(
       };
 
       const response = await axiosInstance.post(
-        "/work-letter/projects",
+        projectManagemantEndpoint,
         payload,
       );
 
@@ -76,7 +80,7 @@ export const updateProjectApi = createAsyncThunk(
       };
 
       const response = await axiosInstance.put(
-        `/work-letter/projects/${projectId}`,
+        `${projectManagemantEndpoint}/${projectId}`,
         payload,
       );
 
@@ -91,7 +95,7 @@ export const deleteProjectApi = createAsyncThunk(
   "projects/deleteProject",
   async (projectId, { rejectWithValue }) => {
     try {
-      await axiosInstance.delete(`/work-letter/projects/${projectId}`);
+      await axiosInstance.delete(`${projectManagemantEndpoint}/${projectId}`);
       return projectId;
     } catch (error) {
       return rejectWithValue(error.response?.data || error.message);
@@ -104,7 +108,7 @@ export const addLineItemsBulkApi = createAsyncThunk(
   async ({ projectId, lineItems }, { rejectWithValue }) => {
     try {
       const response = await axiosInstance.post(
-        `/work-letter/projects/${projectId}/line-items/bulk`,
+        `${projectManagemantEndpoint}/${projectId}/line-items/bulk`,
         { line_items: lineItems },
       );
       return response.data;
@@ -119,7 +123,7 @@ export const fetchLineItemsApi = createAsyncThunk(
   async ({ projectId, filters }, { rejectWithValue }) => {
     try {
       const response = await axiosInstance.get(
-        `/work-letter/projects/${projectId}/line-items`,
+        `${projectManagemantEndpoint}/${projectId}/line-items`,
         {
           params: filters,
         },
@@ -139,7 +143,7 @@ export const updateLineItemApi = createAsyncThunk(
   async ({ projectId, lineItemId, payload }, { rejectWithValue }) => {
     try {
       const res = await axiosInstance.put(
-        `/work-letter/projects/${projectId}/line-items/${lineItemId}`,
+        `${projectManagemantEndpoint}/${projectId}/line-items/${lineItemId}`,
         payload,
       );
       return res.data;
@@ -154,7 +158,7 @@ export const deleteLineItemApi = createAsyncThunk(
   async ({ projectId, lineItemId }, { rejectWithValue }) => {
     try {
       await axiosInstance.delete(
-        `/work-letter/projects/${projectId}/line-items/${lineItemId}`,
+        `${projectManagemantEndpoint}/${projectId}/line-items/${lineItemId}`,
       );
       return lineItemId;
     } catch (err) {
@@ -168,7 +172,7 @@ export const fetchCostAnalysisApi = createAsyncThunk(
   async ({ projectId }, { rejectWithValue }) => {
     try {
       const res = await axiosInstance.get(
-        `/work-letter/projects/${projectId}/cost-analysis`,
+        `${projectManagemantEndpoint}/${projectId}/cost-analysis`,
       );
       return res.data;
     } catch (err) {
@@ -181,7 +185,7 @@ export const getWorkLetterSummaryApi = createAsyncThunk(
   "getWorkLetterSummaryApi",
   async (_, { rejectWithValue }) => {
     try {
-      const res = await axiosInstance.get("/work-letter/summary");
+      const res = await axiosInstance.get(projectManagemantGetSummaryEndpoint);
       return res.data;
     } catch (err) {
       return rejectWithValue(err.response?.data || err.message);
@@ -197,7 +201,7 @@ export const uploadDocumentApi = createAsyncThunk(
       formData.append("file", file);
 
       const res = await axiosInstance.post(
-        `/work-letter/projects/${projectId}/documents`,
+        `${projectManagemantEndpoint}/${projectId}/documents`,
         formData,
       );
 
@@ -213,7 +217,7 @@ export const fetchDocumentsApi = createAsyncThunk(
   async ({ projectId }, { rejectWithValue }) => {
     try {
       const res = await axiosInstance.get(
-        `/work-letter/projects/${projectId}/documents`,
+        `${projectManagemantEndpoint}/${projectId}/documents`,
       );
       return res.data;
     } catch (err) {
@@ -227,7 +231,7 @@ export const deleteDocumentApi = createAsyncThunk(
   async ({ projectId, documentId }, { rejectWithValue }) => {
     try {
       await axiosInstance.delete(
-        `/work-letter/projects/${projectId}/documents/${documentId}`,
+        `${projectManagemantEndpoint}/${projectId}/documents/${documentId}`,
       );
 
       return documentId;
@@ -242,7 +246,7 @@ export const fetchTimelinePhasesApi = createAsyncThunk(
   async ({ projectId }, { rejectWithValue }) => {
     try {
       const res = await axiosInstance.get(
-        `/work-letter/projects/${projectId}/timeline-phases`,
+        `${projectManagemantEndpoint}/${projectId}/timeline-phases`,
       );
       return res.data;
     } catch (err) {
@@ -256,7 +260,7 @@ export const addTimelinePhaseApi = createAsyncThunk(
   async ({ projectId, payload }, { rejectWithValue }) => {
     try {
       const res = await axiosInstance.post(
-        `/work-letter/projects/${projectId}/timeline-phases`,
+        `${projectManagemantEndpoint}/${projectId}/timeline-phases`,
         payload,
       );
       return res.data;
@@ -271,7 +275,7 @@ export const updateTimelinePhaseApi = createAsyncThunk(
   async ({ projectId, phaseId, payload }, { rejectWithValue }) => {
     try {
       const res = await axiosInstance.put(
-        `/work-letter/projects/${projectId}/timeline-phases/${phaseId}`,
+        `${projectManagemantEndpoint}/${projectId}/timeline-phases/${phaseId}`,
         payload,
       );
       return res.data;
@@ -286,7 +290,7 @@ export const fetchAiChatHistoryApi = createAsyncThunk(
   async ({ projectId, limit = 12 }, { rejectWithValue }) => {
     try {
       const res = await axiosInstance.get(
-        `/work-letter/projects/${projectId}/ai-chat-history?limit=${limit}`,
+        `${projectManagemantEndpoint}/${projectId}/ai-chat-history?limit=${limit}`,
       );
       return res.data;
     } catch (err) {
@@ -300,7 +304,7 @@ export const askAiQuestionApi = createAsyncThunk(
   async ({ projectId, question }, { rejectWithValue }) => {
     try {
       const res = await axiosInstance.post(
-        `/work-letter/projects/${projectId}/ai-chat`,
+        `${projectManagemantEndpoint}/${projectId}/ai-chat`,
         { question },
       );
       return res.data;

@@ -1,12 +1,13 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
 import axiosInstance from "../../../Admin/APIs/AxiosInstance";
+import { spaceUpEndpoint, spaceUpProspectEndpoint } from "../../../NWconfig";
 
 export const createSpace = createAsyncThunk(
   "space/create",
   async ({ buildingId, payload }, { rejectWithValue }) => {
     try {
       const res = await axiosInstance.post(
-        `/api/space-up/buildings/${buildingId}/spaces`,
+        `${spaceUpEndpoint}/${buildingId}/spaces`,
         payload,
       );
       return res.data;
@@ -20,7 +21,7 @@ export const getSpaceUpAssginBuildings = createAsyncThunk(
   "getSpaceUpAssginBuildings",
   async (_, { rejectWithValue }) => {
     try {
-      const res = await axiosInstance.get("/api/space-up/buildings");
+      const res = await axiosInstance.get(spaceUpEndpoint);
       return res.data;
     } catch (err) {
       return rejectWithValue(
@@ -35,7 +36,7 @@ export const getSpacesByBuilding = createAsyncThunk(
   async (buildingId, { rejectWithValue }) => {
     try {
       const res = await axiosInstance.get(
-        `/api/space-up/buildings/${buildingId}/spaces`,
+        `${spaceUpEndpoint}/${buildingId}/spaces`,
       );
       return res.data;
     } catch (err) {
@@ -49,7 +50,7 @@ export const addProspect = createAsyncThunk(
   async ({ spaceId, payload }, { rejectWithValue }) => {
     try {
       const res = await axiosInstance.post(
-        `/api/space-up/spaces/${spaceId}/prospects`,
+        `${spaceUpProspectEndpoint}${spaceId}/prospects`,
         payload,
       );
       return res.data;
@@ -66,7 +67,7 @@ export const getProspectsBySpace = createAsyncThunk(
   async (spaceId, { rejectWithValue }) => {
     try {
       const res = await axiosInstance.get(
-        `/api/space-up/spaces/${spaceId}/prospects`,
+        `${spaceUpProspectEndpoint}${spaceId}/prospects`,
       );
       return { spaceId, data: res.data };
     } catch (err) {
@@ -91,7 +92,7 @@ export const deleteSpace = createAsyncThunk(
   "spaceUp/deleteSpace",
   async (spaceId, { rejectWithValue }) => {
     try {
-      await axiosInstance.delete(`/api/space-up/spaces/${spaceId}`);
+      await axiosInstance.delete(`${spaceUpProspectEndpoint}${spaceId}`);
       return spaceId;
     } catch (err) {
       return rejectWithValue(err.response?.data || "Failed to delete space");

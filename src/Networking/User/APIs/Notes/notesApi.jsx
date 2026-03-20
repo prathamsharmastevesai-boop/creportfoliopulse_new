@@ -1,25 +1,19 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
 import axiosInstance from "../../../Admin/APIs/AxiosInstance";
 import { toast } from "react-toastify";
-
-export const notes = "/notes/";
+import { notes } from "../../../NWconfig";
 
 export const createNoteApi = createAsyncThunk(
   "notes/create",
   async (formData, { rejectWithValue }) => {
     try {
-      const res = await axiosInstance.post("/notes/", formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      });
+      const res = await axiosInstance.post(notes, formData, {});
       return res.data;
     } catch (err) {
       return rejectWithValue(err.response?.data);
     }
-  }
+  },
 );
-
 
 export const getNotesApi = createAsyncThunk(
   "notes/getAll",
@@ -30,7 +24,7 @@ export const getNotesApi = createAsyncThunk(
     } catch (error) {
       return rejectWithValue(error.response?.data?.message);
     }
-  }
+  },
 );
 
 export const getNoteByIdApi = createAsyncThunk(
@@ -42,43 +36,32 @@ export const getNoteByIdApi = createAsyncThunk(
     } catch (error) {
       return rejectWithValue(error.response?.data?.message);
     }
-  }
+  },
 );
 
 export const updateNoteApi = createAsyncThunk(
   "notes/update",
   async ({ noteId, data }, { rejectWithValue }) => {
     try {
-      const res = await axiosInstance.put(
-        `/notes/${noteId}`,
-        data,
-        {
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
-      );
+      const res = await axiosInstance.put(`${notes}${noteId}`, data, {});
       return res.data;
     } catch (err) {
       return rejectWithValue(err.response?.data);
     }
-  }
+  },
 );
-
 
 export const deleteNoteFileApi = createAsyncThunk(
   "notes/deleteFile",
   async ({ fileId }, { rejectWithValue }) => {
-
     try {
       const res = await axiosInstance.delete(`/notes/files/${fileId}`);
       return { fileId };
     } catch (err) {
       return rejectWithValue(err.response?.data);
     }
-  }
+  },
 );
-
 
 export const deleteNoteApi = createAsyncThunk(
   "notes/delete",
@@ -90,5 +73,5 @@ export const deleteNoteApi = createAsyncThunk(
     } catch (error) {
       return rejectWithValue(error.response?.data?.message);
     }
-  }
+  },
 );

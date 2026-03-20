@@ -112,9 +112,8 @@ export const DestilledCompTracker = () => {
           newErrors[`year_${index}`] = `Year range required (Row ${index + 1})`;
         }
         if (row.start_y > row.end_y) {
-          newErrors[
-            `year_logic_${index}`
-          ] = `Start year cannot exceed end year (Row ${index + 1})`;
+          newErrors[`year_logic_${index}`] =
+            `Start year cannot exceed end year (Row ${index + 1})`;
         }
       });
     }
@@ -183,7 +182,7 @@ export const DestilledCompTracker = () => {
   return (
     <div className="container-fluid p-3">
       <div className="mb-4 text-center text-md-start">
-        <h4 className="fw-bold">
+        <h4 className="fw-bold activity-log">
           Distilled Comp Tracker (DCT) Submission
         </h4>
       </div>
@@ -392,7 +391,7 @@ export const DestilledCompTracker = () => {
                       updateRentPeriod(
                         index,
                         "rent",
-                        Number(e.target.value) || 0
+                        Number(e.target.value) || 0,
                       )
                     }
                     className="form-control"
@@ -409,7 +408,7 @@ export const DestilledCompTracker = () => {
                       updateRentPeriod(
                         index,
                         "start_y",
-                        Number(e.target.value) || 1
+                        Number(e.target.value) || 1,
                       )
                     }
                     className="form-control"
@@ -426,7 +425,7 @@ export const DestilledCompTracker = () => {
                       updateRentPeriod(
                         index,
                         "end_y",
-                        Number(e.target.value) || 1
+                        Number(e.target.value) || 1,
                       )
                     }
                     className="form-control"
@@ -488,7 +487,7 @@ export const DestilledCompTracker = () => {
                   value={escalationValue}
                   onChange={(e) =>
                     setEscalationValue(
-                      e.target.value ? Number(e.target.value) : ""
+                      e.target.value ? Number(e.target.value) : "",
                     )
                   }
                   className="form-control"
@@ -503,7 +502,7 @@ export const DestilledCompTracker = () => {
                   value={freeRentMonths}
                   onChange={(e) =>
                     setFreeRentMonths(
-                      e.target.value ? Number(e.target.value) : ""
+                      e.target.value ? Number(e.target.value) : "",
                     )
                   }
                   className="form-control"
@@ -518,7 +517,7 @@ export const DestilledCompTracker = () => {
                   value={tiAllowancePsf}
                   onChange={(e) =>
                     setTiAllowancePsf(
-                      e.target.value ? Number(e.target.value) : ""
+                      e.target.value ? Number(e.target.value) : "",
                     )
                   }
                   className="form-control"
@@ -533,7 +532,7 @@ export const DestilledCompTracker = () => {
                   value={securityDepMonths}
                   onChange={(e) =>
                     setSecurityDepMonths(
-                      e.target.value ? Number(e.target.value) : ""
+                      e.target.value ? Number(e.target.value) : "",
                     )
                   }
                   className="form-control"
@@ -544,7 +543,6 @@ export const DestilledCompTracker = () => {
         </div>
 
         <div className="d-flex flex-column align-items-center justify-content-center">
-          
           <button
             type="submit"
             disabled={isSubmitting}

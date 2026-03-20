@@ -1,6 +1,6 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
 import { toast } from "react-toastify";
-import { baseURL, login, Sigup, UserDelete } from "../../NWconfig";
+import { login, Sigup, UserDelete } from "../../NWconfig";
 import axiosInstance from "./AxiosInstance";
 
 export const LoginSubmit = createAsyncThunk(

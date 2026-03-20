@@ -48,6 +48,8 @@ export const AdminManagement = () => {
       setDeletingUser((prev) => ({ ...prev, [selectedEmail]: true }));
 
       const data = await dispatch(DeleteUser(selectedEmail)).unwrap();
+      console.log(data, data);
+
       toast.success(data.message || "User deleted successfully");
 
       fetchadmin();
@@ -94,9 +96,13 @@ export const AdminManagement = () => {
     setErrors({});
     setInviteLoading(true);
     try {
-      await dispatch(
+      const res = await dispatch(
         inviteAdminApi({ email, company_name, admin_name }),
       ).unwrap();
+      if (res?.message) {
+        toast.success(res?.message || "Admin invited successfully");
+      }
+
       setEmail("");
       setcompany_name("");
       setadmin_name("");
@@ -217,10 +223,10 @@ export const AdminManagement = () => {
             </span>
           </div>
 
-          <div className="table-responsive">
-            <table className="table table-hover align-middle mb-0">
-              <thead>
-                <tr>
+          <div className="table-responsive shadow-sm rounded">
+            <table className="table align-middle">
+              <thead className="text-start">
+                <tr className="text-uppercase small fw-bold">
                   <th>Email</th>
                   <th>Status</th>
                   <th>Display Name</th>
@@ -228,7 +234,7 @@ export const AdminManagement = () => {
                   <th>Actions</th>
                 </tr>
               </thead>
-              <tbody>
+              <tbody className="text-start">
                 {loading ? (
                   <tr>
                     <td colSpan={5} className="text-center text-muted">

@@ -5,18 +5,13 @@ import {
   feedbacksubmit,
   getfeedback,
   getinfocollaborationbuildings,
-  updatefeedback,
 } from "../../../NWconfig";
 
 export const FeedbackSubmit = createAsyncThunk(
   "auth/FeedbackSubmit",
   async (formData, { rejectWithValue }) => {
     try {
-      const response = await axiosInstance.post(feedbacksubmit, formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      });
+      const response = await axiosInstance.post(feedbacksubmit, formData, {});
 
       return response.data;
     } catch (error) {
@@ -29,12 +24,9 @@ export const fetchBuildings = createAsyncThunk(
   "getBuildings",
   async (category, { rejectWithValue }) => {
     try {
-      const response = await axiosInstance.get(
-        getinfocollaborationbuildings, {
+      const response = await axiosInstance.get(getinfocollaborationbuildings, {
         params: { category: category },
-      }
-      );
-
+      });
 
       return response.data;
     } catch (error) {
@@ -61,12 +53,12 @@ export const UpdateFeedback = createAsyncThunk(
     try {
       const data = {
         category,
-        building_id: (building_id),
+        building_id: building_id,
         form_data,
-      }
+      };
       const response = await axiosInstance.put(
         `/information_collaboration/admin/update/${id}`,
-        data
+        data,
       );
 
       return response.data;

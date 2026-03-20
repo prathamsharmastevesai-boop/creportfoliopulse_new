@@ -1,6 +1,14 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
 import axiosInstance from "../../../Admin/APIs/AxiosInstance";
 import { toast } from "react-toastify";
+import {
+  maintenanceCreateEndPoint,
+  maintenanceCreateSubscriptionEndPoint,
+  maintenanceDeleteEndPoint,
+  maintenanceFetchSubscriptionEndPoint,
+  maintenanceHistoryFetchEndPoint,
+  maintenanceUpdateEndPoint,
+} from "../../../NWconfig";
 
 const MAINTENANCE_BASE = (buildingId) =>
   `/features/building/${buildingId}/maintenance`;
@@ -24,9 +32,8 @@ export const createMaintenanceItem = createAsyncThunk(
   async (formData, { rejectWithValue }) => {
     try {
       const response = await axiosInstance.post(
-        `/features/maintenance`,
+        maintenanceCreateEndPoint,
         formData,
-        { headers: { "Content-Type": "multipart/form-data" } },
       );
       return response.data;
     } catch (error) {
@@ -40,7 +47,7 @@ export const updateMaintenanceItem = createAsyncThunk(
   async ({ id, payload }, { rejectWithValue }) => {
     try {
       const response = await axiosInstance.patch(
-        `/features/maintenance/${id}`,
+        `${maintenanceUpdateEndPoint}${id}`,
         payload,
       );
       return response.data;
@@ -54,7 +61,7 @@ export const deleteMaintenanceItem = createAsyncThunk(
   "maintenance/delete",
   async (id, { rejectWithValue }) => {
     try {
-      await axiosInstance.delete(`/features/maintenance/${id}`);
+      await axiosInstance.delete(`${maintenanceDeleteEndPoint}/${id}`);
       return id;
     } catch (error) {
       return rejectWithValue(error.response?.data?.message);
@@ -67,7 +74,7 @@ export const fetchMaintenanceHistory = createAsyncThunk(
   async (id, { rejectWithValue }) => {
     try {
       const response = await axiosInstance.get(
-        `/features/maintenance/${id}/history`,
+        `${maintenanceHistoryFetchEndPoint}${id}/history`,
       );
       const d = response.data;
       return Array.isArray(d) ? d : d.history || [];
@@ -123,7 +130,9 @@ export const fetchSubscriptions = createAsyncThunk(
   "subscription/fetchAll",
   async (_, { rejectWithValue }) => {
     try {
-      const response = await axiosInstance.get("/features/subscriptions");
+      const response = await axiosInstance.get(
+        maintenanceFetchSubscriptionEndPoint,
+      );
       const d = response.data;
       return Array.isArray(d) ? d : d.data || d.subscriptions || [];
     } catch (error) {
@@ -136,10 +145,13 @@ export const createSubscription = createAsyncThunk(
   "subscription/create",
   async ({ building_id, section }, { rejectWithValue }) => {
     try {
-      const response = await axiosInstance.post("/features/subscriptions", {
-        building_id,
-        section,
-      });
+      const response = await axiosInstance.post(
+        maintenanceCreateSubscriptionEndPoint,
+        {
+          building_id,
+          section,
+        },
+      );
       toast.success(response.data.message);
       return response.data;
     } catch (error) {

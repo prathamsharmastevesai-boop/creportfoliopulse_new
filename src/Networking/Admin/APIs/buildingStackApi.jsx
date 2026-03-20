@@ -1,12 +1,19 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
 import axiosInstance from "./AxiosInstance";
+import {
+  buildingStackAddUnitEndpoint,
+  buildingStackConflictEndpoint,
+  buildingStackEndpoint,
+  buildingStackMergeEndpoint,
+  buildingStackUnitEndPoint,
+} from "../../NWconfig";
 
 export const fetchBuildingDetail = createAsyncThunk(
   "buildingStack/fetchBuildingDetail",
   async (buildingId, { rejectWithValue }) => {
     try {
       const response = await axiosInstance.get(
-        `/building-stack/buildings/${buildingId}`,
+        `${buildingStackEndpoint}${buildingId}`,
       );
       return response.data;
     } catch (error) {
@@ -22,7 +29,7 @@ export const fetchFloors = createAsyncThunk(
   async (buildingId, { rejectWithValue }) => {
     try {
       const response = await axiosInstance.get(
-        `/building-stack/buildings/${buildingId}/floors`,
+        `${buildingStackEndpoint}${buildingId}/floors`,
       );
       return response.data;
     } catch (error) {
@@ -36,7 +43,7 @@ export const addFloor = createAsyncThunk(
   async ({ buildingId, floorData }, { rejectWithValue }) => {
     try {
       const response = await axiosInstance.post(
-        `/building-stack/buildings/${buildingId}/floors`,
+        `${buildingStackEndpoint}${buildingId}/floors`,
         floorData,
       );
       return response.data;
@@ -51,7 +58,7 @@ export const updateFloor = createAsyncThunk(
   async ({ buildingId, floorId, floorData }, { rejectWithValue }) => {
     try {
       const response = await axiosInstance.put(
-        `/building-stack/buildings/${buildingId}/floors/${floorId}`,
+        `${buildingStackEndpoint}${buildingId}/floors/${floorId}`,
         floorData,
       );
       return response.data;
@@ -69,7 +76,7 @@ export const deleteFloor = createAsyncThunk(
   async ({ buildingId, floorId }, { rejectWithValue }) => {
     try {
       await axiosInstance.delete(
-        `/building-stack/buildings/${buildingId}/floors/${floorId}`,
+        `${buildingStackEndpoint}${buildingId}/floors/${floorId}`,
       );
       return floorId;
     } catch (error) {
@@ -83,7 +90,7 @@ export const fetchBuildingSummary = createAsyncThunk(
   async (buildingId, { rejectWithValue }) => {
     try {
       const response = await axiosInstance.get(
-        `/building-stack/buildings/${buildingId}/summary`,
+        `${buildingStackEndpoint}${buildingId}/summary`,
       );
       return response.data;
     } catch (error) {
@@ -97,8 +104,8 @@ export const fetchActivityLog = createAsyncThunk(
   async ({ buildingId, floorId = null }, { rejectWithValue }) => {
     try {
       const url = floorId
-        ? `/building-stack/buildings/${buildingId}/floors/${floorId}/activity`
-        : `/building-stack/buildings/${buildingId}/activity`;
+        ? `${buildingStackEndpoint}${buildingId}/floors/${floorId}/activity`
+        : `${buildingStackEndpoint}${buildingId}/activity`;
       const response = await axiosInstance.get(url);
       return response.data;
     } catch (error) {
@@ -114,7 +121,7 @@ export const addUnit = createAsyncThunk(
   async ({ floorId, unitData }, { rejectWithValue }) => {
     try {
       const response = await axiosInstance.post(
-        `/building-stack/floors/${floorId}/units`,
+        `${buildingStackAddUnitEndpoint}${floorId}/units`,
         unitData,
       );
       return response.data;
@@ -129,7 +136,7 @@ export const updateUnit = createAsyncThunk(
   async ({ unitId, unitData }, { rejectWithValue }) => {
     try {
       const response = await axiosInstance.put(
-        `/building-stack/units/${unitId}`,
+        `${buildingStackUnitEndPoint}${unitId}`,
         unitData,
       );
       return response.data;
@@ -146,7 +153,7 @@ export const deleteUnit = createAsyncThunk(
   "buildingStack/deleteUnit",
   async ({ unitId }, { rejectWithValue }) => {
     try {
-      await axiosInstance.delete(`/building-stack/units/${unitId}`);
+      await axiosInstance.delete(`${buildingStackUnitEndPoint}${unitId}`);
       return unitId;
     } catch (error) {
       return rejectWithValue(error.response?.data || "Failed to delete unit");
@@ -159,7 +166,7 @@ export const splitUnit = createAsyncThunk(
   async ({ unitId, splitData }, { rejectWithValue }) => {
     try {
       const response = await axiosInstance.post(
-        `/building-stack/units/${unitId}/split`,
+        `${buildingStackUnitEndPoint}${unitId}/split`,
         splitData,
       );
       return response.data;
@@ -173,7 +180,7 @@ export const mergeUnits = createAsyncThunk(
   "buildingStack/mergeUnits",
   async ({ unit_id_a, unit_id_b }, { rejectWithValue }) => {
     try {
-      const response = await axiosInstance.post(`/building-stack/units/merge`, {
+      const response = await axiosInstance.post(buildingStackMergeEndpoint, {
         unit_id_a,
         unit_id_b,
       });
@@ -190,7 +197,7 @@ export const fetchConflicts = createAsyncThunk(
   async (buildingId, { rejectWithValue }) => {
     try {
       const response = await axiosInstance.get(
-        `/building-stack/buildings/${buildingId}/conflicts`,
+        `${buildingStackEndpoint}${buildingId}/conflicts`,
       );
       return response.data;
     } catch (error) {
@@ -206,7 +213,7 @@ export const resolveConflict = createAsyncThunk(
   async ({ conflictId, chosen }, { rejectWithValue }) => {
     try {
       const response = await axiosInstance.post(
-        `/building-stack/conflicts/${conflictId}/resolve`,
+        `${buildingStackConflictEndpoint}${conflictId}/resolve`,
         { chosen },
       );
       return response.data;
@@ -223,7 +230,7 @@ export const exportBuildingPDF = createAsyncThunk(
   async (buildingId, { rejectWithValue }) => {
     try {
       const response = await axiosInstance.get(
-        `/building-stack/buildings/${buildingId}/export`,
+        `${buildingStackEndpoint}${buildingId}/export`,
         {
           params: { format: "pdf" },
           responseType: "blob",
@@ -251,7 +258,7 @@ export const postBuildingUpdate = createAsyncThunk(
   async ({ buildingId, note }, { rejectWithValue }) => {
     try {
       const response = await axiosInstance.post(
-        `/building-stack/buildings/${buildingId}/updates`,
+        `${buildingStackEndpoint}${buildingId}/updates`,
         { note },
       );
       return response.data;
@@ -266,7 +273,7 @@ export const askBuildingStack = createAsyncThunk(
   async ({ buildingId, question }, { rejectWithValue }) => {
     try {
       const response = await axiosInstance.post(
-        `/building-stack/buildings/${buildingId}/ask`,
+        `${buildingStackEndpoint}${buildingId}/ask`,
         { question },
       );
       return response.data;

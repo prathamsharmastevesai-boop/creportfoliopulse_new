@@ -36,7 +36,6 @@ export const DeleteDoc = "/chatbot/delete_files/";
 export const AskQuestion = "/chatbot/ask_question/";
 
 // chat Ask Question
-// export const AskQuestionEndpoint = "/user/ask_simple/";
 export const ASkQuestionbuildingEndpoint = "/building/files/query";
 export const Chat_history = "/chat/history/";
 export const Gemini_Chat_History = "/gemini/gemini/history/";
@@ -51,13 +50,7 @@ export const Session_List_Specific = "/chat/sessions/";
 export const AskGemini = "gemini/chat";
 export const ToggleGemini = "/gemini/gemini-toggle";
 
-//SPECIFIC CHAT
-// export const Upload_specific_file = "/user/standalone/upload";
-// export const List_specific_Docs = "/user/list_simple_files/";
-// export const Doc_Delete_Specific = "/user/delete_simple_file/";
-
 //GENERAL INFO
-// export const listGeneralInfoDoc = "/admin_user_chat/list";
 export const UploadGeneralDoc = "/admin_user_chat/upload";
 export const updateGenralDoc = "/admin_user_chat/update";
 
@@ -74,6 +67,8 @@ export const Upload_General_info =
 
 //Admin Dashboard
 export const dashboardData = "/admin/stats";
+export const complianceStatesEndpoint = "/api/admin/compliance/stats";
+export const compliancelogEndpoint = "/api/admin/compliance/logs";
 
 //AI INSLILGHTS
 export const AIAnalyticsData = "/admin/analytics";
@@ -131,7 +126,7 @@ export const inviteAdmin = "/auth/invite-admin";
 export const listAdmin = "/invite_user/list";
 
 //Tours
-export const createTours = "/tours/";
+export const Tours = "/tours/";
 export const getTours = "/tours/";
 
 //DistilledExpenseTracker
@@ -149,18 +144,16 @@ export const calcEndpoint = "calc/lease-finance";
 export const itcalculatorEndpoint = "/calc/TIcalculator";
 
 //Forum
+export const thread = "/forum/threads/";
 export const threadData = "/forum/threads";
 export const createThreadEndpoint = "/forum/threads";
 export const createThoughtEndpoint = "/forum/threads/";
 export const ThreadhistoryEndpoint = "/forum/threads/";
 export const ToggleForum = "/forum/forum-toggle";
+export const benchmarkEndpoint = "/det_expense/benchmark";
 
 //Notes
 export const notes = "/notes/";
-export const notesdata = "/notes/";
-export const notedata = "/notes/";
-export const noteUpdate = "/notes/";
-export const notedelete = "/notes/";
 
 //SpaceInquiry
 export const ingestionconfigs = "/space_inquiry/client-config";
@@ -177,8 +170,53 @@ export const getFormEndpoint = "/deals/deal_id/";
 export const deleteDeal = "/deals/";
 
 //Sublease Tracker
+export const subleaseEndpoint = "/sublease/";
 export const subleasetrackerendpoint = "/sublease/create";
 export const renewaltrackerendpoint = "/renewal/create";
 
 //Health
 export const health = "/health";
+
+//Message Center
+export const conversationEndPoint = "/messenger/conversations";
+export const conversationMessageEndpoint = "/messenger/conversations/messages/";
+export const conversationUploadFileEndpoint = "/messenger/upload";
+export const conversationListFilesEndpoint = "/messenger/file/";
+export const conversationDownloadFileEndpoint = "/messenger/file/";
+export const conversationSendMessageEndpoint = "/messenger/messages";
+export const conversationDeleteMesaage = "/messenger/messages";
+export const conversationCreateGroupEndpoint = "/messenger/conversations/group";
+export const conversationuploadChatFileEndpoint = "/messenger/upload";
+export const conversationLeaveGroupEndpoint = "/messenger/conversations/";
+
+//MaintenanceUpdate
+export const maintenanceCreateEndPoint = "/features/maintenance";
+export const maintenanceUpdateEndPoint = "maintenanceUpdateEndPoint";
+export const maintenanceDeleteEndPoint = "/features/maintenance";
+export const maintenanceHistoryFetchEndPoint = "/features/maintenance/";
+export const maintenanceFetchSubscriptionEndPoint = "/features/subscriptions";
+export const maintenanceCreateSubscriptionEndPoint = "/features/subscriptions";
+
+//Notification
+export const notificationStatusEndpoint = "/notifications/status";
+export const notificatioToggleEndpoint = "/notifications/toggle";
+
+//Project Management
+export const projectManagemantEndpoint = "/work-letter/projects";
+export const projectManagemantGetSummaryEndpoint = "/work-letter/summary";
+
+//Space Up
+export const spaceUpEndpoint = "/api/space-up/buildings";
+export const spaceUpProspectEndpoint = "/api/space-up/spaces/";
+export const spaceUpBuildingAssginEndpoint = "/api/space-up/buildings/assign";
+export const removeUserFromBuildingEndpoint = "/api/space-up/buildings/";
+
+//Building Stack
+export const buildingStackEndpoint = "/building-stack/buildings/";
+export const buildingStackAddUnitEndpoint = "/building-stack/floors/";
+export const buildingStackUnitEndPoint = "/building-stack/units/";
+export const buildingStackMergeEndpoint = "/building-stack/units/merge";
+export const buildingStackConflictEndpoint = "/building-stack/conflicts/";
+
+//renewal Tracker
+export const renewal = "/renewal/";

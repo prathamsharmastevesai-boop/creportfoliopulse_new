@@ -1,6 +1,12 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
 import axiosInstance from "./AxiosInstance";
-import { createThreadEndpoint, threadData, ToggleForum } from "../../NWconfig";
+import {
+  benchmarkEndpoint,
+  createThreadEndpoint,
+  thread,
+  threadData,
+  ToggleForum,
+} from "../../NWconfig";
 import { toast } from "react-toastify";
 
 export const get_Threads_Api = createAsyncThunk(
@@ -33,9 +39,7 @@ export const deleteThreadsApi = createAsyncThunk(
   "deleteThreadsApi",
   async ({ thread_id }, { rejectWithValue }) => {
     try {
-      const response = await axiosInstance.delete(
-        `/forum/threads/${thread_id}`,
-      );
+      const response = await axiosInstance.delete(`${thread}${thread_id}`);
       return { thread_id };
     } catch (error) {
       return rejectWithValue(error.response?.data || error.message);
@@ -47,7 +51,7 @@ export const createThoughtApi = createAsyncThunk(
   "forum/createThought",
   async ({ thread_id, data }) => {
     const res = await axiosInstance.post(
-      `/forum/threads/${thread_id}/thoughts`,
+      `${thread}${thread_id}/thoughts`,
       data,
     );
     return res.data;
@@ -59,7 +63,7 @@ export const updateThoughtApi = createAsyncThunk(
   async ({ thread_id, thought_id, data }, { rejectWithValue }) => {
     try {
       const response = await axiosInstance.patch(
-        `/forum/threads/${thread_id}/thoughts/${thought_id}`,
+        `${thread}${thread_id}/thoughts/${thought_id}`,
         data,
       );
       return response.data;
@@ -73,7 +77,7 @@ export const getThreadhistory = createAsyncThunk(
   "getThreadhistory",
   async (thread_id, { rejectWithValue }) => {
     try {
-      const response = await axiosInstance.get(`/forum/threads/${thread_id}`);
+      const response = await axiosInstance.get(`${thread}${thread_id}`);
       return response.data;
     } catch (error) {
       return rejectWithValue(error);
@@ -86,7 +90,7 @@ export const deleteThoughtApi = createAsyncThunk(
   async ({ thread_id, thought_id }, { rejectWithValue }) => {
     try {
       const response = await axiosInstance.delete(
-        `/forum/threads/${thread_id}/thoughts/${thought_id}`,
+        `${thread}${thread_id}/thoughts/${thought_id}`,
       );
       return { thread_id, thought_id };
     } catch (error) {
@@ -99,7 +103,7 @@ export const getBenchmark = createAsyncThunk(
   "det/getBenchmark",
   async ({ sf_band, submarket, building_class }, { rejectWithValue }) => {
     try {
-      const response = await axiosInstance.get(`/det_expense/benchmark`, {
+      const response = await axiosInstance.get(benchmarkEndpoint, {
         params: {
           sf_band,
           submarket,

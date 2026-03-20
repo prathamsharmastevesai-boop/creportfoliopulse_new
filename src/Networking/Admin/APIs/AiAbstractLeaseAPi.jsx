@@ -1,5 +1,4 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
-import { toast } from "react-toastify";
 import axiosInstance from "./AxiosInstance";
 import {
   deleteAbstractDoc,
@@ -26,16 +25,13 @@ export const UploadReportGenerator = createAsyncThunk(
       const response = await axiosInstance.post(
         upload_Report_Generator,
         formData,
-        {
-          headers: { "Content-Type": "multipart/form-data" },
-        }
       );
 
       return response.data;
     } catch (error) {
       return rejectWithValue(error.response?.data?.message || "Upload failed");
     }
-  }
+  },
 );
 
 export const UploadAbstractLeaseDoc = createAsyncThunk(
@@ -49,16 +45,13 @@ export const UploadAbstractLeaseDoc = createAsyncThunk(
       const response = await axiosInstance.post(
         upload_Abstract_Lease,
         formData,
-        {
-          headers: { "Content-Type": "multipart/form-data" },
-        }
       );
 
       return response.data;
     } catch (error) {
       return rejectWithValue(error.response?.data?.message || "Upload failed");
     }
-  }
+  },
 );
 
 export const DeleteAbstractDoc = createAsyncThunk(
@@ -72,10 +65,10 @@ export const DeleteAbstractDoc = createAsyncThunk(
       return response.data;
     } catch (error) {
       return rejectWithValue(
-        error.response?.data?.message || "Deletion failed"
+        error.response?.data?.message || "Deletion failed",
       );
     }
-  }
+  },
 );
 
 export const ListAbstractLeaseDoc = createAsyncThunk(
@@ -88,10 +81,10 @@ export const ListAbstractLeaseDoc = createAsyncThunk(
       return response.data;
     } catch (error) {
       return rejectWithValue(
-        error.response?.data?.message || "Failed to fetch list"
+        error.response?.data?.message || "Failed to fetch list",
       );
     }
-  }
+  },
 );
 
 export const UploadDraftingLeaseDoc = createAsyncThunk(
@@ -107,14 +100,14 @@ export const UploadDraftingLeaseDoc = createAsyncThunk(
         formData,
         {
           headers: { "Content-Type": "multipart/form-data" },
-        }
+        },
       );
 
       return response.data;
     } catch (error) {
       return rejectWithValue(error.response?.data?.message || "Upload failed");
     }
-  }
+  },
 );
 
 export const DeleteDrafingDoc = createAsyncThunk(
@@ -128,10 +121,10 @@ export const DeleteDrafingDoc = createAsyncThunk(
       return response.data;
     } catch (error) {
       return rejectWithValue(
-        error.response?.data?.message || "Deletion failed"
+        error.response?.data?.message || "Deletion failed",
       );
     }
-  }
+  },
 );
 
 export const ListDraftingLeaseDoc = createAsyncThunk(
@@ -144,10 +137,10 @@ export const ListDraftingLeaseDoc = createAsyncThunk(
       return response.data;
     } catch (error) {
       return rejectWithValue(
-        error.response?.data?.message || "Failed to fetch list"
+        error.response?.data?.message || "Failed to fetch list",
       );
     }
-  }
+  },
 );
 
 export const getMetaData = createAsyncThunk(
@@ -160,10 +153,10 @@ export const getMetaData = createAsyncThunk(
       return response.data;
     } catch (error) {
       return rejectWithValue(
-        error.response?.data?.message || "Failed to fetch metadata"
+        error.response?.data?.message || "Failed to fetch metadata",
       );
     }
-  }
+  },
 );
 
 export const getTextViewData = createAsyncThunk(
@@ -176,10 +169,10 @@ export const getTextViewData = createAsyncThunk(
       return response.data;
     } catch (error) {
       return rejectWithValue(
-        error.response?.data?.message || "Failed to fetch text view data"
+        error.response?.data?.message || "Failed to fetch text view data",
       );
     }
-  }
+  },
 );
 
 export const getTextData = createAsyncThunk(
@@ -192,10 +185,10 @@ export const getTextData = createAsyncThunk(
       return response.data;
     } catch (error) {
       return rejectWithValue(
-        error.response?.data?.message || "Failed to fetch text data"
+        error.response?.data?.message || "Failed to fetch text data",
       );
     }
-  }
+  },
 );
 
 export const UpdateDraftingtext = createAsyncThunk(
@@ -210,5 +203,5 @@ export const UpdateDraftingtext = createAsyncThunk(
     } catch (error) {
       return rejectWithValue(error.response?.data?.message || "Update failed");
     }
-  }
+  },
 );

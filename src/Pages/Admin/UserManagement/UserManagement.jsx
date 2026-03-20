@@ -146,6 +146,7 @@ export const UserManagement = () => {
   const [features, setFeatures] = useState(DEFAULT_FEATURES);
   const [showForceInvite, setShowForceInvite] = useState(false);
   const [pendingInviteEmail, setPendingInviteEmail] = useState("");
+  const [role, setRole] = useState("");
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
   useEffect(() => {
@@ -165,7 +166,13 @@ export const UserManagement = () => {
   };
 
   const handleInviteUser = async () => {
-    if (!emailRegex.test(email)) return toast.error("Enter valid email");
+    if (!emailRegex.test(email)) {
+      return toast.error("Enter valid email");
+    }
+
+    if (!role) {
+      return toast.error("Please select a role");
+    }
 
     setInviteLoading(true);
 
@@ -173,7 +180,7 @@ export const UserManagement = () => {
       const res = await dispatch(
         inviteUserApi({
           email,
-          role: "user",
+          role,
         }),
       ).unwrap();
 
@@ -185,6 +192,7 @@ export const UserManagement = () => {
 
       toast.success("User invited successfully");
       setEmail("");
+      setRole("");
       fetchUsers();
     } catch (err) {
       toast.error("Invite failed");
@@ -192,7 +200,6 @@ export const UserManagement = () => {
       setInviteLoading(false);
     }
   };
-
   const handleForceInvite = async () => {
     try {
       setInviteLoading(true);
@@ -200,7 +207,7 @@ export const UserManagement = () => {
       await dispatch(
         inviteUserApi({
           email: pendingInviteEmail,
-          role: "user",
+          role,
           force_invite: true,
         }),
       ).unwrap();
@@ -278,12 +285,23 @@ export const UserManagement = () => {
       <Card className="mb-3 mb-md-4 ">
         <Card.Body>
           <Row className="g-2 align-items-stretch">
-            <Col xs={12} md={8}>
+            <Col xs={12} md={5}>
               <Form.Control
                 placeholder="Enter email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
               />
+            </Col>
+
+            <Col xs={12} md={3}>
+              <Form.Select
+                value={role}
+                onChange={(e) => setRole(e.target.value)}
+              >
+                <option value="">Select Role</option>
+                <option value="user">User</option>
+                <option value="admin">Admin</option>
+              </Form.Select>
             </Col>
 
             <Col xs={12} md={4}>
@@ -299,87 +317,83 @@ export const UserManagement = () => {
         </Card.Body>
       </Card>
 
-      <Card className="shadow-sm">
-        <Card.Body className="p-2 p-md-3">
-          <div className="table-responsive">
-            <table className="table table-sm align-middle">
-              <thead className="table-light">
-                <tr>
-                  <th>Email</th>
-                  <th>Status</th>
-                  <th>Created</th>
-                  <th>Features</th>
-                  <th>Delete</th>
+      <div className="table-responsive shadow-sm rounded">
+        <table className="table align-middle">
+          <thead>
+            <tr className="table-light text-uppercase small fw-bold">
+              <th>Email</th>
+              <th>Status</th>
+              <th>Created</th>
+              <th>Features</th>
+              <th>Delete</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            {loading ? (
+              <tr>
+                <td colSpan={5} className="text-center py-4">
+                  <Spinner />
+                </td>
+              </tr>
+            ) : users.length ? (
+              users.map((user) => (
+                <tr key={user.email}>
+                  <td className="text-break">{user.email}</td>
+                  <td>{user.status}</td>
+                  <td>{new Date(user.created).toLocaleDateString()}</td>
+
+                  <td>
+                    <Button
+                      size="sm"
+                      variant="outline-primary"
+                      className="w-100 w-md-auto"
+                      onClick={() => openFeatureModal(user)}
+                      disabled={manageLoading === user.email}
+                    >
+                      {manageLoading === user.email ? (
+                        <>
+                          <Spinner
+                            as="span"
+                            animation="border"
+                            size="sm"
+                            role="status"
+                            aria-hidden="true"
+                            className="me-1"
+                          />
+                          Loading...
+                        </>
+                      ) : (
+                        "Manage"
+                      )}
+                    </Button>
+                  </td>
+
+                  <td>
+                    <Button
+                      size="sm"
+                      variant="outline-danger"
+                      className="w-100 w-md-auto"
+                      onClick={() => {
+                        setSelectedEmail(user.email);
+                        setShowConfirm(true);
+                      }}
+                    >
+                      Delete
+                    </Button>
+                  </td>
                 </tr>
-              </thead>
-
-              <tbody>
-                {loading ? (
-                  <tr>
-                    <td colSpan={5} className="text-center py-4">
-                      <Spinner />
-                    </td>
-                  </tr>
-                ) : users.length ? (
-                  users.map((user) => (
-                    <tr key={user.email}>
-                      <td className="text-break">{user.email}</td>
-                      <td>{user.status}</td>
-                      <td>{new Date(user.created).toLocaleDateString()}</td>
-
-                      <td>
-                        <Button
-                          size="sm"
-                          variant="outline-primary"
-                          className="w-100 w-md-auto"
-                          onClick={() => openFeatureModal(user)}
-                          disabled={manageLoading === user.email}
-                        >
-                          {manageLoading === user.email ? (
-                            <>
-                              <Spinner
-                                as="span"
-                                animation="border"
-                                size="sm"
-                                role="status"
-                                aria-hidden="true"
-                                className="me-1"
-                              />
-                              Loading...
-                            </>
-                          ) : (
-                            "Manage"
-                          )}
-                        </Button>
-                      </td>
-
-                      <td>
-                        <Button
-                          size="sm"
-                          variant="outline-danger"
-                          className="w-100 w-md-auto"
-                          onClick={() => {
-                            setSelectedEmail(user.email);
-                            setShowConfirm(true);
-                          }}
-                        >
-                          Delete
-                        </Button>
-                      </td>
-                    </tr>
-                  ))
-                ) : (
-                  <tr>
-                    <td colSpan={5} className="text-center py-4">
-                      No users found
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
-          </div>
-        </Card.Body>
-      </Card>
+              ))
+            ) : (
+              <tr>
+                <td colSpan={5} className="text-center py-4">
+                  No users found
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+      </div>
 
       {showFeatureModal && (
         <div

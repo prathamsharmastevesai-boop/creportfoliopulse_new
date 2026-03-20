@@ -1,11 +1,23 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
 import axiosInstance from "../../../Admin/APIs/AxiosInstance";
+import {
+  conversationCreateGroupEndpoint,
+  conversationDeleteMesaage,
+  conversationDownloadFileEndpoint,
+  conversationEndPoint,
+  conversationLeaveGroupEndpoint,
+  conversationListFilesEndpoint,
+  conversationMessageEndpoint,
+  conversationSendMessageEndpoint,
+  conversationuploadChatFileEndpoint,
+  conversationUploadFileEndpoint,
+} from "../../../NWconfig";
 
 export const fetchConversations = createAsyncThunk(
   "chat/fetchConversations",
   async (_, { rejectWithValue }) => {
     try {
-      const res = await axiosInstance.get("/messenger/conversations");
+      const res = await axiosInstance.get(conversationEndPoint);
       return res.data;
     } catch (err) {
       return rejectWithValue(err.response?.data || err.message);
@@ -16,11 +28,9 @@ export const fetchConversations = createAsyncThunk(
 export const fetchMessages = createAsyncThunk(
   "chat/fetchMessages",
   async ({ conversationId, page = 1 }, { rejectWithValue }) => {
-
-
     try {
       const res = await axiosInstance.get(
-        `/messenger/conversations/messages/${conversationId}?page=${page}`,
+        `${conversationMessageEndpoint}${conversationId}?page=${page}`,
       );
       return res.data;
     } catch (err) {
@@ -29,55 +39,61 @@ export const fetchMessages = createAsyncThunk(
   },
 );
 
-export const uploadfileChatSystemAPi = createAsyncThunk(
-  "chat/uploadFile",
-  async ({ file, receiverId, myUserId }, { rejectWithValue, dispatch }) => {
-    if (!file || !receiverId || !myUserId) {
-      return rejectWithValue("Missing required data for file upload");
-    }
+// export const uploadfileChatSystemAPi = createAsyncThunk(
+//   "chat/uploadFile",
+//   async ({ file, receiverId, myUserId }, { rejectWithValue, dispatch }) => {
+//     if (!file || !receiverId || !myUserId) {
+//       return rejectWithValue("Missing required data for file upload");
+//     }
 
-    try {
-      const formData = new FormData();
-      formData.append("file", file);
-      formData.append("category", "chat_files");
+//     try {
+//       const formData = new FormData();
+//       formData.append("file", file);
+//       formData.append("category", "chat_files");
 
-      const token = sessionStorage.getItem("access_token");
+//       const token = sessionStorage.getItem("access_token");
 
-      const response = await axiosInstance.post("/messenger/upload", formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-          Authorization: `Bearer ${token}`,
-        },
-        onUploadProgress: (progressEvent) => {
-          const progress = Math.round(
-            (progressEvent.loaded * 100) / progressEvent.total,
-          );
+//       const response = await axiosInstance.post(
+//         conversationUploadFileEndpoint,
+//         formData,
+//         {
+//           headers: {
+//             "Content-Type": "multipart/form-data",
+//             Authorization: `Bearer ${token}`,
+//           },
+//           onUploadProgress: (progressEvent) => {
+//             const progress = Math.round(
+//               (progressEvent.loaded * 100) / progressEvent.total,
+//             );
 
-          dispatch(setUploadProgress(progress));
-        },
-      });
+//             dispatch(setUploadProgress(progress));
+//           },
+//         },
+//       );
 
-      const fileId = response.data.file_id;
+//       const fileId = response.data.file_id;
 
-      return {
-        fileId,
-        fileName: file.name,
-        fileType: file.type,
-        fileSize: file.size,
-        receiverId,
-        myUserId,
-      };
-    } catch (err) {
-      return rejectWithValue(err.response?.data || err.message);
-    }
-  },
-);
+//       return {
+//         fileId,
+//         fileName: file.name,
+//         fileType: file.type,
+//         fileSize: file.size,
+//         receiverId,
+//         myUserId,
+//       };
+//     } catch (err) {
+//       return rejectWithValue(err.response?.data || err.message);
+//     }
+//   },
+// );
 
 export const fetchFileUrl = createAsyncThunk(
   "chat/fetchFileUrl",
   async (fileId, { rejectWithValue }) => {
     try {
-      const res = await axiosInstance.get(`/messenger/file/${fileId}`);
+      const res = await axiosInstance.get(
+        `${conversationListFilesEndpoint}${fileId}`,
+      );
       return {
         fileId,
         url: res.data.url,
@@ -94,9 +110,12 @@ export const downloadFileApi = createAsyncThunk(
     try {
       const token = sessionStorage.getItem("access_token");
 
-      const res = await axiosInstance.get(`/messenger/file/${fileId}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const res = await axiosInstance.get(
+        `${conversationDownloadFileEndpoint}${fileId}`,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        },
+      );
 
       const link = document.createElement("a");
       link.href = res.data.url;
@@ -119,7 +138,10 @@ export const sendMessageAPi = createAsyncThunk(
   "chat/sendMessageAPi",
   async (payload, { rejectWithValue }) => {
     try {
-      const res = await axiosInstance.post("/messenger/messages", payload);
+      const res = await axiosInstance.post(
+        conversationSendMessageEndpoint,
+        payload,
+      );
       return res.data;
     } catch (err) {
       return rejectWithValue(err.response?.data || err.message);
@@ -131,7 +153,7 @@ export const deleteMessage = createAsyncThunk(
   "chat/deleteMessage",
   async (messageId, { rejectWithValue }) => {
     try {
-      await axiosInstance.delete(`/messenger/messages/${messageId}`);
+      await axiosInstance.delete(`${conversationDeleteMesaage}/${messageId}`);
       return messageId;
     } catch (err) {
       return rejectWithValue(err.response?.data || err.message);
@@ -139,35 +161,26 @@ export const deleteMessage = createAsyncThunk(
   },
 );
 
-export const markMessageRead = createAsyncThunk(
-  "chat/markMessageRead",
-  async (messageId, { rejectWithValue }) => {
-    try {
-      await axiosInstance.post(`/messenger/messages/${messageId}/read`);
-      return messageId;
-    } catch (err) {
-      return rejectWithValue(err.response?.data || err.message);
-    }
-  },
-);
+// export const markMessageRead = createAsyncThunk(
+//   "chat/markMessageRead",
+//   async (messageId, { rejectWithValue }) => {
+//     try {
+//       await axiosInstance.post(`/messenger/messages/${messageId}/read`);
+//       return messageId;
+//     } catch (err) {
+//       return rejectWithValue(err.response?.data || err.message);
+//     }
+//   },
+// );
 
 export const createGroupApi = createAsyncThunk(
   "chat/createGroup",
   async ({ name, member_ids }, { rejectWithValue }) => {
     try {
-      const res = await axiosInstance.post(
-        "/messenger/conversations/group",
-        {
-          name,
-          member_ids,
-        },
-        {
-          headers: {
-            "Content-Type": "application/json",
-            accept: "application/json",
-          },
-        },
-      );
+      const res = await axiosInstance.post(conversationCreateGroupEndpoint, {
+        name,
+        member_ids,
+      });
 
       return res.data;
     } catch (err) {
@@ -180,11 +193,10 @@ export const uploadChatFileApi = createAsyncThunk(
   "chat/uploadFile",
   async (formData, { rejectWithValue }) => {
     try {
-      const res = await axiosInstance.post("/messenger/upload", formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      });
+      const res = await axiosInstance.post(
+        conversationuploadChatFileEndpoint,
+        formData,
+      );
 
       return res.data;
     } catch (err) {
@@ -193,17 +205,17 @@ export const uploadChatFileApi = createAsyncThunk(
   },
 );
 
-export const deleteMessageApi = async (messageId) => {
-  const res = await axiosInstance.delete(`/messenger/messages/${messageId}`);
-  return res.data;
-};
+// export const deleteMessageApi = async (messageId) => {
+//   const res = await axiosInstance.delete(`/messenger/messages/${messageId}`);
+//   return res.data;
+// };
 
 export const leaveGroupApi = createAsyncThunk(
   "chat/leaveGroup",
   async (conversationId, { rejectWithValue }) => {
     try {
       const res = await axiosInstance.post(
-        `/messenger/conversations/${conversationId}/leave`,
+        `${conversationLeaveGroupEndpoint}${conversationId}/leave`,
       );
 
       return { conversationId, data: res.data };

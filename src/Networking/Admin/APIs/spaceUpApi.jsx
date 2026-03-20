@@ -1,12 +1,16 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
 import axiosInstance from "./AxiosInstance";
+import {
+  removeUserFromBuildingEndpoint,
+  spaceUpBuildingAssginEndpoint,
+} from "../../NWconfig";
 
 export const assignBuilding = createAsyncThunk(
   "building/assign",
   async (payload, { rejectWithValue }) => {
     try {
       const res = await axiosInstance.post(
-        "/api/space-up/buildings/assign",
+        spaceUpBuildingAssginEndpoint,
         payload,
       );
       return res.data;
@@ -21,7 +25,7 @@ export const removeUserFromBuilding = createAsyncThunk(
   async ({ buildingId, userId }, { rejectWithValue }) => {
     try {
       await axiosInstance.delete(
-        `/api/space-up/buildings/${buildingId}/users/${userId}`,
+        `${removeUserFromBuildingEndpoint}${buildingId}/users/${userId}`,
       );
       return userId;
     } catch (err) {

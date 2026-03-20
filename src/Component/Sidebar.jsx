@@ -566,6 +566,13 @@ export const Sidebar = ({ collapsed, setCollapsed }) => {
           isActivePath={isActive("/maintenance-building-list")}
         />
 
+        <NavItem
+          path="/loi-audit"
+          icon="bi-tools"
+          label="Loi Audit"
+          isActivePath={isActive("/loi-audit")}
+        />
+
         {!collapsed && dataCategoriesEnabled && (
           <AccordionHeader menuKey="generalInfo" label="Data Categories" />
         )}

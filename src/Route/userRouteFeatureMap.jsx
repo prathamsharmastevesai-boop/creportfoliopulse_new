@@ -31,7 +31,6 @@ export const USER_ROUTE_FEATURE_MAP = {
   "/email-drafting": [FEATURE_KEYS.EMAIL_DRAFTING],
   "/notes": [FEATURE_KEYS.NOTES],
   "/portfolio-forum": [FEATURE_KEYS.FORUM],
-  "/create-forum": [FEATURE_KEYS.FORUM],
   "/user-sublease-tracker": [FEATURE_KEYS.SUBLEASE],
   "/user-sublease-tracker-list": [FEATURE_KEYS.SUBLEASE],
   "/user-renewal-tracker-form": [FEATURE_KEYS.RENEWAL],
@@ -51,6 +50,6 @@ export const USER_ROUTE_FEATURE_MAP = {
   "/work-letter": [FEATURE_KEYS.WORKLETTER],
   "/space-up/buildingList": [FEATURE_KEYS.SPACEUP],
   "/space-up": [FEATURE_KEYS.SPACEUP],
-  "/maintenance-update": [FEATURE_KEYS.MAINTENANCEUPDATE],
-  "/maintenance-building-list": [FEATURE_KEYS.MAINTENANCEUPDATE],
+  // "/maintenance-update": [FEATURE_KEYS.MAINTENANCEUPDATE],
+  // "/maintenance-building-list": [FEATURE_KEYS.MAINTENANCEUPDATE],
 };
