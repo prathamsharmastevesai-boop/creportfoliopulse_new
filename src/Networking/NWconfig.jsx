@@ -17,7 +17,7 @@ export const ProfileUpdateDetail = "/auth/user/profile/update";
 export const CreateBuilding = "/building_operations/create_buildings";
 export const ListBuilding = "/building_operations/list_buildings";
 export const UpdateBuildingEndpoint = "/building_operations/update_buildings";
-export const DeleteBuildingEndpoint = "/building_operations/delete_building/";
+export const DeleteBuildingEndpoint = "/building_operations/delete_buildings/";
 export const UploadBuildingImageEndpoint = "/buildings/";
 
 //Lease
@@ -191,7 +191,7 @@ export const conversationLeaveGroupEndpoint = "/messenger/conversations/";
 
 //MaintenanceUpdate
 export const maintenanceCreateEndPoint = "/features/maintenance";
-export const maintenanceUpdateEndPoint = "maintenanceUpdateEndPoint";
+export const maintenanceUpdateEndPoint = "/features/maintenance/";
 export const maintenanceDeleteEndPoint = "/features/maintenance";
 export const maintenanceHistoryFetchEndPoint = "/features/maintenance/";
 export const maintenanceFetchSubscriptionEndPoint = "/features/subscriptions";

@@ -5,12 +5,13 @@ import axiosInstance from "../../Networking/Admin/APIs/AxiosInstance";
 import {
   fetchFileUrl,
   fetchMessages,
+  getMessengerList,
   leaveGroupApi,
 } from "../../Networking/User/APIs/ChatSystem/chatSystemApi";
-import { getAdminlistApi } from "../../Networking/SuperAdmin/AdminSuperApi";
 import "./chatSystem.css";
 import "./userProfile.css";
 import { toast } from "react-toastify";
+import Card from "../Card/Card";
 
 export const UserProfile = ({
   open,
@@ -86,7 +87,6 @@ export const UserProfile = ({
         );
         setMembers(res.data.members || []);
       } catch (err) {
-        toast.error("Failed to load members");
       } finally {
         setLoadingMembers(false);
       }
@@ -106,7 +106,6 @@ export const UserProfile = ({
         { params: { user_id: selectedUser.id } },
       );
 
-      toast.success("Member added");
       setSelectedUser(null);
 
       const res = await axiosInstance.get(
@@ -114,7 +113,6 @@ export const UserProfile = ({
       );
       setMembers(res.data.members || []);
     } catch (err) {
-      toast.error(err.response?.data?.message || "Failed to add member");
     } finally {
       setAdding(false);
     }
@@ -129,9 +127,7 @@ export const UserProfile = ({
       );
 
       setMembers((prev) => prev.filter((m) => m.user_id !== id));
-      toast.success("Member removed");
     } catch (err) {
-      toast.error(err.response?.data?.message || "Failed to remove member");
     } finally {
       setRemovingId(null);
     }
@@ -156,11 +152,10 @@ export const UserProfile = ({
     setIsDeletingFile(true);
     try {
       await axiosInstance.delete(`/messenger/file/${fileToDelete.file_id}`);
-      toast.success("File deleted");
+
       dispatch(fetchMessages(conversationId));
     } catch (err) {
       console.error(err);
-      toast.error("Failed to delete file");
     } finally {
       setIsDeletingFile(false);
       setShowDeleteFileModal(false);
@@ -180,11 +175,8 @@ export const UserProfile = ({
       const result = await dispatch(leaveGroupApi(conversationId));
       if (leaveGroupApi.fulfilled.match(result)) {
         navigate("/messages-center");
-      } else {
-        toast.error(result.payload || "Failed to leave group");
       }
     } catch (err) {
-      toast.error("Failed to leave group");
     } finally {
       setIsLeaving(false);
       setShowExitConfirm(false);
@@ -500,10 +492,8 @@ export const UserProfile = ({
             className="modal-content delete-modal"
             onClick={(e) => e.stopPropagation()}
           >
-            <h3 className="text-dark">Delete file?</h3>
-            <p className="text-dark">
-              Are you sure you want to delete "{fileToDelete.name}"?
-            </p>
+            <h3>Delete file?</h3>
+            <p>Are you sure you want to delete "{fileToDelete.name}"?</p>
             <div className="modal-actions">
               <button
                 className="cancel"
@@ -538,10 +528,8 @@ export const UserProfile = ({
       {showExitConfirm && (
         <div className="wa-modal-overlay">
           <div className="wa-modal">
-            <h3 className="text-dark">Leave Group?</h3>
-            <p className="text-dark">
-              You won’t receive messages from this group anymore.
-            </p>
+            <h3>Leave Group?</h3>
+            <p>You won’t receive messages from this group anymore.</p>
             <div className="wa-actions">
               <button
                 className="cancel"
@@ -590,10 +578,8 @@ const UserPickerModal = ({ onClose, onSelect }) => {
     const fetchUsers = async () => {
       try {
         setLoading(true);
-        const data = await dispatch(getAdminlistApi()).unwrap();
+        const data = await dispatch(getMessengerList()).unwrap();
         setUsers(data);
-      } catch (err) {
-        toast.error("Failed to load users");
       } finally {
         setLoading(false);
       }

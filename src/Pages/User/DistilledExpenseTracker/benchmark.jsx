@@ -75,7 +75,7 @@ export const Benchmark = () => {
         sf_band: sfBand,
         submarket,
         building_class: buildingClass,
-      })
+      }),
     );
   };
 
@@ -92,7 +92,6 @@ export const Benchmark = () => {
         </div>
       );
     }
-
 
     const keys = Object.keys(benchmarkData.benchmark);
 
@@ -153,6 +152,7 @@ export const Benchmark = () => {
             <div className="col-12 col-sm-6 col-md-4">
               <Form.Group>
                 <Form.Label>SF Band</Form.Label>
+                <span class="text-danger ms-1">*</span>
                 <Form.Select
                   value={sfBand}
                   onChange={(e) => setSfBand(e.target.value)}
@@ -170,6 +170,7 @@ export const Benchmark = () => {
             <div className="col-12 col-sm-6 col-md-4">
               <Form.Group>
                 <Form.Label>Submarket</Form.Label>
+                <span class="text-danger ms-1">*</span>
                 <Form.Select
                   value={submarket}
                   onChange={(e) => setSubmarket(e.target.value)}
@@ -187,6 +188,7 @@ export const Benchmark = () => {
             <div className="col-12 col-sm-6 col-md-4">
               <Form.Group>
                 <Form.Label>Building Class</Form.Label>
+                <span class="text-danger ms-1">*</span>
                 <Form.Select
                   value={buildingClass}
                   onChange={(e) => setBuildingClass(e.target.value)}

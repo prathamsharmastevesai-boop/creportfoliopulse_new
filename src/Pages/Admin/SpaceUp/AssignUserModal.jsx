@@ -18,7 +18,6 @@ export const AssignUserModal = ({ show, onClose, buildingId }) => {
       const res = await dispatch(getAdminlistApi()).unwrap();
       setUsers(res);
     } catch {
-      toast.error("Failed to load users");
     } finally {
       setLoading(false);
     }
@@ -42,7 +41,6 @@ export const AssignUserModal = ({ show, onClose, buildingId }) => {
     );
 
     if (assignBuilding.fulfilled.match(result)) {
-      toast.success("Assigned successfully");
       onClose();
     } else {
       toast.error(result.payload);

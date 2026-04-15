@@ -2,6 +2,8 @@ import React, { useState } from "react";
 import { useDispatch } from "react-redux";
 import PropTypes from "prop-types";
 import RAGLoader from "../../../Component/Loader";
+import Card from "../../../Component/Card/Card";
+import PageHeader from "../../../Component/PageHeader/PageHeader";
 import { UploadBuildinginfoSubmit } from "../../../Networking/Admin/APIs/BuildingInfo";
 
 const BuildingPdfUploader = ({ onSubmit }) => {
@@ -56,54 +58,51 @@ const BuildingPdfUploader = ({ onSubmit }) => {
 
   return (
     <div className="container py-5 position-relative">
-      <h2 className="mb-4">🕒 Pending Building Info</h2>
-      <div className="text-center mb-5">
-
-        <h2 className="fw-bold text-dark">📄 Upload Building Info</h2>
-        <p className="text-muted">Provide the building name and upload its general information as a PDF.</p>
-      </div>
+      <PageHeader
+        title="📄 Upload Building Info"
+        subtitle="Provide the building name and upload its general information as a PDF."
+      />
 
       <div className="col-md-12 mx-auto">
         <form onSubmit={handleFormSubmit}>
-          <div className="card shadow-sm mb-4 border-0">
-            <div className="card-body">
-              <div className="mb-3">
-                <label htmlFor="building-name" className="form-label fw-semibold">Building Name</label>
-                <div className="input-group">
-                  <span className="input-group-text"><i className="bi bi-building"></i></span>
-                  <input
-                    type="text"
-                    id="building-name"
-                    className="form-control"
-                    placeholder="e.g. Green Tower"
-                    value={buildingName}
-                    onChange={(e) => setBuildingName(e.target.value)}
-                    required
-                    disabled={loading}
-                  />
-                </div>
-              </div>
+          <Card className="mb-4 border-0">
 
-              <div className="mb-3">
-                <label htmlFor="building-pdf" className="form-label fw-semibold">Upload PDF File</label>
-                <div className="input-group">
-                  <span className="input-group-text"><i className="bi bi-file-earmark-pdf"></i></span>
-                  <input
-                    type="file"
-                    id="building-pdf"
-                    className="form-control"
-                    accept="application/pdf"
-                    onChange={handleFileChange}
-                    disabled={loading}
-                  />
-                </div>
-                {buildingPdf && (
-                  <div className="mt-2 text-success">
-                  </div>
-                )}
+            <div className="mb-3">
+              <label htmlFor="building-name" className="form-label fw-semibold">Building Name</label>
+              <div className="input-group">
+                <span className="input-group-text"><i className="bi bi-building"></i></span>
+                <input
+                  type="text"
+                  id="building-name"
+                  className="form-control"
+                  placeholder="e.g. Green Tower"
+                  value={buildingName}
+                  onChange={(e) => setBuildingName(e.target.value)}
+                  required
+                  disabled={loading}
+                />
               </div>
             </div>
-          </div>
+
+            <div className="mb-3">
+              <label htmlFor="building-pdf" className="form-label fw-semibold">Upload PDF File</label>
+              <div className="input-group">
+                <span className="input-group-text"><i className="bi bi-file-earmark-pdf"></i></span>
+                <input
+                  type="file"
+                  id="building-pdf"
+                  className="form-control"
+                  accept="application/pdf"
+                  onChange={handleFileChange}
+                  disabled={loading}
+                />
+              </div>
+              {buildingPdf && (
+                <div className="mt-2 text-success">
+                </div>
+              )}
+            </div>
+          </Card>
 
           <div className="text-end">
             <button

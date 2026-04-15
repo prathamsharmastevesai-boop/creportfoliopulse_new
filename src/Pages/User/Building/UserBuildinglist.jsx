@@ -1,12 +1,12 @@
 import { BuildingList } from "../../../Component/BuildingList";
-import { ListBuildingSubmit } from "../../../Networking/Admin/APIs/BuildingApi";
+import { ListuserBuildingSubmit } from "../../../Networking/Admin/APIs/BuildingApi";
 
 export const UserBuildinglist = () => {
   return (
     <BuildingList
       title="Address"
-      category="Lease&Loi"
-      fetchAction={ListBuildingSubmit}
+      category="leases_agreement_data"
+      fetchAction={ListuserBuildingSubmit}
       selector={(state) => ({
         data: state.BuildingSlice.BuildingList,
         loading: state.BuildingSlice.loading,

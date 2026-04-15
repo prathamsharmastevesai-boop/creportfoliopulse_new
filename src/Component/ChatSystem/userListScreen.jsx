@@ -1,38 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import { getAdminlistApi } from "../../Networking/SuperAdmin/AdminSuperApi";
 import "./chatSystem.css";
-
-const BackIcon = () => (
-  <svg
-    width="22"
-    height="22"
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="2.5"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-  >
-    <polyline points="15 18 9 12 15 6" />
-  </svg>
-);
-
-const SearchIcon = () => (
-  <svg
-    width="18"
-    height="18"
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="2"
-    strokeLinecap="round"
-  >
-    <circle cx="11" cy="11" r="8" />
-    <line x1="21" y1="21" x2="16.65" y2="16.65" />
-  </svg>
-);
+import { BackIcon, SearchIcon } from "../backButton";
+import { getMessengerList } from "../../Networking/User/APIs/ChatSystem/chatSystemApi";
 
 const AVATAR_COLORS = [
   "#1E6B5E",
@@ -60,7 +31,7 @@ export const UserListScreen = () => {
   const fetchUsers = async () => {
     try {
       setLoading(true);
-      const data = await dispatch(getAdminlistApi()).unwrap();
+      const data = await dispatch(getMessengerList()).unwrap();
       setUsers(data);
     } catch (err) {
       console.error("Failed to fetch users:", err);
@@ -74,12 +45,23 @@ export const UserListScreen = () => {
   }, []);
 
   const handleUserClick = (user) => {
-    navigate(`/chat/new`, {
-      state: {
-        receiver_id: user.user_id,
-        name: user.name,
-      },
-    });
+    console.log(user, "user");
+
+    if (user.conversation_id == null) {
+      navigate(`/chat/new`, {
+        state: {
+          receiver_id: user.user_id,
+          name: user.name,
+        },
+      });
+    } else {
+      navigate(`/chat/${user.conversation_id}`, {
+        state: {
+          receiver_id: user.user_id,
+          name: user.name,
+        },
+      });
+    }
   };
 
   const filtered = users.filter((u) =>
@@ -88,25 +70,6 @@ export const UserListScreen = () => {
 
   return (
     <>
-      <style>{`
-        @keyframes pulse {
-          0%,100% { opacity:0.4 }
-          50%      { opacity:0.75 }
-        }
-        @keyframes slideIn {
-          from { opacity:0; transform:translateY(8px) }
-          to   { opacity:1; transform:translateY(0) }
-        }
-        ::-webkit-scrollbar { width:4px }
-        ::-webkit-scrollbar-track { background:transparent }
-        ::-webkit-scrollbar-thumb { background:var(--border-color); border-radius:4px }
-        .user-item:hover { background:var(--bg-secondary) !important }
-        .back-btn:hover  { background:var(--bg-secondary) !important }
-        .user-item {
-          animation: slideIn 0.2s ease both;
-        }
-      `}</style>
-
       <div className="userlist-root">
         <div className="userlist-header">
           <button

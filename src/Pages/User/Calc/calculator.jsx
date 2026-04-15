@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useDispatch } from "react-redux";
 import { calcSubmitApi } from "../../../Networking/User/APIs/Calculator/calcApi";
+import Card from "../../../Component/Card/Card";
 
 export const LeaseFinanceCalculator = () => {
   const dispatch = useDispatch();
@@ -18,22 +19,16 @@ export const LeaseFinanceCalculator = () => {
 
   const [errors, setErrors] = useState({});
 
-
   const [input, setInput] = useState("");
-
 
   const handleClick = (value) => setInput((prev) => prev + value);
 
-
   const clearInput = () => setInput("");
-
 
   const backspace = () => setInput((prev) => prev.slice(0, -1));
 
-
   const calculate = () => {
     try {
-
       const res = Function(`"use strict"; return (${input})`)();
       setInput(String(res));
     } catch {
@@ -42,11 +37,10 @@ export const LeaseFinanceCalculator = () => {
   };
 
   const formatCurrency = (value, decimals = 0) =>
-  Number(value).toLocaleString("en-US", {
-    minimumFractionDigits: decimals,
-    maximumFractionDigits: decimals,
-  });
-
+    Number(value).toLocaleString("en-US", {
+      minimumFractionDigits: decimals,
+      maximumFractionDigits: decimals,
+    });
 
   const validate = () => {
     const err = {};
@@ -80,11 +74,9 @@ export const LeaseFinanceCalculator = () => {
     if (!discountRate || Number(discountRate) < 0 || Number(discountRate) > 100)
       err.discountRate = "Discount Rate must be 0–100%";
 
-
     setErrors(err);
     return Object.keys(err).length === 0;
   };
-
 
   const handleSubmit = async () => {
     if (!validate()) return;
@@ -99,7 +91,6 @@ export const LeaseFinanceCalculator = () => {
       Free_Rent_Months: Number(freeRentMonths),
       TI_Allowance_PSF: Number(tiAllowance),
       Discount_Rate: Number(discountRate),
-
     };
 
     try {
@@ -112,137 +103,188 @@ export const LeaseFinanceCalculator = () => {
     }
   };
 
- return (
-  <div className="container-fluid p-3">
-    <div className="row g-3">
-
-     
-      <div className="col-12 col-lg-8">
-        <div className="card p-3 shadow-sm h-100">
-          <h4 className="fw-bold">Deal Parameters</h4>
-          <hr />
-
-          <div className="row">
-            {[
-              ["Gross Area (SF)", grossArea, setGrossArea, errors.grossArea],
-              ["Total Term (Years)", termYears, setTermYears, errors.termYears],
-              ["Base Rent PSF – Year 1", baseRentYear1, setBaseRentYear1, errors.baseRentYear1],
-              ["Annual Escalation (%)", annualEscalation, setAnnualEscalation, errors.annualEscalation],
-              ["Free Rent (Months)", freeRentMonths, setFreeRentMonths, errors.freeRentMonths],
-              ["TI Allowance (PSF)", tiAllowance, setTiAllowance, errors.tiAllowance],
-              ["Discount Rate (%)", discountRate, setDiscountRate, errors.discountRate],
-            ].map(([label, val, setter, err], idx) => (
-              <div className="col-12 col-md-6 mb-3" key={idx}>
-                <label className="fw-semibold">{label}</label>
-                <input
-                  type="number"
-                  className={`form-control ${err ? "is-invalid" : ""}`}
-                  value={val}
-                  onChange={(e) => setter(e.target.value)}
-                />
-                {err && <div className="invalid-feedback">{err}</div>}
-              </div>
-            ))}
-          </div>
-
-          <button
-            className="btn btn-primary w-100 mt-2"
-            onClick={handleSubmit}
-            disabled={loading}
+  return (
+    <div className="container-fluid p-3">
+      <div className="row g-3">
+        <div className="col-12 col-lg-8">
+          <Card
+            variant="elevated"
+            className="p-3 shadow-sm h-100"
+            title="Deal Parameters"
           >
-            {loading ? (
-              <span className="spinner-border spinner-border-sm"></span>
-            ) : (
-              "Calculate"
-            )}
-          </button>
-        </div>
-      </div>
+            <hr />
 
-   
-      <div className="col-12 col-lg-4">
-           <div className="card shadow-sm p-2">
-            <h5 className="fw-bold mb-3">Calculated Results</h5>
+            <div className="row">
+              {[
+                ["Gross Area (SF)", grossArea, setGrossArea, errors.grossArea],
+                [
+                  "Total Term (Years)",
+                  termYears,
+                  setTermYears,
+                  errors.termYears,
+                ],
+                [
+                  "Base Rent PSF – Year 1",
+                  baseRentYear1,
+                  setBaseRentYear1,
+                  errors.baseRentYear1,
+                ],
+                [
+                  "Annual Escalation (%)",
+                  annualEscalation,
+                  setAnnualEscalation,
+                  errors.annualEscalation,
+                ],
+                [
+                  "Free Rent (Months)",
+                  freeRentMonths,
+                  setFreeRentMonths,
+                  errors.freeRentMonths,
+                ],
+                [
+                  "TI Allowance (PSF)",
+                  tiAllowance,
+                  setTiAllowance,
+                  errors.tiAllowance,
+                ],
+                [
+                  "Discount Rate (%)",
+                  discountRate,
+                  setDiscountRate,
+                  errors.discountRate,
+                ],
+              ].map(([label, val, setter, err], idx) => (
+                <div className="col-12 col-md-6 mb-3" key={idx}>
+                  <label className="fw-semibold">{label}</label>
+                  <span className="text-danger">*</span>
+                  <input
+                    type="number"
+                    className={`form-control ${err ? "is-invalid" : ""}`}
+                    value={val}
+                    onChange={(e) => setter(e.target.value)}
+                  />
+                  {err && <div className="invalid-feedback">{err}</div>}
+                </div>
+              ))}
+            </div>
+
+            <button
+              className="btn btn-primary w-100 mt-2"
+              onClick={handleSubmit}
+              disabled={loading}
+            >
+              {loading ? (
+                <span className="spinner-border spinner-border-sm"></span>
+              ) : (
+                "Calculate"
+              )}
+            </button>
+          </Card>
+        </div>
+
+        <div className="col-12 col-lg-4 d-flex flex-column gap-3">
+          <Card
+            variant="elevated"
+            className="shadow-sm p-2"
+            title="Calculated Results"
+          >
             {!result && <p className="text-muted">Submit to see result.</p>}
             {result && (
               <>
-                <div className="p-2 bg-light rounded mb-2">
+                <div className="p-2 rounded mb-2">
                   <strong>Net Effective Rent (PSF Annual):</strong>
                   <h4>
-                    ${Number(result.NER_PSF_Annual).toLocaleString("en-US", {
+                    $
+                    {Number(result.NER_PSF_Annual).toLocaleString("en-US", {
                       minimumFractionDigits: 2,
                       maximumFractionDigits: 2,
                     })}
                   </h4>
                 </div>
 
-                <div className="p-2 bg-light rounded mb-2">
-                  <div className="fw-semibold">Total Cash Outflow (Concessions)</div>
+                <div className="p-2 rounded mb-2">
+                  <div className="fw-semibold">
+                    Total Cash Outflow (Concessions)
+                  </div>
                   <div className="fs-5">
                     ${formatCurrency(result.Total_Cash_Outflow_Concessions, 2)}
                   </div>
                 </div>
 
-                <div className="p-2 bg-light rounded mb-2">
+                <div className="p-2 rounded mb-2">
                   <div className="fw-semibold">NPV Rent</div>
                   <div className="fs-5">
                     ${formatCurrency(result.NPV_Rent, 2)}
                   </div>
                 </div>
-
               </>
             )}
-          </div>
-        <div className="card p-3 shadow-sm ">
-          <h5 className="fw-bold mb-3 text-center">Calculator</h5>
+          </Card>
 
-          <input
-            value={input}
-            readOnly
-            className="form-control mb-3 text-end fs-4"
-            style={{ background: "#f7f7f7", height: "55px" }}
-          />
-
-          <div
-            className="d-grid"
-            style={{
-              gridTemplateColumns: "repeat(4, 1fr)",
-              gap: "10px",
-            }}
+          <Card
+            variant="elevated"
+            className="p-3 shadow-sm"
+            title="Calculator"
+            titleClass="text-center"
           >
-            {[
-              "7", "8", "9", "/",
-              "4", "5", "6", "*",
-              "1", "2", "3", "-",
-              "0", ".", "⌫", "+",
-              "=", "C",
-            ].map((btn) => (
-              <button
-                key={btn}
-                onClick={() => {
-                  if (btn === "=") calculate();
-                  else if (btn === "⌫") backspace();
-                  else if (btn === "C") clearInput();
-                  else handleClick(btn);
-                }}
-                className="btn fw-bold"
-                style={{
-                  padding: "14px",
-                  fontSize: "18px",
-                  background: btn === "=" ? "#0d6efd" : "#e9ecef",
-                  color: btn === "=" ? "white" : "black",
-                  borderRadius: "10px",
-                }}
-              >
-                {btn}
-              </button>
-            ))}
-          </div>
+            <input
+              value={input}
+              readOnly
+              className="form-control mb-3 text-end fs-4"
+              style={{ background: "#f7f7f7", height: "55px" }}
+            />
+
+            <div
+              className="d-grid"
+              style={{
+                gridTemplateColumns: "repeat(4, 1fr)",
+                gap: "10px",
+              }}
+            >
+              {[
+                "7",
+                "8",
+                "9",
+                "/",
+                "4",
+                "5",
+                "6",
+                "*",
+                "1",
+                "2",
+                "3",
+                "-",
+                "0",
+                ".",
+                "⌫",
+                "+",
+                "=",
+                "C",
+              ].map((btn) => (
+                <button
+                  key={btn}
+                  onClick={() => {
+                    if (btn === "=") calculate();
+                    else if (btn === "⌫") backspace();
+                    else if (btn === "C") clearInput();
+                    else handleClick(btn);
+                  }}
+                  className="btn fw-bold"
+                  style={{
+                    padding: "14px",
+                    fontSize: "18px",
+                    background: btn === "=" ? "#0d6efd" : "#e9ecef",
+                    color: btn === "=" ? "white" : "black",
+                    borderRadius: "10px",
+                  }}
+                >
+                  {btn}
+                </button>
+              ))}
+            </div>
+          </Card>
         </div>
       </div>
-
     </div>
-  </div>
-);
-
+  );
 };

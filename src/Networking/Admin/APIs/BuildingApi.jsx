@@ -1,5 +1,4 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
-import { toast } from "react-toastify";
 import axiosInstance from "./AxiosInstance";
 import {
   CreateBuilding,
@@ -15,8 +14,14 @@ export const CreateBuildingSubmit = createAsyncThunk(
       const formData = new FormData();
 
       formData.append("address", payload.address);
-      formData.append("category", payload.category);
-      formData.append("current_occupancy", payload.current_occupancy);
+
+      if (payload.category) {
+        formData.append("category", payload.category);
+      }
+
+      if (payload.current_occupancy) {
+        formData.append("current_occupancy", payload.current_occupancy);
+      }
 
       if (payload.file) {
         formData.append("file", payload.file);
@@ -24,7 +29,6 @@ export const CreateBuildingSubmit = createAsyncThunk(
 
       const response = await axiosInstance.post(CreateBuilding, formData);
 
-      toast.success(response.data.message);
       return response.data;
     } catch (error) {
       return rejectWithValue(error.response?.data?.message);
@@ -33,6 +37,21 @@ export const CreateBuildingSubmit = createAsyncThunk(
 );
 
 export const ListBuildingSubmit = createAsyncThunk(
+  "auth/ListBuildingSubmit",
+  async (category, { rejectWithValue }) => {
+    try {
+      const response = await axiosInstance.get(ListBuilding, {
+        params: category === "workletter" ? { category } : {},
+      });
+
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.response?.data?.message);
+    }
+  },
+);
+
+export const ListuserBuildingSubmit = createAsyncThunk(
   "auth/ListBuildingSubmit",
   async (category, { rejectWithValue }) => {
     try {
@@ -55,8 +74,14 @@ export const UpdateBuildingSubmit = createAsyncThunk(
 
       formData.append("building_id", payload.building_id);
       formData.append("address", payload.address);
-      formData.append("category", payload.category);
-      formData.append("current_occupancy", payload.current_occupancy);
+
+      if (payload.category) {
+        formData.append("category", payload.category);
+      }
+
+      if (payload.current_occupancy) {
+        formData.append("current_occupancy", payload.current_occupancy);
+      }
 
       if (payload.file) {
         formData.append("file", payload.file);
@@ -72,7 +97,6 @@ export const UpdateBuildingSubmit = createAsyncThunk(
         },
       );
 
-      toast.success(response.data.message);
       return response.data;
     } catch (error) {
       console.error(error.response);

@@ -1,5 +1,4 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
-import { toast } from "react-toastify";
 import { inviteAdmin, listAdmin } from "../NWconfig";
 import axiosInstance from "../Admin/APIs/AxiosInstance";
 
@@ -30,15 +29,18 @@ export const getAdminlistApi = createAsyncThunk(
 
 export const fetchAdminStatsApi = createAsyncThunk(
   "admin/fetchStats",
-  async (user_id, { rejectWithValue }) => {
+  async (company_id, { rejectWithValue }) => {
     try {
       const token = localStorage.getItem("token");
 
-      const res = await axiosInstance.get(`/admin/stats?user_id=${user_id}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
+      const res = await axiosInstance.get(
+        `/admin/stats?company_id=${company_id}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
         },
-      });
+      );
 
       return res.data;
     } catch (error) {
@@ -51,12 +53,12 @@ export const fetchAdminStatsApi = createAsyncThunk(
 
 export const fetchAdminAnalyticsApi = createAsyncThunk(
   "admin/fetchAnalytics",
-  async ({ user_id, days = 7 }, { rejectWithValue }) => {
+  async ({ company_id, days = 7 }, { rejectWithValue }) => {
     try {
       const token = localStorage.getItem("token");
 
       const res = await axiosInstance.get(
-        `/admin/analytics?days=${days}&user_id=${user_id}`,
+        `/admin/analytics?days=${days}&company_id=${company_id}`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -68,6 +70,46 @@ export const fetchAdminAnalyticsApi = createAsyncThunk(
     } catch (error) {
       return rejectWithValue(
         error.response?.data || "Failed to fetch admin analytics",
+      );
+    }
+  },
+);
+
+export const getCompanyMembersApi = createAsyncThunk(
+  "superAdmin/getCompanyMembers",
+  async (companyId, { rejectWithValue }) => {
+    try {
+      const response = await axiosInstance.get(
+        `/auth/company/${companyId}/members`,
+      );
+
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(
+        error?.response?.data?.detail ||
+          error?.response?.data?.message ||
+          error?.message ||
+          "Failed to fetch company members",
+      );
+    }
+  },
+);
+
+export const transferOwnershipApi = createAsyncThunk(
+  "admin/transferOwnership",
+  async ({ company_id, new_owner_email }, { rejectWithValue }) => {
+    try {
+      const response = await axiosInstance.post(
+        `/auth/company/${company_id}/transfer-ownership`,
+        {
+          new_owner_email,
+        },
+      );
+
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(
+        error.response?.data?.message || "Transfer failed",
       );
     }
   },

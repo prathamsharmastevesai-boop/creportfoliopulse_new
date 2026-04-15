@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useDispatch } from "react-redux";
 import { commissionSimpleApi } from "../../../Networking/User/APIs/Calculator/calcApi";
+import Card from "../../../Component/Card/Card";
 
 export const CommissionCalculator = () => {
   const dispatch = useDispatch();
@@ -44,6 +45,13 @@ export const CommissionCalculator = () => {
     if (commissionList.length !== Number(termYears))
       err.commission = "Generate commission rows";
 
+    if (!termYears || Number(termYears) < 1) {
+      err.termYears = "Enter valid term first";
+    }
+
+    if (baseRentList.length === 0 || commissionList.length === 0) {
+      err.generate = "Please generate year rows before calculating";
+    }
     const invalidBaseRent = baseRentList.some(
       (b) => b.rent === "" || b.rent <= 0,
     );
@@ -121,8 +129,11 @@ export const CommissionCalculator = () => {
     <div className="container-fluid p-3">
       <div className="row g-3">
         <div className="col-md-8">
-          <div className="card p-3 shadow-sm">
-            <h4 className="fw-bold">Deal Parameters</h4>
+          <Card
+            variant="elevated"
+            className="p-3 shadow-sm"
+            title="Deal Parameters"
+          >
             <hr />
 
             <div className="row">
@@ -149,6 +160,7 @@ export const CommissionCalculator = () => {
               ].map(([label, val, setter, err], i) => (
                 <div className="col-md-6 mb-3" key={i}>
                   <label className="fw-semibold">{label}</label>
+
                   <input
                     type="number"
                     className={`form-control ${err ? "is-invalid" : ""}`}
@@ -198,28 +210,35 @@ export const CommissionCalculator = () => {
             <button
               className="btn btn-primary w-100 mt-4"
               onClick={handleSubmit}
-              disabled={loading}
+              disabled={
+                loading ||
+                !termYears ||
+                baseRentList.length === 0 ||
+                commissionList.length === 0
+              }
             >
               {loading ? "Calculating..." : "Calculate"}
             </button>
-          </div>
+          </Card>
         </div>
 
         <div className="col-md-4">
-          <div className="card p-3 shadow-sm">
-            <h5 className="fw-bold">Calculated Results</h5>
-
+          <Card
+            variant="elevated"
+            className="p-3 shadow-sm"
+            title="Calculated Results"
+          >
             {!result && <p className="text-muted">Submit to see result</p>}
 
             {result && (
-              <div className="p-2 bg-light rounded">
+              <div className="p-2 rounded">
                 <strong>Total Commission Due</strong>
                 <div className="fs-5">
                   {formatCurrency(result.Total_Commission_Due)}
                 </div>
               </div>
             )}
-          </div>
+          </Card>
         </div>
       </div>
     </div>

@@ -102,11 +102,8 @@ export const SessionList = ({ setShowSessionModal }) => {
       ) {
         setSelectedCategory("All");
       }
-
-      toast.success("Session deleted successfully!");
     } catch (error) {
       console.error("Failed to delete session:", error);
-      toast.error("Failed to delete session");
     } finally {
       setIsDeleting((prev) => ({ ...prev, [id]: false }));
       setSessionToDelete(null);

@@ -20,6 +20,7 @@ import {
 } from "lucide-react";
 import "./login.css";
 import { AUP_CONTENT } from "../../../Component/ChatSystem/aupData";
+import { capitalFunction } from "../../../Component/capitalLetter";
 
 const ROLE_CONFIG = {
   admin: { label: "Admin", color: "#dc2626", bg: "#fef2f2", icon: ShieldCheck },
@@ -149,15 +150,24 @@ const CompanySelectionScreen = ({
                     const roleConf = getRoleConfig(portfolio.role);
                     const RoleIcon = roleConf.icon;
                     const isSelected =
-                      selected?.company_id === portfolio.company_id;
-                    const isHovered = hoveredId === portfolio.company_id;
+                      selected?.company_id === portfolio.company_id &&
+                      selected?.role === portfolio.role;
+                    const isHovered =
+                      hoveredId?.company_id === portfolio.company_id &&
+                      hoveredId?.role === portfolio.role;
 
                     return (
-                      <div className="col-md-6" key={portfolio.company_id}>
+                      <div
+                        className="col-md-6"
+                        key={`${portfolio.company_id}-${portfolio.role}`}
+                      >
                         <div
                           onClick={() => !selecting && setSelected(portfolio)}
                           onMouseEnter={() =>
-                            setHoveredId(portfolio.company_id)
+                            setHoveredId({
+                              company_id: portfolio.company_id,
+                              role: portfolio.role,
+                            })
                           }
                           onMouseLeave={() => setHoveredId(null)}
                           className={[
@@ -195,7 +205,7 @@ const CompanySelectionScreen = ({
                           </div>
 
                           <p className="mb-1 fw-semibold text-dark login-portfolio-name">
-                            {portfolio.company_name}
+                            {capitalFunction(portfolio.company_name || "—")}
                           </p>
 
                           <span
@@ -320,7 +330,6 @@ export const Login = () => {
       sessionStorage.setItem("role", role);
 
       if (role === "superuser") {
-        toast.success("Login successful");
         navigate("/admin-management");
         return;
       }
@@ -351,20 +360,19 @@ export const Login = () => {
 
   const handleCompanySelect = async (portfolio) => {
     setSelecting(true);
-
     try {
       const res = await dispatch(
-        selectPortfolio({ company_id: portfolio.company_id }),
+        selectPortfolio({
+          company_id: portfolio.company_id,
+          role: portfolio.role,
+        }),
       ).unwrap();
 
       const { role } = res;
-
       sessionStorage.setItem("company_name", portfolio.company_name);
-
-      toast.success("Login successful");
+      sessionStorage.setItem("is_owner", res.is_owner);
       navigateBasedOnRole(role);
     } catch (error) {
-      toast.error(error);
     } finally {
       setSelecting(false);
     }
@@ -375,7 +383,6 @@ export const Login = () => {
     try {
       await dispatch(agreeAUP({ aup_version: aupVersion })).unwrap();
 
-      toast.success("AUP agreed successfully");
       setShowAUPModal(false);
 
       const access_token = sessionStorage.getItem("access_token");
@@ -394,7 +401,6 @@ export const Login = () => {
       setPortfolios(companies);
       setStep("company-select");
     } catch {
-      toast.error("Failed to agree to AUP. Please try again.");
     } finally {
       setAupAgreeLoading(false);
     }

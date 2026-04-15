@@ -9,6 +9,8 @@ import {
   getRecentQuestionApi,
   getUsageTreadApi,
 } from "../../../Networking/Admin/APIs/AiInslightsAPi";
+import Card from "../../../Component/Card/Card";
+import PageHeader from "../../../Component/PageHeader/PageHeader";
 import {
   LineChart,
   Line,
@@ -166,32 +168,27 @@ export const Aianalytics = () => {
 
   return (
     <div className="container-fluid p-3 p-md-3">
-      <div className="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-3">
-        <div className="mb-3 mb-md-0">
-          <div className="text-center text-md-start">
-            <h4 className="fw-bold">AI Analytics</h4>
-            <p className="text-muted m-0">
-              User behavior insights and system utilization analytics
-            </p>
-          </div>
-
-        </div>
-        <div className="d-flex flex-wrap align-items-center gap-2">
-          <select
-            className="form-select form-select-sm"
-            style={{ minWidth: "140px" }}
-            value={days}
-            onChange={(e) => setDays(Number(e.target.value))}
-          >
-            <option value={7}>Last 7 days</option>
-            <option value={30}>Last 30 days</option>
-            <option value={90}>Last 90 days</option>
-          </select>
-          <button className="btn btn-outline-secondary btn-sm" onClick={All}>
-            Refresh Insights
-          </button>
-        </div>
-      </div>
+      <PageHeader
+        title="AI Analytics"
+        subtitle="User behavior insights and system utilization analytics"
+        actions={
+          <>
+            <select
+              className="form-select form-select-sm"
+              style={{ minWidth: "140px" }}
+              value={days}
+              onChange={(e) => setDays(Number(e.target.value))}
+            >
+              <option value={7}>Last 7 days</option>
+              <option value={30}>Last 30 days</option>
+              <option value={90}>Last 90 days</option>
+            </select>
+            <button className="btn btn-outline-secondary btn-sm" onClick={All}>
+              Refresh Insights
+            </button>
+          </>
+        }
+      />
 
       <div className="row mb-4 g-3">
         {[
@@ -217,7 +214,7 @@ export const Aianalytics = () => {
           },
         ].map((card, idx) => (
           <div className="col-12 col-sm-6 col-lg-3" key={idx}>
-            <div className="card shadow-sm text-center p-3 h-100">
+            <Card className="text-center h-100" bodyClass="p-3">
               <div className="d-flex align-items-center justify-content-around">
                 {card.icon}
                 <div>
@@ -225,7 +222,7 @@ export const Aianalytics = () => {
                   <p className="text-muted m-0">{card.label}</p>
                 </div>
               </div>
-            </div>
+            </Card>
           </div>
         ))}
       </div>
@@ -246,7 +243,7 @@ export const Aianalytics = () => {
         )}
       </ul>
 
-      <div className="card shadow-sm p-4">
+      <Card className="p-4">
         {activeTab === "AI Insights" && (
           <>
             <h6 className="fw-bold mb-3">AI-Generated Insights</h6>
@@ -299,7 +296,7 @@ export const Aianalytics = () => {
               </div>
             ) : (
               <>
-                <div className="card mb-4 p-3 shadow-sm">
+                <Card className="mb-4" bodyClass="p-3">
                   <h6 className="fw-bold">Daily Login Activity</h6>
                   <ResponsiveContainer width="100%" height={250}>
                     <LineChart data={usageData.daily}>
@@ -315,10 +312,10 @@ export const Aianalytics = () => {
                       />
                     </LineChart>
                   </ResponsiveContainer>
-                </div>
+                </Card>
 
                 {usageData.insights?.trend_summary && (
-                  <div className="card p-3 shadow-sm">
+                  <Card bodyClass="p-3">
                     <h6 className="fw-bold">AI Insights</h6>
                     <p className="text-muted">
                       {usageData.insights.trend_summary}
@@ -328,7 +325,7 @@ export const Aianalytics = () => {
                         {usageData.insights.category_analysis}
                       </p>
                     )}
-                  </div>
+                  </Card>
                 )}
               </>
             )}
@@ -389,7 +386,7 @@ export const Aianalytics = () => {
             ) : (
               <div className="row">
                 <div className="col-md-6 mb-3">
-                  <div className="card p-3 shadow-sm">
+                  <Card bodyClass="p-3">
                     <h6 className="fw-bold">Daily Activity Summary</h6>
                     {activitySummary?.daily.length > 0 ? (
                       <ResponsiveContainer width="100%" height={250}>
@@ -423,11 +420,11 @@ export const Aianalytics = () => {
                         No activity data found
                       </p>
                     )}
-                  </div>
+                  </Card>
                 </div>
 
                 <div className="col-md-6 mb-3">
-                  <div className="card p-3 shadow-sm">
+                  <Card bodyClass="p-3">
                     <h6 className="fw-bold">Session Activity Trend</h6>
                     {activitySummary.sessions.length > 0 ? (
                       <ResponsiveContainer width="100%" height={250}>
@@ -455,13 +452,13 @@ export const Aianalytics = () => {
                         No session data found
                       </p>
                     )}
-                  </div>
+                  </Card>
                 </div>
               </div>
             )}
           </div>
         )}
-      </div>
+      </Card>
     </div>
   );
 };

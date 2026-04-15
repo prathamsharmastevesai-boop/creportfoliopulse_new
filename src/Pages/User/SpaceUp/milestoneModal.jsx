@@ -6,6 +6,7 @@ export const MilestoneModal = ({
   onSave,
   milestone,
   loading,
+  title,
 }) => {
   const [notes, setNotes] = useState("");
   const [error, setError] = useState("");
@@ -24,13 +25,10 @@ export const MilestoneModal = ({
     return field.replace(/_/g, " ").replace(/\b\w/g, (l) => l.toUpperCase());
   };
 
+  const modalTitle = title || `Complete ${formatMilestoneLabel(milestone)}`;
+
   const handleSave = () => {
     const trimmed = notes.trim();
-
-    if (trimmed.length === 0) {
-      setError("Notes are required.");
-      return;
-    }
 
     if (trimmed && trimmed.length < 3) {
       setError("If adding notes, please enter at least 3 characters.");
@@ -52,9 +50,7 @@ export const MilestoneModal = ({
       <div className="modal-dialog">
         <div className="modal-content">
           <div className="modal-header">
-            <h5 className="modal-title">
-              Complete {formatMilestoneLabel(milestone)}
-            </h5>
+            <h5 className="modal-title">{modalTitle}</h5>
             <button
               type="button"
               className="btn-close"
@@ -99,7 +95,6 @@ export const MilestoneModal = ({
             >
               Cancel
             </button>
-
             <button
               className="btn btn-primary"
               onClick={handleSave}

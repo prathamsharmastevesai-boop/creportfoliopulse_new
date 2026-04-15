@@ -1,12 +1,12 @@
 import { BuildingList } from "../../../Component/BuildingList";
-import { ListBuildingSubmit } from "../../../Networking/Admin/APIs/BuildingApi";
+import { ListuserBuildingSubmit } from "../../../Networking/Admin/APIs/BuildingApi";
 
 export const ComparativeUserBuildinglist = () => {
   return (
     <BuildingList
       title="Comparative Building List"
-      fetchAction={ListBuildingSubmit}
-      category="ComparativeBuilding"
+      fetchAction={ListuserBuildingSubmit}
+      category="comparative_building_data"
       selector={(state) => ({
         data: state.BuildingSlice.BuildingList,
         loading: state.BuildingSlice.loading,

@@ -6,13 +6,15 @@ import {
 } from "../../Networking/Admin/APIs/PermissionApi";
 import { useDispatch } from "react-redux";
 import RAGLoader from "../../Component/Loader";
+import Card from "../../Component/Card/Card";
+import PageHeader from "../../Component/PageHeader/PageHeader";
 
 export const UserAccess = () => {
   const dispatch = useDispatch();
   const [groupedRequests, setGroupedRequests] = useState({});
   const [loading, setLoading] = useState(true);
   const [selectedRequests, setSelectedRequests] = useState({});
-  const [actionLoading, setActionLoading] = useState(false); 
+  const [actionLoading, setActionLoading] = useState(false);
 
   useEffect(() => {
     fetchPendingUsers();
@@ -74,7 +76,7 @@ export const UserAccess = () => {
     } catch (error) {
       toast.error(`Failed to ${action} request.`);
     } finally {
-      setActionLoading(false); 
+      setActionLoading(false);
     }
   };
 
@@ -90,6 +92,10 @@ export const UserAccess = () => {
 
   return (
     <div className="container p-4" style={{ position: "relative" }}>
+      <PageHeader
+        title="Pending Access Requests"
+        subtitle="Manage building and lease-specific permission requests from users"
+      />
       {actionLoading && (
         <div className="upload-overlay">
           <div className="text-center">
@@ -110,70 +116,67 @@ export const UserAccess = () => {
               key={building.building_id}
               className="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-4"
             >
-              <div className="card shadow-sm h-100 d-flex flex-column">
-                <div className="card-header text-dark">
-                  <strong>{building.building_name}</strong> —{" "}
-                  <small>ID: {building.building_id}</small>
-                </div>
-                <div
-                  className="card-body overflow-auto"
-                  style={{ maxHeight: "300px" }}
-                >
-                  {building.leases.map((lease) => (
-                    <div
-                      key={lease.request_id}
-                      className="border rounded p-3 mb-2 bg-light"
-                    >
-                      <div className="form-check d-flex justify-content-between align-items-center flex-wrap">
-                        <div className="me-2">
-                          <input
-                            className="form-check-input me-2"
-                            type="checkbox"
-                            id={`chk-${lease.request_id}`}
-                            checked={selectedRequests[lease.request_id] || false}
-                            onChange={() => handleCheckboxChange(lease.request_id)}
-                            disabled={actionLoading}
-                          />
-                          <label
-                            className="form-check-label"
-                            htmlFor={`chk-${lease.request_id}`}
-                            style={{ wordBreak: "break-word" }} 
-                          >
-                            <strong>{lease.user_name}</strong>
-                            <br />({lease.email})
-                          </label>
-                        </div>
-                        {lease.status && (
-                          <span
-                            className={`badge bg-${
-                              lease.status === "approved" ? "success" : "secondary"
+              <Card
+                variant="elevated"
+                title={building.building_name}
+                subtitle={`ID: ${building.building_id}`}
+                className="h-100 shadow-sm"
+                bodyClass="overflow-auto"
+                style={{ maxHeight: "300px" }}
+              >
+                {building.leases.map((lease) => (
+                  <div
+                    key={lease.request_id}
+                    className="border rounded p-3 mb-2 bg-light"
+                  >
+                    <div className="form-check d-flex justify-content-between align-items-center flex-wrap">
+                      <div className="me-2">
+                        <input
+                          className="form-check-input me-2"
+                          type="checkbox"
+                          id={`chk-${lease.request_id}`}
+                          checked={selectedRequests[lease.request_id] || false}
+                          onChange={() => handleCheckboxChange(lease.request_id)}
+                          disabled={actionLoading}
+                        />
+                        <label
+                          className="form-check-label"
+                          htmlFor={`chk-${lease.request_id}`}
+                          style={{ wordBreak: "break-word" }}
+                        >
+                          <strong>{lease.user_name}</strong>
+                          <br />({lease.email})
+                        </label>
+                      </div>
+                      {lease.status && (
+                        <span
+                          className={`badge bg-${lease.status === "approved" ? "success" : "secondary"
                             } mt-2 mt-sm-0`}
-                          >
-                            {lease.status}
-                          </span>
-                        )}
-                      </div>
-
-                      <div className="mt-2 d-flex justify-content-end gap-2 flex-wrap">
-                        <button
-                          className="btn btn-sm btn-success"
-                          onClick={() => handleAction("approve", lease.request_id)}
-                          disabled={!selectedRequests[lease.request_id] || actionLoading}
                         >
-                          Approve
-                        </button>
-                        <button
-                          className="btn btn-sm btn-outline-danger"
-                          onClick={() => handleAction("deny", lease.request_id)}
-                          disabled={!selectedRequests[lease.request_id] || actionLoading}
-                        >
-                          Reject
-                        </button>
-                      </div>
+                          {lease.status}
+                        </span>
+                      )}
                     </div>
-                  ))}
-                </div>
-              </div>
+
+                    <div className="mt-2 d-flex justify-content-end gap-2 flex-wrap">
+                      <button
+                        className="btn btn-sm btn-success"
+                        onClick={() => handleAction("approve", lease.request_id)}
+                        disabled={!selectedRequests[lease.request_id] || actionLoading}
+                      >
+                        Approve
+                      </button>
+                      <button
+                        className="btn btn-sm btn-outline-danger"
+                        onClick={() => handleAction("deny", lease.request_id)}
+                        disabled={!selectedRequests[lease.request_id] || actionLoading}
+                      >
+                        Reject
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </Card>
             </div>
           ))}
         </div>

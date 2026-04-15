@@ -15,6 +15,8 @@ import { useNavigate } from "react-router-dom";
 import { BsPlusLg, BsFilePdf, BsTrash } from "react-icons/bs";
 import RAGLoader from "../../../Component/Loader";
 import { ChatBotModal } from "../../../Component/chatbotModel";
+import Card from "../../../Component/Card/Card";
+import PageHeader from "../../../Component/PageHeader/PageHeader";
 
 export const SubleaseTrackerList = () => {
   const dispatch = useDispatch();
@@ -147,7 +149,6 @@ export const SubleaseTrackerList = () => {
         await loadFiles(deleteFileModal.subleaseId);
       }
 
-      toast.success("File deleted successfully!");
       setDeleteFileModal({
         show: false,
         fileId: null,
@@ -157,7 +158,7 @@ export const SubleaseTrackerList = () => {
       });
     } catch (error) {
       console.error("Error deleting file:", error);
-      toast.error("Failed to delete file. Please try again.");
+
       setDeleteFileModal((prev) => ({ ...prev, loading: false }));
     }
   };
@@ -235,7 +236,6 @@ export const SubleaseTrackerList = () => {
       await loadFiles(id);
     } catch (error) {
       console.error("Error fetching details:", error);
-      toast.error("Failed to load sublease details");
     } finally {
       setDetailLoading(false);
     }
@@ -255,11 +255,11 @@ export const SubleaseTrackerList = () => {
     try {
       await dispatch(DeleteSubleaseById(deleteModal.id)).unwrap();
       dispatch(GetSubleaseTrackerList());
-      toast.success("Sublease deleted successfully!");
+
       setDeleteModal({ show: false, id: null, name: "", loading: false });
     } catch (error) {
       console.error("Error deleting sublease:", error);
-      toast.error("Failed to delete sublease. Please try again.");
+
       setDeleteModal((prev) => ({ ...prev, loading: false }));
     }
   };
@@ -328,10 +328,8 @@ export const SubleaseTrackerList = () => {
       dispatch(GetSubleaseTrackerList());
       setShowModal(false);
       setIsEdit(false);
-      toast.success("Sublease updated successfully!");
     } catch (error) {
       console.error("Error updating sublease:", error);
-      toast.error("Failed to update sublease. Please try again.");
     } finally {
       setIsSaving(false);
     }
@@ -363,8 +361,7 @@ export const SubleaseTrackerList = () => {
   };
 
   const renderQuarterSection = (quarter, quarterName) => (
-    <div key={quarter} className="border p-3 mb-3 rounded">
-      <h6 className="fw-bold mb-3">{quarterName}</h6>
+    <Card key={quarter} className="mb-3" variant="bordered" title={quarterName}>
       <div className="row">
         <div className="col-md-6">
           <div className="form-check mb-2">
@@ -483,429 +480,446 @@ export const SubleaseTrackerList = () => {
           </div>
         </div>
       </div>
-    </div>
+    </Card>
   );
 
   const renderConsentChecklist = () => (
     <div className="col-12 mt-4">
-      <h5 className="fw-bold border-bottom pb-2 mb-3">Consent Checklist</h5>
-      <div className="row g-3">
-        <div className="col-md-6">
-          <div className="form-check">
-            {isEdit ? (
-              <input
-                type="checkbox"
-                className="form-check-input"
-                name="consent_checklist.final_term_sheet_uploaded"
-                checked={
-                  detail?.data?.consent_checklist?.final_term_sheet_uploaded ||
-                  false
-                }
-                onChange={handleChange}
-                id="finalTermSheet"
-              />
-            ) : (
-              <input
-                type="checkbox"
-                className="form-check-input"
-                checked={
-                  detail?.data?.consent_checklist?.final_term_sheet_uploaded ||
-                  false
-                }
-                disabled
-                readOnly
-              />
-            )}
-            <label className="form-check-label" htmlFor="finalTermSheet">
-              Final Term Sheet Uploaded
-            </label>
-          </div>
-        </div>
-
-        <div className="col-md-6">
-          <div className="form-check">
-            {isEdit ? (
-              <input
-                type="checkbox"
-                className="form-check-input"
-                name="consent_checklist.signed_sublease_uploaded"
-                checked={
-                  detail?.data?.consent_checklist?.signed_sublease_uploaded ||
-                  false
-                }
-                onChange={handleChange}
-                id="signedSublease"
-              />
-            ) : (
-              <input
-                type="checkbox"
-                className="form-check-input"
-                checked={
-                  detail?.data?.consent_checklist?.signed_sublease_uploaded ||
-                  false
-                }
-                disabled
-                readOnly
-              />
-            )}
-            <label className="form-check-label" htmlFor="signedSublease">
-              Signed Sublease Uploaded
-            </label>
-          </div>
-        </div>
-
-        <div className="col-md-6">
-          <label className="form-label fw-bold">
-            Subtenant Financials Status
-          </label>
-          {isEdit ? (
-            <select
-              className="form-select"
-              name="consent_checklist.subtenant_financials_status"
-              value={
-                detail?.data?.consent_checklist?.subtenant_financials_status ||
-                "Pending"
-              }
-              onChange={handleChange}
-            >
-              <option value="Pending">Pending</option>
-              <option value="Received">Received</option>
-              <option value="Verified">Verified</option>
-              <option value="Rejected">Rejected</option>
-            </select>
-          ) : (
-            <p className="mb-0">
-              {detail?.data?.consent_checklist?.subtenant_financials_status ||
-                "N/A"}
-            </p>
-          )}
-        </div>
-
-        <div className="col-md-6">
-          <label className="form-label fw-bold">Subtenant Profile</label>
-          {isEdit ? (
-            <input
-              type="text"
-              className="form-control"
-              name="consent_checklist.subtenant_profile"
-              value={detail?.data?.consent_checklist?.subtenant_profile || ""}
-              onChange={handleChange}
-              placeholder="e.g., Tech startup - AI SaaS"
-            />
-          ) : (
-            <p className="mb-0">
-              {detail?.data?.consent_checklist?.subtenant_profile || "N/A"}
-            </p>
-          )}
-        </div>
-
-        <div className="col-md-6">
-          <label className="form-label fw-bold">Landlord Review Fees ($)</label>
-          {isEdit ? (
-            <input
-              type="number"
-              className="form-control"
-              name="consent_checklist.landlord_review_fees"
-              value={
-                detail?.data?.consent_checklist?.landlord_review_fees || ""
-              }
-              onChange={handleChange}
-              step="0.01"
-            />
-          ) : (
-            <p className="mb-0">
-              {formatCurrency(
-                detail?.data?.consent_checklist?.landlord_review_fees,
+      <Card variant="bordered" title="Consent Checklist">
+        <div className="row g-3">
+          <div className="col-md-6">
+            <div className="form-check">
+              {isEdit ? (
+                <input
+                  type="checkbox"
+                  className="form-check-input"
+                  name="consent_checklist.final_term_sheet_uploaded"
+                  checked={
+                    detail?.data?.consent_checklist
+                      ?.final_term_sheet_uploaded || false
+                  }
+                  onChange={handleChange}
+                  id="finalTermSheet"
+                />
+              ) : (
+                <input
+                  type="checkbox"
+                  className="form-check-input"
+                  checked={
+                    detail?.data?.consent_checklist
+                      ?.final_term_sheet_uploaded || false
+                  }
+                  disabled
+                  readOnly
+                />
               )}
-            </p>
-          )}
-        </div>
+              <label className="form-check-label" htmlFor="finalTermSheet">
+                Final Term Sheet Uploaded
+              </label>
+            </div>
+          </div>
 
-        <div className="col-md-6">
-          <div className="form-check mt-4">
+          <div className="col-md-6">
+            <div className="form-check">
+              {isEdit ? (
+                <input
+                  type="checkbox"
+                  className="form-check-input"
+                  name="consent_checklist.signed_sublease_uploaded"
+                  checked={
+                    detail?.data?.consent_checklist?.signed_sublease_uploaded ||
+                    false
+                  }
+                  onChange={handleChange}
+                  id="signedSublease"
+                />
+              ) : (
+                <input
+                  type="checkbox"
+                  className="form-check-input"
+                  checked={
+                    detail?.data?.consent_checklist?.signed_sublease_uploaded ||
+                    false
+                  }
+                  disabled
+                  readOnly
+                />
+              )}
+              <label className="form-check-label" htmlFor="signedSublease">
+                Signed Sublease Uploaded
+              </label>
+            </div>
+          </div>
+
+          <div className="col-md-6">
+            <label className="form-label fw-bold">
+              Subtenant Financials Status
+            </label>
             {isEdit ? (
-              <input
-                type="checkbox"
-                className="form-check-input"
-                name="consent_checklist.landlord_review_fees_paid"
-                checked={
-                  detail?.data?.consent_checklist?.landlord_review_fees_paid ||
-                  false
+              <select
+                className="form-select"
+                name="consent_checklist.subtenant_financials_status"
+                value={
+                  detail?.data?.consent_checklist
+                    ?.subtenant_financials_status || "Pending"
                 }
                 onChange={handleChange}
-                id="feesPaid"
+              >
+                <option value="Pending">Pending</option>
+                <option value="Received">Received</option>
+                <option value="Verified">Verified</option>
+                <option value="Rejected">Rejected</option>
+              </select>
+            ) : (
+              <p className="mb-0">
+                {detail?.data?.consent_checklist?.subtenant_financials_status ||
+                  "N/A"}
+              </p>
+            )}
+          </div>
+
+          <div className="col-md-6">
+            <label className="form-label fw-bold">Subtenant Profile</label>
+            {isEdit ? (
+              <input
+                type="text"
+                className="form-control"
+                name="consent_checklist.subtenant_profile"
+                value={detail?.data?.consent_checklist?.subtenant_profile || ""}
+                onChange={handleChange}
+                placeholder="e.g., Tech startup - AI SaaS"
               />
             ) : (
-              <input
-                type="checkbox"
-                className="form-check-input"
-                checked={
-                  detail?.data?.consent_checklist?.landlord_review_fees_paid ||
-                  false
-                }
-                disabled
-                readOnly
-              />
+              <p className="mb-0">
+                {detail?.data?.consent_checklist?.subtenant_profile || "N/A"}
+              </p>
             )}
-            <label className="form-check-label" htmlFor="feesPaid">
-              Landlord Review Fees Paid
+          </div>
+
+          <div className="col-md-6">
+            <label className="form-label fw-bold">
+              Landlord Review Fees ($)
             </label>
+            {isEdit ? (
+              <input
+                type="number"
+                className="form-control"
+                name="consent_checklist.landlord_review_fees"
+                value={
+                  detail?.data?.consent_checklist?.landlord_review_fees || ""
+                }
+                onChange={handleChange}
+                step="0.01"
+              />
+            ) : (
+              <p className="mb-0">
+                {formatCurrency(
+                  detail?.data?.consent_checklist?.landlord_review_fees,
+                )}
+              </p>
+            )}
+          </div>
+
+          <div className="col-md-6">
+            <div className="form-check mt-4">
+              {isEdit ? (
+                <input
+                  type="checkbox"
+                  className="form-check-input"
+                  name="consent_checklist.landlord_review_fees_paid"
+                  checked={
+                    detail?.data?.consent_checklist
+                      ?.landlord_review_fees_paid || false
+                  }
+                  onChange={handleChange}
+                  id="feesPaid"
+                />
+              ) : (
+                <input
+                  type="checkbox"
+                  className="form-check-input"
+                  checked={
+                    detail?.data?.consent_checklist
+                      ?.landlord_review_fees_paid || false
+                  }
+                  disabled
+                  readOnly
+                />
+              )}
+              <label className="form-check-label" htmlFor="feesPaid">
+                Landlord Review Fees Paid
+              </label>
+            </div>
+          </div>
+
+          <div className="col-md-6">
+            <label className="form-label fw-bold">Insurance Status</label>
+            {isEdit ? (
+              <select
+                className="form-select"
+                name="consent_checklist.insurance_status"
+                value={
+                  detail?.data?.consent_checklist?.insurance_status || "Pending"
+                }
+                onChange={handleChange}
+              >
+                <option value="Pending">Pending</option>
+                <option value="Verified">Verified</option>
+                <option value="Not Required">Not Required</option>
+              </select>
+            ) : (
+              <p className="mb-0">
+                {detail?.data?.consent_checklist?.insurance_status || "N/A"}
+              </p>
+            )}
           </div>
         </div>
-
-        <div className="col-md-6">
-          <label className="form-label fw-bold">Insurance Status</label>
-          {isEdit ? (
-            <select
-              className="form-select"
-              name="consent_checklist.insurance_status"
-              value={
-                detail?.data?.consent_checklist?.insurance_status || "Pending"
-              }
-              onChange={handleChange}
-            >
-              <option value="Pending">Pending</option>
-              <option value="Verified">Verified</option>
-              <option value="Not Required">Not Required</option>
-            </select>
-          ) : (
-            <p className="mb-0">
-              {detail?.data?.consent_checklist?.insurance_status || "N/A"}
-            </p>
-          )}
-        </div>
-      </div>
+      </Card>
     </div>
   );
 
   const renderComplianceGuardrails = () => (
     <div className="col-12 mt-4">
-      <h5 className="fw-bold border-bottom pb-2 mb-3">Compliance Guardrails</h5>
-      <div className="row g-3">
-        <div className="col-md-6">
-          <div className="form-check">
-            {isEdit ? (
-              <input
-                type="checkbox"
-                className="form-check-input"
-                name="compliance_guardrails.occupancy_check"
-                checked={
-                  detail?.data?.compliance_guardrails?.occupancy_check || false
-                }
-                onChange={handleChange}
-                id="occupancyCheck"
-              />
-            ) : (
-              <input
-                type="checkbox"
-                className="form-check-input"
-                checked={
-                  detail?.data?.compliance_guardrails?.occupancy_check || false
-                }
-                disabled
-                readOnly
-              />
-            )}
-            <label className="form-check-label" htmlFor="occupancyCheck">
-              Occupancy Check Passed
-            </label>
-          </div>
-        </div>
-
-        <div className="col-md-6">
-          <div className="form-check">
-            {isEdit ? (
-              <input
-                type="checkbox"
-                className="form-check-input"
-                name="compliance_guardrails.anti_poaching_check"
-                checked={
-                  detail?.data?.compliance_guardrails?.anti_poaching_check ||
-                  false
-                }
-                onChange={handleChange}
-                id="antiPoachingCheck"
-              />
-            ) : (
-              <input
-                type="checkbox"
-                className="form-check-input"
-                checked={
-                  detail?.data?.compliance_guardrails?.anti_poaching_check ||
-                  false
-                }
-                disabled
-                readOnly
-              />
-            )}
-            <label className="form-check-label" htmlFor="antiPoachingCheck">
-              Anti-Poaching Check Passed
-            </label>
-          </div>
-        </div>
-
-        <div className="col-md-6">
-          <label className="form-label fw-bold">Use Covenant</label>
-          {isEdit ? (
-            <input
-              type="text"
-              className="form-control"
-              name="compliance_guardrails.use_covenant"
-              value={detail?.data?.compliance_guardrails?.use_covenant || ""}
-              onChange={handleChange}
-              placeholder="e.g., General Office"
-            />
-          ) : (
-            <p className="mb-0">
-              {detail?.data?.compliance_guardrails?.use_covenant || "N/A"}
-            </p>
-          )}
-        </div>
-
-        <div className="col-md-6">
-          <label className="form-label fw-bold">Master Rent ($/sf)</label>
-          {isEdit ? (
-            <input
-              type="number"
-              className="form-control"
-              name="compliance_guardrails.master_rent"
-              value={detail?.data?.compliance_guardrails?.master_rent || ""}
-              onChange={handleChange}
-              step="0.01"
-            />
-          ) : (
-            <p className="mb-0">
-              {formatCurrency(detail?.data?.compliance_guardrails?.master_rent)}
-            </p>
-          )}
-        </div>
-
-        <div className="col-md-6">
-          <label className="form-label fw-bold">Sublease Rent ($/sf)</label>
-          {isEdit ? (
-            <input
-              type="number"
-              className="form-control"
-              name="compliance_guardrails.sublease_rent"
-              value={detail?.data?.compliance_guardrails?.sublease_rent || ""}
-              onChange={handleChange}
-              step="0.01"
-            />
-          ) : (
-            <p className="mb-0">
-              {formatCurrency(
-                detail?.data?.compliance_guardrails?.sublease_rent,
+      <Card variant="bordered" title="Compliance Guardrails">
+        <div className="row g-3">
+          <div className="col-md-6">
+            <div className="form-check">
+              {isEdit ? (
+                <input
+                  type="checkbox"
+                  className="form-check-input"
+                  name="compliance_guardrails.occupancy_check"
+                  checked={
+                    detail?.data?.compliance_guardrails?.occupancy_check ||
+                    false
+                  }
+                  onChange={handleChange}
+                  id="occupancyCheck"
+                />
+              ) : (
+                <input
+                  type="checkbox"
+                  className="form-check-input"
+                  checked={
+                    detail?.data?.compliance_guardrails?.occupancy_check ||
+                    false
+                  }
+                  disabled
+                  readOnly
+                />
               )}
-            </p>
-          )}
+              <label className="form-check-label" htmlFor="occupancyCheck">
+                Occupancy Check Passed
+              </label>
+            </div>
+          </div>
+
+          <div className="col-md-6">
+            <div className="form-check">
+              {isEdit ? (
+                <input
+                  type="checkbox"
+                  className="form-check-input"
+                  name="compliance_guardrails.anti_poaching_check"
+                  checked={
+                    detail?.data?.compliance_guardrails?.anti_poaching_check ||
+                    false
+                  }
+                  onChange={handleChange}
+                  id="antiPoachingCheck"
+                />
+              ) : (
+                <input
+                  type="checkbox"
+                  className="form-check-input"
+                  checked={
+                    detail?.data?.compliance_guardrails?.anti_poaching_check ||
+                    false
+                  }
+                  disabled
+                  readOnly
+                />
+              )}
+              <label className="form-check-label" htmlFor="antiPoachingCheck">
+                Anti-Poaching Check Passed
+              </label>
+            </div>
+          </div>
+
+          <div className="col-md-6">
+            <label className="form-label fw-bold">Use Covenant</label>
+            {isEdit ? (
+              <input
+                type="text"
+                className="form-control"
+                name="compliance_guardrails.use_covenant"
+                value={detail?.data?.compliance_guardrails?.use_covenant || ""}
+                onChange={handleChange}
+                placeholder="e.g., General Office"
+              />
+            ) : (
+              <p className="mb-0">
+                {detail?.data?.compliance_guardrails?.use_covenant || "N/A"}
+              </p>
+            )}
+          </div>
+
+          <div className="col-md-6">
+            <label className="form-label fw-bold">Master Rent ($/sf)</label>
+            {isEdit ? (
+              <input
+                type="number"
+                className="form-control"
+                name="compliance_guardrails.master_rent"
+                value={detail?.data?.compliance_guardrails?.master_rent || ""}
+                onChange={handleChange}
+                step="0.01"
+              />
+            ) : (
+              <p className="mb-0">
+                {formatCurrency(
+                  detail?.data?.compliance_guardrails?.master_rent,
+                )}
+              </p>
+            )}
+          </div>
+
+          <div className="col-md-6">
+            <label className="form-label fw-bold">Sublease Rent ($/sf)</label>
+            {isEdit ? (
+              <input
+                type="number"
+                className="form-control"
+                name="compliance_guardrails.sublease_rent"
+                value={detail?.data?.compliance_guardrails?.sublease_rent || ""}
+                onChange={handleChange}
+                step="0.01"
+              />
+            ) : (
+              <p className="mb-0">
+                {formatCurrency(
+                  detail?.data?.compliance_guardrails?.sublease_rent,
+                )}
+              </p>
+            )}
+          </div>
         </div>
-      </div>
+      </Card>
     </div>
   );
 
   const renderTimelineTracking = () => (
     <div className="col-12 mt-4">
-      <h5 className="fw-bold border-bottom pb-2 mb-3">Timeline Tracking</h5>
-      <div className="row g-3">
-        <div className="col-md-6">
-          <label className="form-label fw-bold">Consent Submission Date</label>
-          {isEdit ? (
-            <input
-              type="date"
-              className="form-control"
-              name="timeline_tracking.consent_submission_date"
-              value={formatDateForInput(
-                detail?.data?.timeline_tracking?.consent_submission_date,
-              )}
-              onChange={handleChange}
-            />
-          ) : (
-            <p className="mb-0">
-              {formatDateForDisplay(
-                detail?.data?.timeline_tracking?.consent_submission_date,
-              )}
-            </p>
-          )}
-        </div>
+      <Card variant="bordered" title="Timeline Tracking">
+        <div className="row g-3">
+          <div className="col-md-6">
+            <label className="form-label fw-bold">
+              Consent Submission Date
+            </label>
+            {isEdit ? (
+              <input
+                type="date"
+                className="form-control"
+                name="timeline_tracking.consent_submission_date"
+                value={formatDateForInput(
+                  detail?.data?.timeline_tracking?.consent_submission_date,
+                )}
+                onChange={handleChange}
+              />
+            ) : (
+              <p className="mb-0">
+                {formatDateForDisplay(
+                  detail?.data?.timeline_tracking?.consent_submission_date,
+                )}
+              </p>
+            )}
+          </div>
 
-        <div className="col-md-6">
-          <label className="form-label fw-bold">Days in Review</label>
-          <p className="mb-0 fw-bold text-primary">
-            {detail?.data?.days_in_review || 0} days
-          </p>
+          <div className="col-md-6">
+            <label className="form-label fw-bold">Days in Review</label>
+            <p className="mb-0 fw-bold text-primary">
+              {detail?.data?.days_in_review || 0} days
+            </p>
+          </div>
         </div>
-      </div>
+      </Card>
     </div>
   );
 
   const renderFilesSection = () => (
     <div className="col-12 mt-4">
-      <h5 className="fw-bold border-bottom pb-2 mb-3">Documents</h5>
-      {loadingFiles ? (
-        <div className="text-center py-3">
-          <div
-            className="spinner-border spinner-border-sm text-primary"
-            role="status"
-          >
-            <span className="visually-hidden">Loading...</span>
-          </div>
-          <span className="ms-2">Loading files...</span>
-        </div>
-      ) : files.length > 0 ? (
-        <div className="list-group">
-          {files.map((file) => (
+      <Card variant="bordered" title="Documents">
+        {loadingFiles ? (
+          <div className="text-center py-3">
             <div
-              key={file.id}
-              className="list-group-item d-flex justify-content-between align-items-center"
+              className="spinner-border spinner-border-sm text-primary"
+              role="status"
             >
-              <div className="d-flex align-items-center">
-                <BsFilePdf className="text-danger me-2" size={20} />
-                <span>{file.file_name}</span>
-              </div>
-              <div>
-                <a
-                  href={file.view_url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="btn btn-sm btn-outline-primary me-2"
-                >
-                  <i className="bi bi-eye me-1"></i>
-                  View
-                </a>
-                {isEdit && (
-                  <button
-                    className="btn btn-sm btn-outline-danger"
-                    onClick={() =>
-                      confirmDeleteFile(file.id, file.file_name, detail?.id)
-                    }
-                    title="Delete File"
-                  >
-                    <BsTrash />
-                  </button>
-                )}
-              </div>
+              <span className="visually-hidden">Loading...</span>
             </div>
-          ))}
-        </div>
-      ) : (
-        <p className="text-muted fst-italic">No documents uploaded</p>
-      )}
+            <span className="ms-2">Loading files...</span>
+          </div>
+        ) : files.length > 0 ? (
+          <div className="list-group list-group-flush">
+            {files.map((file) => (
+              <div
+                key={file.id}
+                className="list-group-item d-flex justify-content-between align-items-center px-0"
+              >
+                <div className="d-flex align-items-center">
+                  <BsFilePdf className="text-danger me-2" size={20} />
+                  <span>{file.file_name}</span>
+                </div>
+                <div>
+                  <a
+                    href={file.view_url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="btn btn-sm btn-outline-primary me-2"
+                  >
+                    <i className="bi bi-eye me-1"></i>
+                    View
+                  </a>
+                  {isEdit && (
+                    <button
+                      className="btn btn-sm btn-outline-danger"
+                      onClick={() =>
+                        confirmDeleteFile(file.id, file.file_name, detail?.id)
+                      }
+                      title="Delete File"
+                    >
+                      <BsTrash />
+                    </button>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <p className="text-muted fst-italic mb-0">No documents uploaded</p>
+        )}
+      </Card>
     </div>
   );
 
   return (
     <>
-      <div className="header-bg d-flex justify-content-between flex-wrap px-3 align-items-center sticky-header">
-        <h5 className="mb-0 text-light mx-4">Sublease Tracker List</h5>
-        <button
-          className="btn btn-secondary d-flex align-items-center gap-2"
-          onClick={handleNavigate}
-          style={{ fontWeight: "600", padding: "0.5rem 1rem" }}
-        >
-          <BsPlusLg /> Add Sublease
-        </button>
-        <ChatBotModal category={"sublease"} />
-      </div>
+      <PageHeader
+        className="p-2"
+        title="Sublease Tracker List"
+        subtitle="Monitor and manage active sublease agreements across the portfolio"
+        actions={
+          <div className="d-flex align-items-center gap-2">
+            <button
+              className="btn btn-dark btn-sm d-flex align-items-center gap-2"
+              onClick={handleNavigate}
+            >
+              <BsPlusLg /> Add Sublease
+            </button>
+            <ChatBotModal category={"sublease"} />
+          </div>
+        }
+      />
 
       <div className="container-fluid p-4">
         {loading && (
@@ -928,135 +942,142 @@ export const SubleaseTrackerList = () => {
         )}
 
         {!loading && list?.length > 0 && (
-          <div className="table-responsive shadow-sm rounded">
-            <table className="table align-middle">
-              <thead>
-                <tr className="table-light text-uppercase small fw-bold">
-                  <th className="text-nowrap">Sub-Tenant Name</th>
-                  <th className="text-nowrap">Floor / Suite</th>
-
-                  <th
-                    role="button"
-                    onClick={() => handleSort("sublease_commencement_date")}
-                    style={{ cursor: "pointer" }}
-                    className="text-nowrap"
-                  >
-                    Commencement Date{" "}
-                    {sortConfig.key === "sublease_commencement_date" &&
-                      (sortConfig.direction === "asc" ? " ↑" : " ↓")}
-                  </th>
-
-                  <th
-                    role="button"
-                    onClick={() => handleSort("sublease_expiration_date")}
-                    style={{ cursor: "pointer" }}
-                    className="text-nowrap"
-                  >
-                    Expiration Date{" "}
-                    {sortConfig.key === "sublease_expiration_date" &&
-                      (sortConfig.direction === "asc" ? " ↑" : " ↓")}
-                  </th>
-
-                  <th
-                    role="button"
-                    onClick={() => handleSort("subtenant_headcount")}
-                    style={{ cursor: "pointer" }}
-                    className="text-nowrap"
-                  >
-                    Headcount{" "}
-                    {sortConfig.key === "subtenant_headcount" &&
-                      (sortConfig.direction === "asc" ? " ↑" : " ↓")}
-                  </th>
-
-                  <th
-                    role="button"
-                    onClick={() => handleSort("days_in_review")}
-                    style={{ cursor: "pointer" }}
-                    className="text-nowrap"
-                  >
-                    Days in Review{" "}
-                    {sortConfig.key === "days_in_review" &&
-                      (sortConfig.direction === "asc" ? " ↑" : " ↓")}
-                  </th>
-                  <th className="text-nowrap">Building Address</th>
-                  <th className="text-nowrap">Last Edited By</th>
-                  <th className="text-nowrap">Actions</th>
-                </tr>
-              </thead>
-
-              <tbody>
-                {sortedList.map((item) => (
-                  <tr key={item.id} className="border-bottom">
-                    <td>{item?.data?.sub_tenant_name || "N/A"}</td>
-                    <td>{item?.data?.floor_suite || "N/A"}</td>
-                    <td>
-                      {formatDateForDisplay(
-                        item?.data?.sublease_commencement_date,
-                      )}
-                    </td>
-                    <td>
-                      {formatDateForDisplay(
-                        item?.data?.sublease_expiration_date,
-                      )}
-                    </td>
-                    <td>{item?.data?.subtenant_headcount || 0}</td>
-                    <td>
-                      <span className="badge bg-info">
-                        {item?.data?.days_in_review || 0}
-                      </span>
-                    </td>
-                    <td
-                      style={{
-                        maxWidth: "200px",
-                        whiteSpace: "nowrap",
-                        overflow: "hidden",
-                        textOverflow: "ellipsis",
-                      }}
-                      title={item?.data?.building_address}
+          <Card noPadding variant="elevated">
+            <div className="table-responsive">
+              <table className="table align-middle mb-0">
+                <thead>
+                  <tr className="table-light text-uppercase small fw-bold">
+                    <th className="px-4 py-3 text-nowrap">Sub-Tenant Name</th>
+                    <th className="py-3 text-nowrap">Floor / Suite</th>
+                    <th
+                      role="button"
+                      onClick={() => handleSort("sublease_commencement_date")}
+                      style={{ cursor: "pointer" }}
+                      className="py-3 text-nowrap"
                     >
-                      {item?.data?.building_address || "N/A"}
-                    </td>
-                    <td>
-                      <div
-                        className="text-truncate"
-                        style={{ maxWidth: "100px" }}
-                        title={item?.updated_by_email}
-                      >
-                        {item?.updated_by_email || "N/A"}
-                      </div>
-                    </td>
-
-                    <td className="text-center table-icons">
-                      <button
-                        className="btn btn-outline-primary btn-sm rounded-circle me-2"
-                        onClick={() => openDetailModal(item.id, false)}
-                        title="View Details"
-                      >
-                        <i className="bi bi-eye"></i>
-                      </button>
-                      <button
-                        className="btn btn-outline-warning btn-sm rounded-circle me-2"
-                        onClick={() => openDetailModal(item.id, true)}
-                        title="Edit"
-                      >
-                        <i className="bi bi-pencil-square"></i>
-                      </button>
-
-                      <button
-                        className="btn btn-outline-danger btn-sm rounded-circle"
-                        onClick={() =>
-                          confirmDelete(item.id, item?.data?.sub_tenant_name)
-                        }
-                        title="Delete"
-                      >
-                        <i className="bi bi-trash3"></i>
-                      </button>
-                    </td>
+                      Commencement Date{" "}
+                      {sortConfig.key === "sublease_commencement_date" &&
+                        (sortConfig.direction === "asc" ? " ↑" : " ↓")}
+                    </th>
+                    <th
+                      role="button"
+                      onClick={() => handleSort("sublease_expiration_date")}
+                      style={{ cursor: "pointer" }}
+                      className="py-3 text-nowrap"
+                    >
+                      Expiration Date{" "}
+                      {sortConfig.key === "sublease_expiration_date" &&
+                        (sortConfig.direction === "asc" ? " ↑" : " ↓")}
+                    </th>
+                    <th
+                      role="button"
+                      onClick={() => handleSort("subtenant_headcount")}
+                      style={{ cursor: "pointer" }}
+                      className="py-3 text-nowrap"
+                    >
+                      Headcount{" "}
+                      {sortConfig.key === "subtenant_headcount" &&
+                        (sortConfig.direction === "asc" ? " ↑" : " ↓")}
+                    </th>
+                    <th
+                      role="button"
+                      onClick={() => handleSort("days_in_review")}
+                      style={{ cursor: "pointer" }}
+                      className="py-3 text-nowrap"
+                    >
+                      Days in Review{" "}
+                      {sortConfig.key === "days_in_review" &&
+                        (sortConfig.direction === "asc" ? " ↑" : " ↓")}
+                    </th>
+                    <th className="py-3 text-nowrap">Building Address</th>
+                    <th className="py-3 text-nowrap">Last Edited By</th>
+                    <th className="py-3 text-center text-nowrap">Actions</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                </thead>
+                <tbody>
+                  {sortedList.map((item) => (
+                    <tr key={item.id} className="border-bottom">
+                      <td className="px-4 py-3">
+                        {item?.data?.sub_tenant_name || "N/A"}
+                      </td>
+                      <td className="py-3">
+                        {item?.data?.floor_suite || "N/A"}
+                      </td>
+                      <td className="py-3">
+                        {formatDateForDisplay(
+                          item?.data?.sublease_commencement_date,
+                        )}
+                      </td>
+                      <td className="py-3">
+                        {formatDateForDisplay(
+                          item?.data?.sublease_expiration_date,
+                        )}
+                      </td>
+                      <td className="py-3">
+                        {item?.data?.subtenant_headcount || 0}
+                      </td>
+                      <td className="py-3">
+                        <span className="badge bg-info">
+                          {item?.data?.days_in_review || 0}
+                        </span>
+                      </td>
+                      <td
+                        className="py-3"
+                        style={{
+                          maxWidth: "200px",
+                          whiteSpace: "nowrap",
+                          overflow: "hidden",
+                          textOverflow: "ellipsis",
+                        }}
+                        title={item?.data?.building_address}
+                      >
+                        {item?.data?.building_address || "N/A"}
+                      </td>
+                      <td className="py-3">
+                        <div
+                          className="text-truncate"
+                          style={{ maxWidth: "100px" }}
+                          title={item?.updated_by_email}
+                        >
+                          {item?.updated_by_email || "N/A"}
+                        </div>
+                      </td>
+                      <td className="text-center py-3">
+                        <div className="d-flex justify-content-center gap-2">
+                          <button
+                            className="btn btn-outline-primary btn-sm rounded-circle"
+                            onClick={() => openDetailModal(item.id, false)}
+                            title="View Details"
+                          >
+                            <i className="bi bi-eye"></i>
+                          </button>
+                          <button
+                            className="btn btn-outline-warning btn-sm rounded-circle"
+                            onClick={() => openDetailModal(item.id, true)}
+                            title="Edit"
+                          >
+                            <i className="bi bi-pencil-square"></i>
+                          </button>
+                          <button
+                            className="btn btn-outline-danger btn-sm rounded-circle"
+                            onClick={() =>
+                              confirmDelete(
+                                item.id,
+                                item?.data?.sub_tenant_name,
+                              )
+                            }
+                            title="Delete"
+                          >
+                            <i className="bi bi-trash3"></i>
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </Card>
         )}
 
         {showModal && (
@@ -1102,314 +1123,314 @@ export const SubleaseTrackerList = () => {
                       <RAGLoader />
                     </div>
                   ) : (
-                    <div className="row g-3">
+                    <div className="row g-4">
                       <div className="col-12">
-                        <h5 className="fw-bold border-bottom pb-2 mb-3">
-                          Basic Information
-                        </h5>
-                      </div>
-
-                      <div className="col-md-6">
-                        <label className="form-label fw-bold">
-                          Sub-Tenant Name:
-                        </label>
-                        {isEdit ? (
-                          <input
-                            type="text"
-                            className="form-control"
-                            name="sub_tenant_name"
-                            value={detail?.data?.sub_tenant_name || ""}
-                            onChange={handleChange}
-                            placeholder="Enter sub-tenant name"
-                            disabled={deleteFileModal.loading}
-                          />
-                        ) : (
-                          <p className="mb-0">
-                            {detail?.data?.sub_tenant_name || "N/A"}
-                          </p>
-                        )}
-                      </div>
-
-                      <div className="col-md-6">
-                        <label className="form-label fw-bold">
-                          Floor / Suite:
-                        </label>
-                        {isEdit ? (
-                          <input
-                            type="text"
-                            className="form-control"
-                            name="floor_suite"
-                            value={detail?.data?.floor_suite || ""}
-                            onChange={handleChange}
-                            placeholder="Enter floor/suite"
-                            disabled={deleteFileModal.loading}
-                          />
-                        ) : (
-                          <p className="mb-0">
-                            {detail?.data?.floor_suite || "N/A"}
-                          </p>
-                        )}
-                      </div>
-
-                      <div className="col-md-6">
-                        <label className="form-label fw-bold">
-                          Building Address:
-                        </label>
-                        {isEdit ? (
-                          <input
-                            type="text"
-                            className="form-control"
-                            name="building_address"
-                            value={detail?.data?.building_address || ""}
-                            onChange={handleChange}
-                            placeholder="Enter building address"
-                            disabled={deleteFileModal.loading}
-                          />
-                        ) : (
-                          <p className="mb-0">
-                            {detail?.data?.building_address || "N/A"}
-                          </p>
-                        )}
-                      </div>
-
-                      <div className="col-md-6">
-                        <label className="form-label fw-bold">Headcount:</label>
-                        {isEdit ? (
-                          <input
-                            type="number"
-                            className="form-control"
-                            name="subtenant_headcount"
-                            value={detail?.data?.subtenant_headcount || 0}
-                            onChange={handleChange}
-                            min="0"
-                            disabled={deleteFileModal.loading}
-                          />
-                        ) : (
-                          <p className="mb-0">
-                            {detail?.data?.subtenant_headcount || 0}
-                          </p>
-                        )}
-                      </div>
-
-                      <div className="col-md-6">
-                        <label className="form-label fw-bold">
-                          Days in Review:
-                        </label>
-                        <p className="mb-0 fw-bold text-primary">
-                          {detail?.data?.days_in_review || 0} days
-                        </p>
-                      </div>
-
-                      <div className="col-12 mt-4">
-                        <h5 className="fw-bold border-bottom pb-2 mb-3">
-                          Dates
-                        </h5>
-                      </div>
-
-                      <div className="col-md-4">
-                        <label className="form-label fw-bold">
-                          Commencement Date:
-                        </label>
-                        {isEdit ? (
-                          <input
-                            type="date"
-                            className="form-control"
-                            name="sublease_commencement_date"
-                            value={formatDateForInput(
-                              detail?.data?.sublease_commencement_date,
-                            )}
-                            onChange={handleChange}
-                            disabled={deleteFileModal.loading}
-                          />
-                        ) : (
-                          <p className="mb-0">
-                            {formatDateForDisplay(
-                              detail?.data?.sublease_commencement_date,
-                            )}
-                          </p>
-                        )}
-                      </div>
-
-                      <div className="col-md-4">
-                        <label className="form-label fw-bold">
-                          Expiration Date:
-                        </label>
-                        {isEdit ? (
-                          <input
-                            type="date"
-                            className="form-control"
-                            name="sublease_expiration_date"
-                            value={formatDateForInput(
-                              detail?.data?.sublease_expiration_date,
-                            )}
-                            onChange={handleChange}
-                            disabled={deleteFileModal.loading}
-                          />
-                        ) : (
-                          <p className="mb-0">
-                            {formatDateForDisplay(
-                              detail?.data?.sublease_expiration_date,
-                            )}
-                          </p>
-                        )}
-                      </div>
-
-                      <div className="col-md-4">
-                        <label className="form-label fw-bold">
-                          Direct Tenant Notice Date:
-                        </label>
-                        {isEdit ? (
-                          <input
-                            type="date"
-                            className="form-control"
-                            name="direct_tenant_notice_of_renewal_date"
-                            value={formatDateForInput(
-                              detail?.data
-                                ?.direct_tenant_notice_of_renewal_date,
-                            )}
-                            onChange={handleChange}
-                            disabled={deleteFileModal.loading}
-                          />
-                        ) : (
-                          <p className="mb-0">
-                            {formatDateForDisplay(
-                              detail?.data
-                                ?.direct_tenant_notice_of_renewal_date,
-                            )}
-                          </p>
-                        )}
-                      </div>
-
-                      <div className="col-12 mt-4">
-                        <h5 className="fw-bold border-bottom pb-2 mb-3">
-                          Rent Information
-                        </h5>
-                      </div>
-
-                      <div className="col-md-6">
-                        <label className="form-label fw-bold">
-                          Subtenant Current Rent:
-                        </label>
-                        {isEdit ? (
-                          <input
-                            type="text"
-                            className="form-control"
-                            name="subtenant_current_rent"
-                            value={detail?.data?.subtenant_current_rent || ""}
-                            onChange={handleChange}
-                            placeholder="Enter rent amount"
-                            disabled={deleteFileModal.loading}
-                          />
-                        ) : (
-                          <p className="mb-0">
-                            {detail?.data?.subtenant_current_rent || "N/A"}
-                          </p>
-                        )}
-                      </div>
-
-                      <div className="col-md-6">
-                        <label className="form-label fw-bold">
-                          Direct Tenant Current Rent:
-                        </label>
-                        {isEdit ? (
-                          <input
-                            type="text"
-                            className="form-control"
-                            name="direct_tenant_current_rent"
-                            value={
-                              detail?.data?.direct_tenant_current_rent || ""
-                            }
-                            onChange={handleChange}
-                            placeholder="Enter rent amount"
-                            disabled={deleteFileModal.loading}
-                          />
-                        ) : (
-                          <p className="mb-0">
-                            {detail?.data?.direct_tenant_current_rent || "N/A"}
-                          </p>
-                        )}
-                      </div>
-
-                      <div className="col-12 mt-4">
-                        <h5 className="fw-bold border-bottom pb-2 mb-3">
-                          Contact Information
-                        </h5>
-                      </div>
-
-                      <div className="col-md-6">
-                        <label className="form-label fw-bold">
-                          Subtenant Contact Info:
-                        </label>
-                        {isEdit ? (
-                          <input
-                            type="text"
-                            className="form-control"
-                            name="subtenant_contact_info"
-                            value={detail?.data?.subtenant_contact_info || ""}
-                            onChange={handleChange}
-                            placeholder="Enter contact info"
-                            disabled={deleteFileModal.loading}
-                          />
-                        ) : (
-                          <p className="mb-0">
-                            {detail?.data?.subtenant_contact_info || "N/A"}
-                          </p>
-                        )}
-                      </div>
-
-                      <div className="col-md-6">
-                        <label className="form-label fw-bold">
-                          Direct Tenant Contact Info:
-                        </label>
-                        {isEdit ? (
-                          <input
-                            type="text"
-                            className="form-control"
-                            name="direct_tenant_contact_info"
-                            value={
-                              detail?.data?.direct_tenant_contact_info || ""
-                            }
-                            onChange={handleChange}
-                            placeholder="Enter contact info"
-                            disabled={deleteFileModal.loading}
-                          />
-                        ) : (
-                          <p className="mb-0">
-                            {detail?.data?.direct_tenant_contact_info || "N/A"}
-                          </p>
-                        )}
-                      </div>
-
-                      <div className="col-12 mt-4">
-                        <h5 className="fw-bold border-bottom pb-2 mb-3">
-                          Notes
-                        </h5>
-                      </div>
-
-                      <div className="col-12">
-                        {isEdit ? (
-                          <textarea
-                            className="form-control"
-                            name="notes"
-                            rows="4"
-                            value={detail?.data?.notes || ""}
-                            onChange={handleChange}
-                            placeholder="Enter any additional notes here..."
-                            disabled={deleteFileModal.loading}
-                          />
-                        ) : (
-                          <div className="p-3 bg-light rounded">
-                            {detail?.data?.notes || (
-                              <span className="text-muted">
-                                No notes available
-                              </span>
-                            )}
+                        <Card variant="bordered" title="Basic Information">
+                          <div className="row g-3">
+                            <div className="col-md-6">
+                              <label className="form-label fw-bold">
+                                Sub-Tenant Name:
+                              </label>
+                              {isEdit ? (
+                                <input
+                                  type="text"
+                                  className="form-control"
+                                  name="sub_tenant_name"
+                                  value={detail?.data?.sub_tenant_name || ""}
+                                  onChange={handleChange}
+                                  placeholder="Enter sub-tenant name"
+                                  disabled={deleteFileModal.loading}
+                                />
+                              ) : (
+                                <p className="mb-0">
+                                  {detail?.data?.sub_tenant_name || "N/A"}
+                                </p>
+                              )}
+                            </div>
+                            <div className="col-md-6">
+                              <label className="form-label fw-bold">
+                                Floor / Suite:
+                              </label>
+                              {isEdit ? (
+                                <input
+                                  type="text"
+                                  className="form-control"
+                                  name="floor_suite"
+                                  value={detail?.data?.floor_suite || ""}
+                                  onChange={handleChange}
+                                  placeholder="Enter floor/suite"
+                                  disabled={deleteFileModal.loading}
+                                />
+                              ) : (
+                                <p className="mb-0">
+                                  {detail?.data?.floor_suite || "N/A"}
+                                </p>
+                              )}
+                            </div>
+                            <div className="col-md-6">
+                              <label className="form-label fw-bold">
+                                Building Address:
+                              </label>
+                              {isEdit ? (
+                                <input
+                                  type="text"
+                                  className="form-control"
+                                  name="building_address"
+                                  value={detail?.data?.building_address || ""}
+                                  onChange={handleChange}
+                                  placeholder="Enter building address"
+                                  disabled={deleteFileModal.loading}
+                                />
+                              ) : (
+                                <p className="mb-0">
+                                  {detail?.data?.building_address || "N/A"}
+                                </p>
+                              )}
+                            </div>
+                            <div className="col-md-6">
+                              <label className="form-label fw-bold">
+                                Headcount:
+                              </label>
+                              {isEdit ? (
+                                <input
+                                  type="number"
+                                  className="form-control"
+                                  name="subtenant_headcount"
+                                  value={detail?.data?.subtenant_headcount || 0}
+                                  onChange={handleChange}
+                                  min="0"
+                                  disabled={deleteFileModal.loading}
+                                />
+                              ) : (
+                                <p className="mb-0">
+                                  {detail?.data?.subtenant_headcount || 0}
+                                </p>
+                              )}
+                            </div>
+                            <div className="col-md-6">
+                              <label className="form-label fw-bold">
+                                Days in Review:
+                              </label>
+                              <p className="mb-0 fw-bold text-primary">
+                                {detail?.data?.days_in_review || 0} days
+                              </p>
+                            </div>
                           </div>
-                        )}
+                        </Card>
                       </div>
 
-                      <div className="col-12 mt-4">
-                        <h5 className="fw-bold border-bottom pb-2 mb-3">
+                      <div className="col-12">
+                        <Card variant="bordered" title="Dates">
+                          <div className="row g-3">
+                            <div className="col-md-4">
+                              <label className="form-label fw-bold">
+                                Commencement Date:
+                              </label>
+                              {isEdit ? (
+                                <input
+                                  type="date"
+                                  className="form-control"
+                                  name="sublease_commencement_date"
+                                  value={formatDateForInput(
+                                    detail?.data?.sublease_commencement_date,
+                                  )}
+                                  onChange={handleChange}
+                                  disabled={deleteFileModal.loading}
+                                />
+                              ) : (
+                                <p className="mb-0">
+                                  {formatDateForDisplay(
+                                    detail?.data?.sublease_commencement_date,
+                                  )}
+                                </p>
+                              )}
+                            </div>
+                            <div className="col-md-4">
+                              <label className="form-label fw-bold">
+                                Expiration Date:
+                              </label>
+                              {isEdit ? (
+                                <input
+                                  type="date"
+                                  className="form-control"
+                                  name="sublease_expiration_date"
+                                  value={formatDateForInput(
+                                    detail?.data?.sublease_expiration_date,
+                                  )}
+                                  onChange={handleChange}
+                                  disabled={deleteFileModal.loading}
+                                />
+                              ) : (
+                                <p className="mb-0">
+                                  {formatDateForDisplay(
+                                    detail?.data?.sublease_expiration_date,
+                                  )}
+                                </p>
+                              )}
+                            </div>
+                            <div className="col-md-4">
+                              <label className="form-label fw-bold">
+                                Direct Tenant Notice Date:
+                              </label>
+                              {isEdit ? (
+                                <input
+                                  type="date"
+                                  className="form-control"
+                                  name="direct_tenant_notice_of_renewal_date"
+                                  value={formatDateForInput(
+                                    detail?.data
+                                      ?.direct_tenant_notice_of_renewal_date,
+                                  )}
+                                  onChange={handleChange}
+                                  disabled={deleteFileModal.loading}
+                                />
+                              ) : (
+                                <p className="mb-0">
+                                  {formatDateForDisplay(
+                                    detail?.data
+                                      ?.direct_tenant_notice_of_renewal_date,
+                                  )}
+                                </p>
+                              )}
+                            </div>
+                          </div>
+                        </Card>
+                      </div>
+
+                      <div className="col-12">
+                        <Card variant="bordered" title="Rent Information">
+                          <div className="row g-3">
+                            <div className="col-md-6">
+                              <label className="form-label fw-bold">
+                                Subtenant Current Rent:
+                              </label>
+                              {isEdit ? (
+                                <input
+                                  type="text"
+                                  className="form-control"
+                                  name="subtenant_current_rent"
+                                  value={
+                                    detail?.data?.subtenant_current_rent || ""
+                                  }
+                                  onChange={handleChange}
+                                  placeholder="Enter rent amount"
+                                  disabled={deleteFileModal.loading}
+                                />
+                              ) : (
+                                <p className="mb-0">
+                                  {detail?.data?.subtenant_current_rent ||
+                                    "N/A"}
+                                </p>
+                              )}
+                            </div>
+                            <div className="col-md-6">
+                              <label className="form-label fw-bold">
+                                Direct Tenant Current Rent:
+                              </label>
+                              {isEdit ? (
+                                <input
+                                  type="text"
+                                  className="form-control"
+                                  name="direct_tenant_current_rent"
+                                  value={
+                                    detail?.data?.direct_tenant_current_rent ||
+                                    ""
+                                  }
+                                  onChange={handleChange}
+                                  placeholder="Enter rent amount"
+                                  disabled={deleteFileModal.loading}
+                                />
+                              ) : (
+                                <p className="mb-0">
+                                  {detail?.data?.direct_tenant_current_rent ||
+                                    "N/A"}
+                                </p>
+                              )}
+                            </div>
+                          </div>
+                        </Card>
+                      </div>
+
+                      <div className="col-12">
+                        <Card variant="bordered" title="Contact Information">
+                          <div className="row g-3">
+                            <div className="col-md-6">
+                              <label className="form-label fw-bold">
+                                Subtenant Contact Info:
+                              </label>
+                              {isEdit ? (
+                                <input
+                                  type="text"
+                                  className="form-control"
+                                  name="subtenant_contact_info"
+                                  value={
+                                    detail?.data?.subtenant_contact_info || ""
+                                  }
+                                  onChange={handleChange}
+                                  placeholder="Enter contact info"
+                                  disabled={deleteFileModal.loading}
+                                />
+                              ) : (
+                                <p className="mb-0">
+                                  {detail?.data?.subtenant_contact_info ||
+                                    "N/A"}
+                                </p>
+                              )}
+                            </div>
+                            <div className="col-md-6">
+                              <label className="form-label fw-bold">
+                                Direct Tenant Contact Info:
+                              </label>
+                              {isEdit ? (
+                                <input
+                                  type="text"
+                                  className="form-control"
+                                  name="direct_tenant_contact_info"
+                                  value={
+                                    detail?.data?.direct_tenant_contact_info ||
+                                    ""
+                                  }
+                                  onChange={handleChange}
+                                  placeholder="Enter contact info"
+                                  disabled={deleteFileModal.loading}
+                                />
+                              ) : (
+                                <p className="mb-0">
+                                  {detail?.data?.direct_tenant_contact_info ||
+                                    "N/A"}
+                                </p>
+                              )}
+                            </div>
+                          </div>
+                        </Card>
+                      </div>
+
+                      <div className="col-12">
+                        <Card variant="bordered" title="Notes">
+                          {isEdit ? (
+                            <textarea
+                              className="form-control"
+                              name="notes"
+                              rows="4"
+                              value={detail?.data?.notes || ""}
+                              onChange={handleChange}
+                              placeholder="Enter any additional notes here..."
+                              disabled={deleteFileModal.loading}
+                            />
+                          ) : (
+                            <div className="p-2 rounded">
+                              {detail?.data?.notes || (
+                                <span className="text-muted">
+                                  No notes available
+                                </span>
+                              )}
+                            </div>
+                          )}
+                        </Card>
+                      </div>
+
+                      <div className="col-12 mt-2">
+                        <h5 className="fw-bold px-1 mb-0 text-primary">
                           Quarterly Checks
                         </h5>
                       </div>

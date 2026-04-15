@@ -82,7 +82,7 @@ export const InformationCollaboration = () => {
       { label: "LXD", key: "lxd", type: "text", required: true },
       { label: "Status", key: "status", type: "text", required: true },
     ],
-    Colleague: [
+    ThirdParty: [
       { label: "Contact Name", key: "name", type: "text", required: true },
       { label: "Title", key: "title", type: "text", required: true },
       { label: "Email", key: "email", type: "email", required: true },
@@ -91,6 +91,7 @@ export const InformationCollaboration = () => {
     TenantInformation: [
       { label: "Tenant Name", key: "tenant", type: "text", required: true },
       { label: "Industry", key: "industry", type: "text", required: true },
+
       { label: "Lease Start", key: "start", type: "date", required: true },
       { label: "Lease End", key: "end", type: "date", required: true },
       {
@@ -100,17 +101,9 @@ export const InformationCollaboration = () => {
         required: true,
         step: "0.01",
       },
-    ],
-    FloorTenant: [
-      { label: "Tenant Name", key: "tenant", type: "text", required: true },
+
       { label: "Floors Occupied", key: "floors", type: "text", required: true },
       { label: "Square Footage", key: "sf", type: "number", required: true },
-      {
-        label: "Industry Category",
-        key: "industry",
-        type: "text",
-        required: true,
-      },
       {
         label: "Lease Commencement",
         key: "leaseStart",
@@ -199,17 +192,28 @@ export const InformationCollaboration = () => {
     if (field.required && (!value || value.toString().trim() === "")) {
       return `${field.label} is required`;
     }
+
+    if (value && ["tenant", "address"].includes(field.key)) {
+      if (value.trim().length < 3) {
+        return `${field.label} must be at least 3 characters`;
+      }
+      if (value.trim().length > 100) {
+        return `${field.label} must not exceed 100 characters`;
+      }
+    }
+
     if (value && field.type === "email") {
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
       if (!emailRegex.test(value)) return "Invalid email format";
     }
+
     if (value && field.type === "number") {
       const num = Number(value);
       if (isNaN(num)) return "Must be a valid number";
     }
+
     return "";
   };
-
   const validateForm = () => {
     const fields = fieldsByCategory[category];
     if (!fields) return true;
@@ -248,17 +252,13 @@ export const InformationCollaboration = () => {
       setLoading(true);
       const resultAction = await dispatch(FeedbackSubmit(payload));
       if (FeedbackSubmit.fulfilled.match(resultAction)) {
-        toast.success("Submitted successfully!");
         setCategory("");
         setSelectedBuilding("");
         setBuildings([]);
         setFormData({});
         setErrors({});
-      } else {
-        toast.error(resultAction.payload || "Something went wrong");
       }
     } catch {
-      toast.error("Submission failed");
     } finally {
       setLoading(false);
     }
@@ -311,9 +311,8 @@ export const InformationCollaboration = () => {
               <option value="">-- Select category --</option>
               <option value="Comps">Comps</option>
               <option value="TenantMarket">Tenants in The Market</option>
-              <option value="Colleague">Employee Contact Info</option>
+              <option value="ThirdParty">Contact Hub</option>
               <option value="TenantInformation">Tenant Info</option>
-              <option value="FloorTenant">Floor Tenant</option>
             </Form.Select>
           </Form.Group>
 

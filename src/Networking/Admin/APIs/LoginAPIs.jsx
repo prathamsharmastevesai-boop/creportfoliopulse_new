@@ -61,15 +61,37 @@ export const SignUpSubmit = createAsyncThunk(
 
 export const DeleteUser = createAsyncThunk(
   "auth/DeleteUser",
-  async (email, { rejectWithValue }) => {
+  async ({ email, company_id }, { rejectWithValue }) => {
     try {
-      const response = await axiosInstance.delete(
-        `${UserDelete}?email=${email}`,
-      );
+      const response = await axiosInstance.delete(UserDelete, {
+        params: {
+          email,
+          company_id,
+        },
+      });
 
       return response.data;
     } catch (error) {
       const message = error.response?.data?.message;
+      return rejectWithValue(message);
+    }
+  },
+);
+
+export const useradmindeleteapi = createAsyncThunk(
+  "auth/useradmindeleteapi",
+  async ({ email, role }, { rejectWithValue }) => {
+    try {
+      const response = await axiosInstance.delete(UserDelete, {
+        params: {
+          email,
+          role,
+        },
+      });
+
+      return response.data;
+    } catch (error) {
+      const message = error.response?.data?.message || "Delete failed";
       return rejectWithValue(message);
     }
   },
@@ -140,10 +162,11 @@ export const fetchPortfolios = createAsyncThunk(
 
 export const selectPortfolio = createAsyncThunk(
   "auth/selectPortfolio",
-  async ({ company_id }, { getState, rejectWithValue }) => {
+  async ({ company_id, role }, { getState, rejectWithValue }) => {
     try {
       const response = await axiosInstance.post("/auth/select-portfolio", {
         company_id,
+        role,
       });
 
       if (response.data) {

@@ -21,6 +21,8 @@ import HistoryModal from "./historyModel";
 import PulseReportList from "./pulseReportList";
 import PulseReportForm from "./pulseReportForm";
 import PulseReportView from "./pulseReportView";
+import { BackButton } from "../../../Component/backButton";
+import PageHeader from "../../../Component/PageHeader/PageHeader";
 
 const Spin = ({ size = 14 }) => (
   <Loader2 size={size} className="mu2-spin" style={{ flexShrink: 0 }} />
@@ -93,7 +95,6 @@ const DeleteConfirmModal = ({ isOpen, onClose, onConfirm, isDeleting }) => {
         </div>
         <div className="mu2-dialog__body">
           <p>Are you sure you want to delete this maintenance entry?</p>
-          <p className="mu2-muted">This action cannot be undone.</p>
         </div>
         <div className="mu2-dialog__footer">
           <button
@@ -326,44 +327,45 @@ export const MaintenanceUpdate = () => {
 
   return (
     <div className="mu2-page">
-      <header className="mu2-topbar">
-        <div className="mu2-topbar__left">
-          <div className="mu2-building-chip">
-            <span className="mu2-building-chip__label">BUILDING</span>
-            <span className="mu2-building-chip__id">#{Address}</span>
+      <PageHeader
+        backButton={<BackButton />}
+        title={Address}
+        subtitle={
+          <div className="d-flex align-items-center gap-3">
+            <span className="badge bg-secondary">BUILDING #{Address}</span>
+            {alarmActive && (
+              <span className="badge bg-danger d-flex align-items-center gap-1">
+                <span className="mu2-alert-chip__dot" /> CRITICAL ALERT
+              </span>
+            )}
           </div>
-          {alarmActive && (
-            <div className="mu2-alert-chip">
-              <span className="mu2-alert-chip__dot" />
-              CRITICAL ALERT
-            </div>
-          )}
-        </div>
-
-        <nav className="mu2-tabs">
-          {tabs.map((t) => {
-            const isThisLoading =
-              t.key === "maintenance" ? loadingMaintenance : loadingPulse;
-            return (
-              <button
-                key={t.key}
-                onClick={() => setActiveTab(t.key)}
-                className={`mu2-tab${activeTab === t.key ? " mu2-tab--active" : ""}`}
-              >
-                {isThisLoading ? (
-                  <Spin size={13} />
-                ) : t.key === "maintenance" ? (
-                  <Wrench size={13} />
-                ) : (
-                  <Clipboard size={13} />
-                )}
-                {t.label}
-                {t.alarm && <span className="mu2-tab__alarm" />}
-              </button>
-            );
-          })}
-        </nav>
-      </header>
+        }
+        actions={
+          <nav className="mu2-tabs">
+            {tabs.map((t) => {
+              const isThisLoading =
+                t.key === "maintenance" ? loadingMaintenance : loadingPulse;
+              return (
+                <button
+                  key={t.key}
+                  onClick={() => setActiveTab(t.key)}
+                  className={`mu2-tab${activeTab === t.key ? " mu2-tab--active" : ""}`}
+                >
+                  {isThisLoading ? (
+                    <Spin size={13} />
+                  ) : t.key === "maintenance" ? (
+                    <Wrench size={13} />
+                  ) : (
+                    <Clipboard size={13} />
+                  )}
+                  {t.label}
+                  {t.alarm && <span className="mu2-tab__alarm" />}
+                </button>
+              );
+            })}
+          </nav>
+        }
+      />
 
       <main className="mu2-content">
         {error && (

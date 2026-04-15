@@ -8,6 +8,8 @@ import {
   UploadDocSubmit,
 } from "../../../Networking/Admin/APIs/UploadDocApi";
 import { GeneralInfoSubmit } from "../../../Networking/Admin/APIs/GeneralinfoApi";
+import Card from "../../../Component/Card/Card";
+import PageHeader from "../../../Component/PageHeader/PageHeader";
 
 export const PortfolioVoice = () => {
   const dispatch = useDispatch();
@@ -151,14 +153,10 @@ export const PortfolioVoice = () => {
 
   return (
     <div className="container-fuild p-3 ">
-      <div className="d-flex flex-column flex-md-row justify-content-center justify-content-md-between align-items-center align-items-md-center mb-3 gap-3">
-        <div className="mb-4 text-center text-md-start">
-          <h4 className="fw-bold">Portfolio Voice</h4>
-          <p className="text-muted mb-0">
-            Upload and manage documents for data retrieval
-          </p>
-        </div>
-        <div>
+      <PageHeader
+        title="Portfolio Voice"
+        subtitle="Upload and manage documents for data retrieval"
+        actions={
           <label className="btn btn-primary d-flex align-items-center mb-0">
             <i className="bi bi-upload me-2"></i>
             {isUploading ? "Uploading..." : "Upload Files"}
@@ -171,106 +169,103 @@ export const PortfolioVoice = () => {
               disabled={isUploading}
             />
           </label>
+        }
+      />
+
+      <Card>
+
+        <div className="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center mb-3 gap-2">
+          <h5 className="fw-bold mb-2 mb-md-0">
+            <i className="bi bi-file-earmark-text me-2"></i> Document Library
+          </h5>
+          <div className="d-flex align-items-center gap-2">
+            <span className="badge bg-dark">
+              {documents.length} Documents
+            </span>
+            <span className="badge">{totalSizeMB.toFixed(2)} MB Total</span>
+          </div>
         </div>
-      </div>
 
-      <div className="card shadow-sm">
-        <div className="card-body">
-          <div className="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center mb-3 gap-2">
-            <h5 className="fw-bold mb-2 mb-md-0">
-              <i className="bi bi-file-earmark-text me-2"></i> Document Library
-            </h5>
-            <div className="d-flex align-items-center gap-2">
-              <span className="badge bg-dark">
-                {documents.length} Documents
-              </span>
-              <span className="badge bg-light text-dark">
-                {totalSizeMB.toFixed(2)} MB Total
-              </span>
-            </div>
+        <div className="d-flex flex-column flex-md-row gap-2 mb-3 w-100">
+          <div className="flex-grow-1">
+            <input
+              type="text"
+              className="form-control"
+              placeholder="Search documents..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+            />
           </div>
 
-          <div className="d-flex flex-column flex-md-row gap-2 mb-3 w-100">
-            <div className="flex-grow-1">
-              <input
-                type="text"
-                className="form-control"
-                placeholder="Search documents..."
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-              />
-            </div>
-
-            <div className="d-flex gap-2 flex-wrap mt-2 mt-md-0">
-              <button
-                className="btn btn-outline-secondary"
-                onClick={() => {
-                  setSortBy("size");
-                  setSortOrder(
-                    sortBy === "size" && sortOrder === "asc" ? "desc" : "asc",
-                  );
-                }}
-              >
-                Sort by Size{" "}
-                {sortBy === "size" ? (sortOrder === "asc" ? "↑" : "↓") : ""}
-              </button>
-            </div>
+          <div className="d-flex gap-2 flex-wrap mt-2 mt-md-0">
+            <button
+              className="btn btn-outline-secondary"
+              onClick={() => {
+                setSortBy("size");
+                setSortOrder(
+                  sortBy === "size" && sortOrder === "asc" ? "desc" : "asc",
+                );
+              }}
+            >
+              Sort by Size{" "}
+              {sortBy === "size" ? (sortOrder === "asc" ? "↑" : "↓") : ""}
+            </button>
           </div>
+        </div>
 
-          {loading ? (
-            <div className="d-flex justify-content-center py-5">
-              <RAGLoader />
-            </div>
-          ) : sortedDocs.length > 0 ? (
-            <div className="table-responsive">
-              <table className="table table-hover align-middle">
-                <thead>
-                  <tr>
-                    <th>Name</th>
-                    <th>Size</th>
-                    <th>Uploaded</th>
-                    <th>Actions</th>
+        {loading ? (
+          <div className="d-flex justify-content-center py-5">
+            <RAGLoader />
+          </div>
+        ) : sortedDocs.length > 0 ? (
+          <div className="table-responsive">
+            <table className="table table-hover align-middle">
+              <thead>
+                <tr>
+                  <th>Name</th>
+                  <th>Size</th>
+                  <th>Uploaded</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {sortedDocs.map((doc) => (
+                  <tr key={doc.file_id}>
+                    <td>
+                      <a>{doc.original_file_name}</a>
+                    </td>
+                    <td>
+                      {parseFloat(doc.size)
+                        ? (doc.size.toLowerCase().includes("kb")
+                          ? parseFloat(doc.size) / 1024
+                          : parseFloat(doc.size)
+                        ).toFixed(2)
+                        : doc.size}{" "}
+                      MB
+                    </td>
+                    <td>{new Date(doc.uploaded_at).toLocaleDateString()}</td>
+                    <td>
+                      <button
+                        className="btn btn-sm btn-outline-danger"
+                        onClick={() => {
+                          setSelectedFileId(doc.file_id);
+                          setShowConfirm(true);
+                        }}
+                      >
+                        Delete
+                      </button>
+                    </td>
                   </tr>
-                </thead>
-                <tbody>
-                  {sortedDocs.map((doc) => (
-                    <tr key={doc.file_id}>
-                      <td>
-                        <a>{doc.original_file_name}</a>
-                      </td>
-                      <td>
-                        {parseFloat(doc.size)
-                          ? (doc.size.toLowerCase().includes("kb")
-                              ? parseFloat(doc.size) / 1024
-                              : parseFloat(doc.size)
-                            ).toFixed(2)
-                          : doc.size}{" "}
-                        MB
-                      </td>
-                      <td>{new Date(doc.uploaded_at).toLocaleDateString()}</td>
-                      <td>
-                        <button
-                          className="btn btn-sm btn-outline-danger"
-                          onClick={() => {
-                            setSelectedFileId(doc.file_id);
-                            setShowConfirm(true);
-                          }}
-                        >
-                          Delete
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          ) : (
-            <div className="text-center text-muted py-4">
-              No documents uploaded yet.
-            </div>
-          )}
-        </div>
-      </div>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        ) : (
+          <div className="text-center text-muted py-4">
+            No documents uploaded yet.
+          </div>
+        )}
+      </Card>
       {showConfirm && (
         <div className="modal fade show d-block" tabIndex="-1">
           <div className="modal-dialog modal-dialog-centered">

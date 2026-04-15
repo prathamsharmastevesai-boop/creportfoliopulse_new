@@ -7,6 +7,8 @@ import {
 import { useParams } from "react-router-dom";
 import { toast } from "react-toastify";
 import { BackButton } from "../../../Component/backButton";
+import Card from "../../../Component/Card/Card";
+
 
 const DealDetailView = () => {
   const { dealId } = useParams();
@@ -345,7 +347,7 @@ const DealDetailView = () => {
         </div>
       </div>
       <div className="container-fuild p-3">
-        <div className="card p-4 mb-4">
+        <Card className="p-4 mb-4" variant="elevated">
           <h5 className="fw-bold border-bottom pb-2 mb-4">
             Deal Identification
           </h5>
@@ -443,53 +445,11 @@ const DealDetailView = () => {
               </div>
             )}
           </div>
-          <div className="row g-3 my-2">
-            <div className="col-md-6 col-12">
-              <label className="fw-semibold">Space Inquiry Date</label>
-              {isEditMode ? (
-                <input
-                  type="date"
-                  className="form-control"
-                  name="space_inquiry_date"
-                  value={form.space_inquiry_date || ""}
-                  onChange={handleInputChange}
-                  disabled={saving}
-                />
-              ) : (
-                <div className="form-control-plaintext">
-                  {form.space_inquiry_date ? (
-                    formatDate(form.space_inquiry_date)
-                  ) : (
-                    <span className="text-muted">Not specified</span>
-                  )}
-                </div>
-              )}
-            </div>
+        </Card>
 
-            <div className="col-md-6 col-12">
-              <label className="fw-semibold">Space Inquiry Notes</label>
-              {isEditMode ? (
-                <textarea
-                  className="form-control"
-                  rows="2"
-                  name="space_inquiry_notes"
-                  value={form.space_inquiry_notes || ""}
-                  onChange={handleInputChange}
-                  disabled={saving}
-                />
-              ) : (
-                <div className="form-control-plaintext">
-                  {form.space_inquiry_notes || (
-                    <span className="text-muted">No notes</span>
-                  )}
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-
-        <div className="card p-4">
+        <Card className="p-4" variant="elevated">
           <div className="d-flex justify-content-between align-items-center mb-4">
+
             <h5 className="fw-bold mb-0">Deal Process Tracking</h5>
             {isEditMode && (
               <div className="text-muted">
@@ -509,7 +469,7 @@ const DealDetailView = () => {
                 <div
                   key={stage.id || index}
                   className={`stage-item border rounded p-3 mb-3 ${
-                    stage.is_completed ? "bg-light" : ""
+                    stage.is_completed
                   }`}
                 >
                   <div className="row align-items-center">
@@ -594,8 +554,9 @@ const DealDetailView = () => {
               ))}
             </div>
           )}
-        </div>
+        </Card>
       </div>
+
     </div>
   );
 };

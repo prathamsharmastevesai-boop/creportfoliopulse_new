@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   X,
   Calendar,
@@ -17,19 +17,79 @@ const PulseReportForm = ({
   onClose,
 }) => {
   const [saving, setSaving] = useState(false);
+  const [errors, setErrors] = useState({});
+  const [initialForm, setInitialForm] = useState(null);
+
+  useEffect(() => {
+    if (editReport) {
+      setInitialForm(JSON.parse(JSON.stringify(pulseForm)));
+    }
+  }, [editReport]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setPulseForm((prev) => ({ ...prev, [name]: value }));
+
+    setPulseForm((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+
+    setErrors((prev) => ({ ...prev, [name]: "" }));
   };
 
   const handleNumberChange = (e) => {
     const { name, value } = e.target;
-    setPulseForm((prev) => ({ ...prev, [name]: value }));
+
+    setPulseForm((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+
+    setErrors((prev) => ({ ...prev, [name]: "" }));
+  };
+
+  const validateForm = () => {
+    const newErrors = {};
+
+    if (!pulseForm.date) newErrors.date = "Date is required";
+    if (!pulseForm.status) newErrors.status = "Status is required";
+
+    if (pulseForm.occupancy_rate === "" || pulseForm.occupancy_rate == null)
+      newErrors.occupancy_rate = "Required";
+
+    if (pulseForm.new_leads === "" || pulseForm.new_leads == null)
+      newErrors.new_leads = "Required";
+
+    if (pulseForm.tours_completed === "" || pulseForm.tours_completed == null)
+      newErrors.tours_completed = "Required";
+
+    if (
+      pulseForm.maintenance_issues === "" ||
+      pulseForm.maintenance_issues == null
+    )
+      newErrors.maintenance_issues = "Required";
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const isFormChanged = () => {
+    if (!initialForm) return true;
+
+    return JSON.stringify(initialForm) !== JSON.stringify(pulseForm);
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    if (!validateForm()) return;
+
+    if (editReport && !isFormChanged()) {
+      console.log("No changes detected");
+      onClose();
+      return;
+    }
+
     setSaving(true);
     try {
       await onSubmit();
@@ -41,18 +101,14 @@ const PulseReportForm = ({
   return (
     <div className="mu2-overlay" onClick={onClose}>
       <div
-        className="mu2-dialog mu2-dialog--wide"
+        className="mu2-dialog mu2-dialog--wide mu2-dialog--scrollable"
         onClick={(e) => e.stopPropagation()}
-        style={{
-          maxHeight: "90vh",
-          display: "flex",
-          flexDirection: "column",
-        }}
       >
         <div className="mu2-dialog__header">
           <h3 className="mu2-dialog__title">
             {editReport ? "Edit Pulse Report" : "New Pulse Report"}
           </h3>
+
           <button className="mu2-icon-btn" onClick={onClose} disabled={saving}>
             <X size={18} />
           </button>
@@ -79,19 +135,21 @@ const PulseReportForm = ({
                   <Calendar size={14} style={{ marginRight: 4 }} />
                   Date
                 </label>
+
                 <input
                   type="date"
                   name="date"
                   className="mu2-input"
                   value={pulseForm.date || ""}
                   onChange={handleChange}
-                  required
                   disabled={saving}
                 />
+                {errors.date && <div className="mu2-error">{errors.date}</div>}
               </div>
 
               <div className="mu2-field">
                 <label className="mu2-field__label">Status</label>
+
                 <div className="mu2-status-picker">
                   {["draft", "sent"].map((s) => (
                     <button
@@ -100,87 +158,65 @@ const PulseReportForm = ({
                       className={`mu2-status-opt ${
                         pulseForm.status === s ? "mu2-status-opt--on" : ""
                       }`}
-                      onClick={() =>
-                        setPulseForm((prev) => ({ ...prev, status: s }))
-                      }
+                      onClick={() => {
+                        setPulseForm((prev) => ({ ...prev, status: s }));
+                        setErrors((prev) => ({ ...prev, status: "" }));
+                      }}
                       disabled={saving}
                     >
                       {s.charAt(0).toUpperCase() + s.slice(1)}
                     </button>
                   ))}
                 </div>
+
+                {errors.status && (
+                  <div className="mu2-error">{errors.status}</div>
+                )}
               </div>
             </div>
 
             <div className="mu2-pulse-grid">
-              <div className="mu2-field">
-                <label className="mu2-field__label">
-                  <Users size={14} style={{ marginRight: 4 }} />
-                  Occupancy Rate (%)
-                </label>
-                <input
-                  type="number"
-                  name="occupancy_rate"
-                  className="mu2-input"
-                  value={pulseForm.occupancy_rate ?? ""}
-                  onChange={handleNumberChange}
-                  min="0"
-                  max="100"
-                  step="1"
-                  disabled={saving}
-                />
-              </div>
+              {[
+                {
+                  name: "occupancy_rate",
+                  label: "Occupancy Rate (%)",
+                  icon: <Users size={14} />,
+                },
+                {
+                  name: "new_leads",
+                  label: "New Leads",
+                  icon: <UserPlus size={14} />,
+                },
+                {
+                  name: "tours_completed",
+                  label: "Tours Completed",
+                  icon: <CalendarCheck size={14} />,
+                },
+                {
+                  name: "maintenance_issues",
+                  label: "Maintenance Issues",
+                  icon: <Wrench size={14} />,
+                },
+              ].map((field) => (
+                <div className="mu2-field" key={field.name}>
+                  <label className="mu2-field__label">
+                    {field.icon} {field.label}
+                  </label>
 
-              <div className="mu2-field">
-                <label className="mu2-field__label">
-                  <UserPlus size={14} style={{ marginRight: 4 }} />
-                  New Leads
-                </label>
-                <input
-                  type="number"
-                  name="new_leads"
-                  className="mu2-input"
-                  value={pulseForm.new_leads ?? ""}
-                  onChange={handleNumberChange}
-                  min="0"
-                  step="1"
-                  disabled={saving}
-                />
-              </div>
+                  <input
+                    type="number"
+                    name={field.name}
+                    className="mu2-input"
+                    value={pulseForm[field.name] ?? ""}
+                    onChange={handleNumberChange}
+                    disabled={saving}
+                  />
 
-              <div className="mu2-field">
-                <label className="mu2-field__label">
-                  <CalendarCheck size={14} style={{ marginRight: 4 }} />
-                  Tours Completed
-                </label>
-                <input
-                  type="number"
-                  name="tours_completed"
-                  className="mu2-input"
-                  value={pulseForm.tours_completed ?? ""}
-                  onChange={handleNumberChange}
-                  min="0"
-                  step="1"
-                  disabled={saving}
-                />
-              </div>
-
-              <div className="mu2-field">
-                <label className="mu2-field__label">
-                  <Wrench size={14} style={{ marginRight: 4 }} />
-                  Maintenance Issues
-                </label>
-                <input
-                  type="number"
-                  name="maintenance_issues"
-                  className="mu2-input"
-                  value={pulseForm.maintenance_issues ?? ""}
-                  onChange={handleNumberChange}
-                  min="0"
-                  step="1"
-                  disabled={saving}
-                />
-              </div>
+                  {errors[field.name] && (
+                    <div className="mu2-error">{errors[field.name]}</div>
+                  )}
+                </div>
+              ))}
             </div>
 
             <div className="mu2-field mu2-field--full">
@@ -188,6 +224,7 @@ const PulseReportForm = ({
                 <FileText size={14} style={{ marginRight: 4 }} />
                 Notes / Summary
               </label>
+
               <textarea
                 name="notes"
                 className="mu2-textarea"
@@ -209,6 +246,7 @@ const PulseReportForm = ({
             >
               Cancel
             </button>
+
             <button
               type="submit"
               className="mu2-btn mu2-btn--accent"

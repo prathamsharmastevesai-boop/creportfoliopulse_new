@@ -3,6 +3,7 @@ import { useDispatch } from "react-redux";
 import { useLocation, useNavigate } from "react-router-dom";
 import { UpdateLeaseSubmit } from "../../../Networking/Admin/APIs/LeaseApi";
 import RAGLoader from "../../../Component/Loader";
+import Card from "../../../Component/Card/Card";
 
 export const UpdateLease = () => {
   const navigate = useNavigate();
@@ -21,7 +22,7 @@ export const UpdateLease = () => {
     } else {
       navigate(`/LeaseList/${buildingId}`);
     }
-  }, [passedOffices]);
+  }, [passedOffices, navigate, buildingId]);
 
   const handleChange = (index, field, value) => {
     const updated = [...offices];
@@ -64,53 +65,52 @@ export const UpdateLease = () => {
 
       <form onSubmit={handleSubmit}>
         {offices.map((office, index) => (
-          <div key={index} className="card shadow-sm mb-4 border-0">
-            <div className="card-body">
-              <div className="mb-3 d-flex justify-content-between align-items-center">
-                <h5 className="card-title mb-0">Lease No. {index + 1}</h5>
-              </div>
-
-              <div className="mb-3">
-                <label className="form-label">Tenant Name</label>
-                <div className="input-group">
-                  <span className="input-group-text">
-                    <i className="bi bi-person-fill"></i>
-                  </span>
-                  <input
-                    type="text"
-                    className="form-control"
-                    placeholder="e.g. John Smith"
-                    value={office.tenant_name}
-                    onChange={(e) =>
-                      handleChange(index, "tenant_name", e.target.value)
-                    }
-                    required
-                    disabled={loading}
-                  />
-                </div>
-              </div>
-
-              <div className="mb-3">
-                <label className="form-label">Suite Number</label>
-                <div className="input-group">
-                  <span className="input-group-text">
-                    <i className="bi bi-door-open-fill"></i>
-                  </span>
-                  <input
-                    type="text"
-                    className="form-control"
-                    placeholder="e.g. Suite 305"
-                    value={office.suite_number}
-                    onChange={(e) =>
-                      handleChange(index, "suite_number", e.target.value)
-                    }
-                    required
-                    disabled={loading}
-                  />
-                </div>
+          <Card
+            key={index}
+            variant="elevated"
+            className="mb-4 shadow-sm border-0"
+            title={`Lease No. ${index + 1}`}
+          >
+            <div className="mb-3">
+              <label className="form-label">Tenant Name</label>
+              <div className="input-group">
+                <span className="input-group-text">
+                  <i className="bi bi-person-fill"></i>
+                </span>
+                <input
+                  type="text"
+                  className="form-control"
+                  placeholder="e.g. John Smith"
+                  value={office.tenant_name}
+                  onChange={(e) =>
+                    handleChange(index, "tenant_name", e.target.value)
+                  }
+                  required
+                  disabled={loading}
+                />
               </div>
             </div>
-          </div>
+
+            <div className="mb-3">
+              <label className="form-label">Suite Number</label>
+              <div className="input-group">
+                <span className="input-group-text">
+                  <i className="bi bi-door-open-fill"></i>
+                </span>
+                <input
+                  type="text"
+                  className="form-control"
+                  placeholder="e.g. Suite 305"
+                  value={office.suite_number}
+                  onChange={(e) =>
+                    handleChange(index, "suite_number", e.target.value)
+                  }
+                  required
+                  disabled={loading}
+                />
+              </div>
+            </div>
+          </Card>
         ))}
 
         <div className="d-flex gap-2 mb-4">

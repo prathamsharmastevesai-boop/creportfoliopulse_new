@@ -8,6 +8,9 @@ import {
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 import { BackButton } from "../../../Component/backButton";
+import Card from "../../../Component/Card/Card";
+import PageHeader from "../../../Component/PageHeader/PageHeader";
+import { Form, Row, Col, Button, Spinner } from "react-bootstrap";
 
 export const SubleaseTracker = () => {
   const dispatch = useDispatch();
@@ -40,8 +43,6 @@ export const SubleaseTracker = () => {
       expirationDate:
         initialData?.sublease_expiration_date?.split("T")[0] || "",
       subtenantHeadcount: initialData?.subtenant_headcount || "",
-      // tenantNoticeDate:
-      //   initialData?.direct_tenant_notice_of_renewal_date?.split("T")[0] || "",
       subtenantRent: initialData?.subtenant_current_rent || "",
       directTenantRent: initialData?.direct_tenant_current_rent || "",
       subtenantContact: initialData?.subtenant_contact_info || "",
@@ -135,7 +136,6 @@ export const SubleaseTracker = () => {
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
-
     setErrors((prev) => ({ ...prev, [name]: "" }));
 
     if (type === "checkbox") {
@@ -169,7 +169,6 @@ export const SubleaseTracker = () => {
 
   const validateForm = () => {
     const newErrors = {};
-
     if (!form.subTenantName?.trim())
       newErrors.subTenantName = "Sub-Tenant Name is required";
     if (!form.buildingAddress?.trim())
@@ -204,29 +203,6 @@ export const SubleaseTracker = () => {
           "Expiration date must be after commencement date";
       }
     }
-
-    if (form.consentChecklist.landlordReviewFees) {
-      const fees = Number(form.consentChecklist.landlordReviewFees);
-      if (isNaN(fees) || fees < 0) {
-        newErrors["consentChecklist.landlordReviewFees"] =
-          "Must be a valid non-negative number";
-      }
-    }
-    if (form.complianceGuardrails.masterRent) {
-      const rent = Number(form.complianceGuardrails.masterRent);
-      if (isNaN(rent) || rent < 0) {
-        newErrors["complianceGuardrails.masterRent"] =
-          "Must be a valid non-negative number";
-      }
-    }
-    if (form.complianceGuardrails.subleaseRent) {
-      const rent = Number(form.complianceGuardrails.subleaseRent);
-      if (isNaN(rent) || rent < 0) {
-        newErrors["complianceGuardrails.subleaseRent"] =
-          "Must be a valid non-negative number";
-      }
-    }
-
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -236,11 +212,8 @@ export const SubleaseTracker = () => {
       toast.error("Please fill correct detail in the form");
       return;
     }
-
     setLoading(true);
-
     const formatDate = (dateStr) => (dateStr ? `${dateStr}T00:00:00` : null);
-
     const payload = {
       sub_tenant_name: form.subTenantName.trim(),
       building_address: form.buildingAddress.trim(),
@@ -248,7 +221,6 @@ export const SubleaseTracker = () => {
       sublease_commencement_date: formatDate(form.commencementDate),
       sublease_expiration_date: formatDate(form.expirationDate),
       subtenant_headcount: Number(form.subtenantHeadcount),
-      // direct_tenant_notice_of_renewal_date: formatDate(form.tenantNoticeDate),
       subtenant_current_rent: form.subtenantRent.trim(),
       direct_tenant_current_rent: form.directTenantRent.trim(),
       subtenant_contact_info: form.subtenantContact.trim(),
@@ -277,8 +249,8 @@ export const SubleaseTracker = () => {
         master_rent: form.complianceGuardrails.masterRent
           ? Number(form.complianceGuardrails.masterRent)
           : null,
-        sublease_rent: form.complianceGuardrails.subleaseRent
-          ? Number(form.complianceGuardrails.subleaseRent)
+        sublease_rent: form.complianceGuardrails.sublease_rent
+          ? Number(form.complianceGuardrails.sublease_rent)
           : null,
       },
       timeline_tracking: {
@@ -290,7 +262,7 @@ export const SubleaseTracker = () => {
 
     try {
       const result = await dispatch(SubleaseTrackerSubmit(payload)).unwrap();
-      toast.success("Sublease saved successfully!");
+
       setSubleaseId(result?.id);
     } catch (error) {
       console.error(error);
@@ -333,9 +305,8 @@ export const SubleaseTracker = () => {
       await dispatch(
         uploadSubleaseFile({ id: subleaseId, file: selectedFile }),
       ).unwrap();
-      toast.success("File uploaded");
-      setSelectedFile(null);
 
+      setSelectedFile(null);
       document.getElementById("fileInput").value = "";
       loadFiles(subleaseId);
     } catch (error) {
@@ -346,27 +317,30 @@ export const SubleaseTracker = () => {
   };
 
   const MovetoList = () => {
-    if (role === "admin") {
-      navigate("/sublease-tracker-list");
-    } else {
-      navigate("/user-sublease-tracker-list");
-    }
+    if (role === "admin") navigate("/sublease-tracker-list");
+    else navigate("/user-sublease-tracker-list");
   };
 
   return (
     <div className="container-fluid p-4">
-      <div className="d-flex align-items-center my-2">
-        <BackButton />
-        <h2 className="fw-bold ms-2">
-          {subleaseId ? "Edit" : "New"} Sublease Tracker
-        </h2>
-      </div>
+      <PageHeader
+        backButton={<BackButton />}
+        title={`${subleaseId ? "Edit" : "New"} Sublease Tracker`}
+        subtitle="Manage sublease identification, status updates, and compliance guardrails"
+        actions={
+          <Button
+            onClick={MovetoList}
+            variant="outline-secondary"
+            size="sm"
+            className="px-4"
+          >
+            Move to List
+          </Button>
+        }
+      />
 
-      <div className="p-4 shadow-sm rounded border position-relative">
-        <h5 className="fw-bold pb-2 border-bottom mb-3">
-          Sublease Identification <span className="text-danger">*</span>
-        </h5>
-        <div className="row g-3">
+      <Card variant="elevated" title="Sublease Identification" className="mb-4">
+        <Row className="g-3">
           {[
             { label: "Sub-Tenant Name", name: "subTenantName", required: true },
             {
@@ -393,11 +367,6 @@ export const SubleaseTracker = () => {
               type: "number",
               required: true,
             },
-            // {
-            //   label: "Direct Tenant Notice of Renewal Date",
-            //   name: "tenantNoticeDate",
-            //   type: "date",
-            // },
             {
               label: "Subtenant Current Rent",
               name: "subtenantRent",
@@ -421,304 +390,268 @@ export const SubleaseTracker = () => {
               required: true,
             },
           ].map((field, idx) => (
-            <div key={idx} className="col-md-6 col-12">
-              <label className="fw-bold form-label">
+            <Col md={6} key={idx}>
+              <Form.Label className="fw-semibold small">
                 {field.label}
                 {field.required && <span className="text-danger ms-1">*</span>}
-              </label>
-              <input
+              </Form.Label>
+              <Form.Control
                 type={field.type || "text"}
                 name={field.name}
                 value={form[field.name] || ""}
                 onChange={handleChange}
                 placeholder={field.placeholder || ""}
-                className={`form-control border-primary ${errors[field.name] ? "is-invalid" : ""}`}
+                isInvalid={!!errors[field.name]}
+                className="py-2"
               />
-              {errors[field.name] && (
-                <div className="invalid-feedback">{errors[field.name]}</div>
-              )}
-            </div>
+              <Form.Control.Feedback type="invalid">
+                {errors[field.name]}
+              </Form.Control.Feedback>
+            </Col>
           ))}
-        </div>
+        </Row>
+      </Card>
 
-        <h5 className="fw-bold pb-2 border-bottom my-3">Notes</h5>
-        <textarea
+      <Card variant="elevated" title="Notes" className="mb-4">
+        <Form.Control
+          as="textarea"
           name="notes"
-          rows="4"
+          rows={4}
           value={form.notes}
           onChange={handleChange}
-          className="form-control border-primary"
           placeholder="Enter any additional notes here..."
+          className="py-2"
         />
+      </Card>
 
-        <h5 className="fw-bold pb-2 border-bottom my-3">
-          Lease & Tenant Details <span className="text-danger">*</span>
-        </h5>
-        {quarters.map((q) => (
-          <div key={q}>
-            <h5 className="mb-3">{q} Status Update</h5>
-            <div
-              className="card p-3 mb-3"
-              style={{ backgroundColor: "#e9eef6" }}
-            >
-              <div className="row">
-                {[
-                  { label: "Check In", field: "checkIn" },
-                  { label: "Headcount Confirmation", field: "headcount" },
-                  { label: "Building Update Note Sent", field: "noteSent" },
-                  { label: "Holiday Gift", field: "holidayGift" },
-                ].map((item, idx) => (
-                  <div key={idx} className="col-md-6">
-                    <div className="form-check form-switch">
-                      <input
-                        type="checkbox"
-                        className="form-check-input"
+      <Card variant="elevated" title="Status Updates" className="mb-4">
+        <Row className="g-4">
+          {quarters.map((q) => (
+            <Col lg={6} key={q}>
+              <div className="p-3 rounded-3 border h-100">
+                <h6 className="fw-bold mb-3 text-primary">{q} Status Update</h6>
+                <Row className="g-3">
+                  {[
+                    { label: "Check In", field: "checkIn" },
+                    { label: "Headcount Confirmation", field: "headcount" },
+                    { label: "Building Update Note Sent", field: "noteSent" },
+                    { label: "Holiday Gift", field: "holidayGift" },
+                  ].map((item, idx) => (
+                    <Col sm={6} key={idx}>
+                      <Form.Check
+                        type="switch"
+                        label={item.label}
                         checked={form.statusUpdates?.[q]?.[item.field] || false}
                         onChange={() => handleToggle(q, item.field)}
+                        className="small fw-medium"
                       />
-                      <label className="form-check-label">{item.label}</label>
-                    </div>
-                  </div>
-                ))}
+                    </Col>
+                  ))}
+                </Row>
               </div>
-            </div>
-          </div>
-        ))}
+            </Col>
+          ))}
+        </Row>
+      </Card>
 
-        <h5 className="fw-bold pb-2 border-bottom my-3">Consent Checklist</h5>
-        <div className="row g-3">
-          <div className="col-md-6">
-            <div className="form-check">
-              <input
-                type="checkbox"
-                className="form-check-input"
-                name="consentChecklist.finalTermSheetUploaded"
-                checked={form.consentChecklist?.finalTermSheetUploaded || false}
-                onChange={handleChange}
-              />
-              <label className="form-check-label">
-                Final Term Sheet Uploaded
-              </label>
-            </div>
-          </div>
-          <div className="col-md-6">
-            <div className="form-check">
-              <input
-                type="checkbox"
-                className="form-check-input"
-                name="consentChecklist.signedSubleaseUploaded"
-                checked={form.consentChecklist?.signedSubleaseUploaded || false}
-                onChange={handleChange}
-              />
-              <label className="form-check-label">
-                Signed Sublease Uploaded
-              </label>
-            </div>
-          </div>
-          <div className="col-md-6">
-            <label className="fw-bold form-label">
+      <Card variant="elevated" title="Consent Checklist" className="mb-4">
+        <Row className="g-4">
+          <Col md={6}>
+            <Form.Check
+              type="checkbox"
+              label="Final Term Sheet Uploaded"
+              name="consentChecklist.finalTermSheetUploaded"
+              checked={form.consentChecklist?.finalTermSheetUploaded || false}
+              onChange={handleChange}
+              className="mb-3"
+            />
+            <Form.Check
+              type="checkbox"
+              label="Signed Sublease Uploaded"
+              name="consentChecklist.signedSubleaseUploaded"
+              checked={form.consentChecklist?.signedSubleaseUploaded || false}
+              onChange={handleChange}
+            />
+          </Col>
+          <Col md={6}>
+            <Form.Label className="fw-semibold small">
               Subtenant Financials Status
-            </label>
-            <select
+            </Form.Label>
+            <Form.Select
               name="consentChecklist.subtenantFinancialsStatus"
               value={
                 form.consentChecklist?.subtenantFinancialsStatus || "Pending"
               }
               onChange={handleChange}
-              className="form-select border-primary"
+              className="py-2"
             >
               <option value="Pending">Pending</option>
               <option value="Received">Received</option>
               <option value="Verified">Verified</option>
               <option value="Rejected">Rejected</option>
-            </select>
-          </div>
-          <div className="col-md-6">
-            <label className="fw-bold form-label">Subtenant Profile</label>
-            <input
+            </Form.Select>
+          </Col>
+          <Col md={6}>
+            <Form.Label className="fw-semibold small">
+              Subtenant Profile
+            </Form.Label>
+            <Form.Control
               type="text"
               name="consentChecklist.subtenantProfile"
               value={form.consentChecklist?.subtenantProfile || ""}
               onChange={handleChange}
-              className="form-control border-primary"
               placeholder="e.g., Tech startup - AI SaaS"
+              className="py-2"
             />
-          </div>
-          <div className="col-md-6">
-            <label className="fw-bold form-label">
+          </Col>
+          <Col md={6}>
+            <Form.Label className="fw-semibold small">
               Landlord Review Fees ($)
-            </label>
-            <input
+            </Form.Label>
+            <Form.Control
               type="number"
               name="consentChecklist.landlordReviewFees"
               value={form.consentChecklist?.landlordReviewFees || ""}
               onChange={handleChange}
-              className={`form-control border-primary ${errors["consentChecklist.landlordReviewFees"] ? "is-invalid" : ""}`}
+              className="py-2"
             />
-            {errors["consentChecklist.landlordReviewFees"] && (
-              <div className="invalid-feedback">
-                {errors["consentChecklist.landlordReviewFees"]}
-              </div>
-            )}
-          </div>
-          <div className="col-md-6">
-            <div className="form-check mt-4">
-              <input
-                type="checkbox"
-                className="form-check-input"
-                name="consentChecklist.landlordReviewFeesPaid"
-                checked={form.consentChecklist?.landlordReviewFeesPaid || false}
-                onChange={handleChange}
-              />
-              <label className="form-check-label">
-                Landlord Review Fees Paid
-              </label>
-            </div>
-          </div>
-          <div className="col-md-6">
-            <label className="fw-bold form-label">Insurance Status</label>
-            <select
+          </Col>
+          <Col md={6}>
+            <Form.Check
+              type="checkbox"
+              label="Landlord Review Fees Paid"
+              name="consentChecklist.landlordReviewFeesPaid"
+              checked={form.consentChecklist?.landlordReviewFeesPaid || false}
+              onChange={handleChange}
+              className="mt-2"
+            />
+          </Col>
+          <Col md={6}>
+            <Form.Label className="fw-semibold small">
+              Insurance Status
+            </Form.Label>
+            <Form.Select
               name="consentChecklist.insuranceStatus"
               value={form.consentChecklist?.insuranceStatus || "Pending"}
               onChange={handleChange}
-              className="form-select border-primary"
+              className="py-2"
             >
               <option value="Pending">Pending</option>
               <option value="Verified">Verified</option>
               <option value="Not Required">Not Required</option>
-            </select>
-          </div>
-        </div>
+            </Form.Select>
+          </Col>
+        </Row>
+      </Card>
 
-        <h5 className="fw-bold pb-2 border-bottom my-3">
-          Compliance Guardrails
-        </h5>
-        <div className="row g-3">
-          <div className="col-md-6">
-            <div className="form-check">
-              <input
-                type="checkbox"
-                className="form-check-input"
-                name="complianceGuardrails.occupancyCheck"
-                checked={form.complianceGuardrails?.occupancyCheck || false}
-                onChange={handleChange}
-              />
-              <label className="form-check-label">Occupancy Check Passed</label>
-            </div>
-          </div>
-          <div className="col-md-6">
-            <div className="form-check">
-              <input
-                type="checkbox"
-                className="form-check-input"
-                name="complianceGuardrails.antiPoachingCheck"
-                checked={form.complianceGuardrails?.antiPoachingCheck || false}
-                onChange={handleChange}
-              />
-              <label className="form-check-label">
-                Anti-Poaching Check Passed
-              </label>
-            </div>
-          </div>
-          <div className="col-md-6">
-            <label className="fw-bold form-label">Use Covenant</label>
-            <input
+      <Card variant="elevated" title="Compliance Guardrails" className="mb-4">
+        <Row className="g-4">
+          <Col md={6}>
+            <Form.Check
+              type="checkbox"
+              label="Occupancy Check Passed"
+              name="complianceGuardrails.occupancyCheck"
+              checked={form.complianceGuardrails?.occupancyCheck || false}
+              onChange={handleChange}
+              className="mb-3"
+            />
+            <Form.Check
+              type="checkbox"
+              label="Anti-Poaching Check Passed"
+              name="complianceGuardrails.antiPoachingCheck"
+              checked={form.complianceGuardrails?.antiPoachingCheck || false}
+              onChange={handleChange}
+            />
+          </Col>
+          <Col md={6}>
+            <Form.Label className="fw-semibold small">Use Covenant</Form.Label>
+            <Form.Control
               type="text"
               name="complianceGuardrails.useCovenant"
               value={form.complianceGuardrails?.useCovenant || ""}
               onChange={handleChange}
-              className="form-control border-primary"
               placeholder="e.g., General Office"
+              className="py-2"
             />
-          </div>
-          <div className="col-md-6">
-            <label className="fw-bold form-label">Master Rent ($/sf)</label>
-            <input
+          </Col>
+          <Col md={6}>
+            <Form.Label className="fw-semibold small">
+              Master Rent ($/sf)
+            </Form.Label>
+            <Form.Control
               type="number"
               name="complianceGuardrails.masterRent"
               value={form.complianceGuardrails?.masterRent || ""}
               onChange={handleChange}
-              className={`form-control border-primary ${errors["complianceGuardrails.masterRent"] ? "is-invalid" : ""}`}
+              className="py-2"
             />
-            {errors["complianceGuardrails.masterRent"] && (
-              <div className="invalid-feedback">
-                {errors["complianceGuardrails.masterRent"]}
-              </div>
-            )}
-          </div>
-          <div className="col-md-6">
-            <label className="fw-bold form-label">Sublease Rent ($/sf)</label>
-            <input
+          </Col>
+          <Col md={6}>
+            <Form.Label className="fw-semibold small">
+              Sublease Rent ($/sf)
+            </Form.Label>
+            <Form.Control
               type="number"
               name="complianceGuardrails.subleaseRent"
               value={form.complianceGuardrails?.subleaseRent || ""}
               onChange={handleChange}
-              className={`form-control border-primary ${errors["complianceGuardrails.subleaseRent"] ? "is-invalid" : ""}`}
+              className="py-2"
             />
-            {errors["complianceGuardrails.subleaseRent"] && (
-              <div className="invalid-feedback">
-                {errors["complianceGuardrails.subleaseRent"]}
-              </div>
-            )}
-          </div>
-        </div>
+          </Col>
+        </Row>
+      </Card>
 
-        <h5 className="fw-bold pb-2 border-bottom my-3">Timeline Tracking</h5>
-        <div className="row g-3">
-          <div className="col-md-6">
-            <label className="fw-bold form-label">
+      <Card variant="elevated" title="Timeline Tracking" className="mb-4">
+        <Row>
+          <Col md={6}>
+            <Form.Label className="fw-semibold small">
               Consent Submission Date
-            </label>
-            <input
+            </Form.Label>
+            <Form.Control
               type="date"
               name="timelineTracking.consentSubmissionDate"
               value={form.timelineTracking?.consentSubmissionDate || ""}
               onChange={handleChange}
-              className="form-control border-primary"
+              className="py-2"
             />
-          </div>
-        </div>
+          </Col>
+        </Row>
+      </Card>
 
-        <div className="d-flex flex-wrap justify-content-center gap-3 mt-4 pt-3">
-          <button
-            onClick={handleSubmit}
-            className="btn btn-primary"
-            disabled={loading}
-          >
-            {loading ? (
-              <span className="spinner-border spinner-border-sm me-2"></span>
-            ) : null}
-            {loading ? "Submitting..." : "Submit"}
-          </button>
-        </div>
+      <div className="d-flex justify-content-center gap-3 mb-5">
+        <Button
+          onClick={handleSubmit}
+          variant="primary"
+          className="px-5 py-2 fw-bold"
+          disabled={loading}
+        >
+          {loading ? <Spinner size="sm" className="me-2" /> : null}
+          {loading ? "Submitting..." : "Save Sublease"}
+        </Button>
       </div>
 
       {subleaseId && (
-        <div className="mt-5 p-4 shadow-sm rounded border">
-          <h5 className="fw-bold pb-2 border-bottom mb-3">Documents</h5>
-          <div className="mb-3 d-flex align-items-center gap-2">
-            <input
+        <Card variant="elevated" title="Documents" className="mb-4">
+          <div className="d-flex align-items-center gap-3">
+            <Form.Control
               id="fileInput"
               type="file"
               accept=".pdf"
               onChange={handleFileSelect}
-              className="form-control w-auto"
+              className="w-auto"
             />
-            <button
-              className="btn btn-success"
+            <Button
+              variant="success"
               onClick={handleFileUpload}
               disabled={!selectedFile || uploadingFile}
+              className="px-4"
             >
+              {uploadingFile ? <Spinner size="sm" className="me-2" /> : null}
               {uploadingFile ? "Uploading..." : "Upload PDF"}
-            </button>
+            </Button>
           </div>
-        </div>
+        </Card>
       )}
-      <div className="d-flex flex-wrap justify-content-center gap-3 mt-4 pt-3 border-top">
-        <button onClick={MovetoList} className="btn btn-secondary">
-          Move to List
-        </button>
-      </div>
     </div>
   );
 };

@@ -1,9 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Card, Button, Form, Spinner } from "react-bootstrap";
 import { useDispatch } from "react-redux";
-
 import { DeleteUser } from "../../../Networking/Admin/APIs/LoginAPIs";
-import { toast } from "react-toastify";
 import {
   getAdminlistApi,
   inviteAdminApi,
@@ -24,7 +22,7 @@ export const AdminManagement = () => {
   const [deletingUser, setDeletingUser] = useState({});
   const [showConfirm, setShowConfirm] = useState(false);
   const [selectedEmail, setSelectedEmail] = useState(null);
-
+  const [company_id, setcompanyid] = useState(null);
   useEffect(() => {
     fetchadmin();
   }, []);
@@ -47,10 +45,9 @@ export const AdminManagement = () => {
     try {
       setDeletingUser((prev) => ({ ...prev, [selectedEmail]: true }));
 
-      const data = await dispatch(DeleteUser(selectedEmail)).unwrap();
-      console.log(data, data);
-
-      toast.success(data.message || "User deleted successfully");
+      const data = await dispatch(
+        DeleteUser({ email: selectedEmail, company_id }),
+      ).unwrap();
 
       fetchadmin();
       setShowConfirm(false);
@@ -99,9 +96,6 @@ export const AdminManagement = () => {
       const res = await dispatch(
         inviteAdminApi({ email, company_name, admin_name }),
       ).unwrap();
-      if (res?.message) {
-        toast.success(res?.message || "Admin invited successfully");
-      }
 
       setEmail("");
       setcompany_name("");
@@ -228,6 +222,7 @@ export const AdminManagement = () => {
               <thead className="text-start">
                 <tr className="text-uppercase small fw-bold">
                   <th>Email</th>
+                  <th>Company Name</th>
                   <th>Status</th>
                   <th>Display Name</th>
                   <th>Created</th>
@@ -245,6 +240,7 @@ export const AdminManagement = () => {
                   admin.map((user, index) => (
                     <tr key={index}>
                       <td>{user.email}</td>
+                      <td>{user.company_name}</td>
                       <td>
                         <span
                           className={`badge ${
@@ -278,6 +274,7 @@ export const AdminManagement = () => {
                               variant="outline-danger"
                               onClick={() => {
                                 setSelectedEmail(user.email);
+                                setcompanyid(user.company_id);
                                 setShowConfirm(true);
                               }}
                               disabled={deletingUser[user.email]}

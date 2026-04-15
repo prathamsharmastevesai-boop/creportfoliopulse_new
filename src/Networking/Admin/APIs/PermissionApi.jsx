@@ -1,5 +1,5 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
-import { toast } from "react-toastify";
+
 import axiosInstance from "./AxiosInstance";
 import {
   Approved_list,
@@ -18,7 +18,7 @@ export const ListRequestSubmit = createAsyncThunk(
     } catch (error) {
       return rejectWithValue(error);
     }
-  }
+  },
 );
 
 export const Request_Approved_Deny_Submit = createAsyncThunk(
@@ -27,14 +27,14 @@ export const Request_Approved_Deny_Submit = createAsyncThunk(
     try {
       const response = await axiosInstance.patch(
         `${baseURL}${Request_approve_deny}`,
-        data
+        data,
       );
-      toast.success(response.data.message);
+
       return response.data;
     } catch (error) {
       return rejectWithValue(error);
     }
-  }
+  },
 );
 
 export const Approved_list_submit = createAsyncThunk(
@@ -46,7 +46,7 @@ export const Approved_list_submit = createAsyncThunk(
     } catch (error) {
       return rejectWithValue(error);
     }
-  }
+  },
 );
 
 export const Denied_list_submit = createAsyncThunk(
@@ -58,5 +58,5 @@ export const Denied_list_submit = createAsyncThunk(
     } catch (error) {
       return rejectWithValue(error);
     }
-  }
+  },
 );

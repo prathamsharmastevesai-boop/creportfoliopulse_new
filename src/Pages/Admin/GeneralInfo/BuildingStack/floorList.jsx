@@ -28,12 +28,12 @@ import { SplitUnitModal } from "./splitUnit";
 import { ConflictPanel } from "./conflictPanel";
 import { BackButton } from "../../../../Component/backButton";
 import { ChatBotModal } from "../../../../Component/chatbotModel";
+import { toast } from "react-toastify";
 
 export const FloorList = () => {
   const dispatch = useDispatch();
   const location = useLocation();
   const { buildingId } = location.state || {};
-  console.log(buildingId, "buildingId in floor list");
 
   const role = sessionStorage.getItem("role");
 
@@ -199,8 +199,44 @@ export const FloorList = () => {
     }
   };
 
+  const validateUnitData = (unit) => {
+    const errors = {};
+
+    if (
+      unit.contact_name &&
+      !/^[a-zA-Z\s'-]{2,50}$/.test(unit.contact_name.trim())
+    ) {
+      errors.contact_name = "Name must be 2–50 characters (letters only).";
+    }
+
+    if (
+      unit.contact_phone &&
+      !/^\+?[\d\s\-().]{7,15}$/.test(unit.contact_phone.trim())
+    ) {
+      errors.contact_phone = "Enter a valid phone number (7–15 digits).";
+    }
+
+    if (
+      unit.company_website &&
+      !/^(https?:\/\/)?([\w-]+\.)+[\w]{2,}(\/\S*)?$/.test(
+        unit.company_website.trim(),
+      )
+    ) {
+      errors.company_website = "Enter a valid website URL.";
+    }
+
+    return errors;
+  };
+
   const handleAddUnit = async (floorId) => {
     if (!newUnit.square_footage) return;
+
+    const errors = validateUnitData(newUnit);
+    if (Object.keys(errors).length > 0) {
+      toast.error(Object.values(errors).join("\n"));
+      return;
+    }
+
     setAddingUnitFloorId(floorId);
     try {
       await dispatch(
@@ -212,6 +248,11 @@ export const FloorList = () => {
             lease_expiration: newUnit.lease_expiration || null,
             status: newUnit.status,
             block_order: Number(newUnit.block_order) || 0,
+            company_website: newUnit.company_website || "",
+            contact_name: newUnit.contact_name || "",
+            contact_email: newUnit.contact_email || "",
+            contact_phone: newUnit.contact_phone || "",
+            latest_update: newUnit.latest_update || "",
           },
         }),
       ).unwrap();
@@ -227,6 +268,13 @@ export const FloorList = () => {
 
   const handleUpdateUnit = async () => {
     if (!editingUnit) return;
+
+    const errors = validateUnitData(editingUnit.unit);
+    if (Object.keys(errors).length > 0) {
+      toast.error(Object.values(errors).join("\n"));
+      return;
+    }
+
     setUpdatingUnitId(editingUnit.unit.id);
     try {
       await dispatch(
@@ -239,6 +287,11 @@ export const FloorList = () => {
             status: editingUnit.unit.status,
             block_order: Number(editingUnit.unit.block_order) || 0,
             version: editingUnit.unit.version,
+            company_website: editingUnit.unit.company_website || "",
+            contact_name: editingUnit.unit.contact_name || "",
+            contact_email: editingUnit.unit.contact_email || "",
+            contact_phone: editingUnit.unit.contact_phone || "",
+            latest_update: editingUnit.unit.latest_update || "",
           },
         }),
       ).unwrap();
@@ -256,13 +309,13 @@ export const FloorList = () => {
       ...prev,
       unit: { ...prev.unit, [field]: value },
     }));
-
   const handleDeleteUnit = (unitId) => setUnitToDelete(unitId);
+
   const confirmDeleteUnit = async () => {
     if (!unitToDelete) return;
     setDeletingUnitId(unitToDelete);
     try {
-      await dispatch(deleteUnit(unitToDelete)).unwrap();
+      await dispatch(deleteUnit({ unitId: unitToDelete })).unwrap();
       refreshData();
     } catch (err) {
       console.error(err);

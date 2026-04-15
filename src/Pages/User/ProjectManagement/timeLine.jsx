@@ -5,6 +5,7 @@ import {
   addTimelinePhaseApi,
   updateTimelinePhaseApi,
 } from "../../../Networking/User/APIs/ProjectManagement/projectManagement";
+import Card from "../../../Component/Card/Card";
 
 export const TimelinePhaseSection = ({ projectId }) => {
   const dispatch = useDispatch();
@@ -135,88 +136,86 @@ export const TimelinePhaseSection = ({ projectId }) => {
       </div>
 
       {showForm && (
-        <div className="card mb-4 shadow-sm">
-          <div className="card-body row g-2">
-            <div className="col-md-4">
-              <select
-                className="form-select"
-                value={form.phase_name}
-                onChange={(e) =>
-                  setForm({ ...form, phase_name: e.target.value })
-                }
-              >
-                <option value="" disabled>
-                  Select phase
+        <Card className="mb-4 shadow-sm" bodyClass="row g-2">
+          <div className="col-md-4">
+            <select
+              className="form-select"
+              value={form.phase_name}
+              onChange={(e) =>
+                setForm({ ...form, phase_name: e.target.value })
+              }
+            >
+              <option value="" disabled>
+                Select phase
+              </option>
+
+              {PHASES.map((phase) => (
+                <option key={phase} value={phase}>
+                  {phase}
                 </option>
-
-                {PHASES.map((phase) => (
-                  <option key={phase} value={phase}>
-                    {phase}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            <div className="col-md-2">
-              <input
-                type="number"
-                className="form-control"
-                placeholder="Order"
-                value={form.order_index}
-                onChange={(e) =>
-                  setForm({ ...form, order_index: e.target.value })
-                }
-              />
-            </div>
-
-            <div className="col-md-3">
-              <input
-                type="date"
-                className="form-control"
-                value={form.start_date}
-                onChange={(e) =>
-                  setForm({ ...form, start_date: e.target.value })
-                }
-              />
-            </div>
-
-            <div className="col-md-3">
-              <input
-                type="date"
-                className="form-control"
-                value={form.end_date}
-                onChange={(e) => setForm({ ...form, end_date: e.target.value })}
-              />
-            </div>
-
-            <div className="col-12 text-end">
-              <button
-                className="btn btn-sm btn-outline-secondary me-2"
-                onClick={resetForm}
-                disabled={submitting}
-              >
-                Cancel
-              </button>
-
-              <button
-                className="btn btn-sm btn-success"
-                onClick={handleSubmit}
-                disabled={submitting}
-              >
-                {submitting ? (
-                  <>
-                    <span className="spinner-border spinner-border-sm me-2" />
-                    {editingId ? "Updating..." : "Saving..."}
-                  </>
-                ) : editingId ? (
-                  "Update"
-                ) : (
-                  "Save"
-                )}
-              </button>
-            </div>
+              ))}
+            </select>
           </div>
-        </div>
+
+          <div className="col-md-2">
+            <input
+              type="number"
+              className="form-control"
+              placeholder="Order"
+              value={form.order_index}
+              onChange={(e) =>
+                setForm({ ...form, order_index: e.target.value })
+              }
+            />
+          </div>
+
+          <div className="col-md-3">
+            <input
+              type="date"
+              className="form-control"
+              value={form.start_date}
+              onChange={(e) =>
+                setForm({ ...form, start_date: e.target.value })
+              }
+            />
+          </div>
+
+          <div className="col-md-3">
+            <input
+              type="date"
+              className="form-control"
+              value={form.end_date}
+              onChange={(e) => setForm({ ...form, end_date: e.target.value })}
+            />
+          </div>
+
+          <div className="col-12 text-end">
+            <button
+              className="btn btn-sm btn-outline-secondary me-2"
+              onClick={resetForm}
+              disabled={submitting}
+            >
+              Cancel
+            </button>
+
+            <button
+              className="btn btn-sm btn-success"
+              onClick={handleSubmit}
+              disabled={submitting}
+            >
+              {submitting ? (
+                <>
+                  <span className="spinner-border spinner-border-sm me-2" />
+                  {editingId ? "Updating..." : "Saving..."}
+                </>
+              ) : editingId ? (
+                "Update"
+              ) : (
+                "Save"
+              )}
+            </button>
+          </div>
+        </Card>
       )}
 
       {loading ? (
@@ -234,29 +233,27 @@ export const TimelinePhaseSection = ({ projectId }) => {
                 <span className="placeholder col-12 rounded-circle"></span>
               </div>
 
-              <div className="card shadow-sm w-100">
-                <div className="card-body d-flex justify-content-between">
-                  <div className="w-75 placeholder-glow">
-                    <span className="placeholder col-6 mb-2 d-block"></span>
-                    <span className="placeholder col-4 d-block"></span>
-                  </div>
+              <Card className="shadow-sm w-100" bodyClass="d-flex justify-content-between">
+                <div className="w-75 placeholder-glow">
+                  <span className="placeholder col-6 mb-2 d-block"></span>
+                  <span className="placeholder col-4 d-block"></span>
+                </div>
 
-                  <div className="text-end placeholder-glow">
-                    <span className="placeholder col-6 d-block mb-2"></span>
+                <div className="text-end placeholder-glow">
+                  <span className="placeholder col-6 d-block mb-2"></span>
 
-                    <div className="d-flex gap-2 justify-content-end">
-                      <span
-                        className="placeholder rounded-circle"
-                        style={{ width: 32, height: 32 }}
-                      ></span>
-                      <span
-                        className="placeholder rounded-circle"
-                        style={{ width: 32, height: 32 }}
-                      ></span>
-                    </div>
+                  <div className="d-flex gap-2 justify-content-end">
+                    <span
+                      className="placeholder rounded-circle"
+                      style={{ width: 32, height: 32 }}
+                    ></span>
+                    <span
+                      className="placeholder rounded-circle"
+                      style={{ width: 32, height: 32 }}
+                    ></span>
                   </div>
                 </div>
-              </div>
+              </Card>
             </li>
           ))}
         </ul>
@@ -269,9 +266,8 @@ export const TimelinePhaseSection = ({ projectId }) => {
             .map((phase) => (
               <li key={phase.id} className="timeline-item mb-3 d-flex">
                 <div
-                  className={`timeline-dot me-3 mt-2 ${
-                    phase.is_completed ? "bg-success" : "bg-secondary"
-                  }`}
+                  className={`timeline-dot me-3 mt-2 ${phase.is_completed ? "bg-success" : "bg-secondary"
+                    }`}
                   style={{
                     width: 12,
                     height: 12,
@@ -279,57 +275,54 @@ export const TimelinePhaseSection = ({ projectId }) => {
                   }}
                 />
 
-                <div className="timeline-content card shadow-sm w-100">
-                  <div className="card-body d-flex justify-content-between">
-                    <div>
-                      <h6 className="fw-bold mb-1">{phase.phase_name}</h6>
-                      <small className="text-muted">
-                        {phase.start_date} → {phase.end_date}
-                      </small>
+                <Card className="timeline-content shadow-sm w-100" bodyClass="d-flex justify-content-between">
+                  <div>
+                    <h6 className="fw-bold mb-1">{phase.phase_name}</h6>
+                    <small className="text-muted">
+                      {phase.start_date} → {phase.end_date}
+                    </small>
 
-                      {phase.completed_at && (
-                        <div className="text-success small mt-1">
-                          Completed on{" "}
-                          {new Date(phase.completed_at).toLocaleDateString()}
-                        </div>
-                      )}
-                    </div>
-
-                    <div className="text-end">
-                      <span
-                        className={`badge mb-2 ${
-                          phase.is_completed
-                            ? "bg-success"
-                            : "bg-warning text-dark"
-                        }`}
-                      >
-                        {phase.is_completed ? "Completed" : "Pending"}
-                      </span>
-
-                      {!phase.is_completed && (
-                        <div className="d-flex gap-2 mt-2">
-                          <button
-                            className="btn btn-sm btn-outline-primary"
-                            onClick={() => editPhase(phase)}
-                            disabled={submitting}
-                            title="Edit"
-                          >
-                            <i className="bi bi-pencil" />
-                          </button>
-
-                          <button
-                            className="btn btn-sm btn-outline-success"
-                            onClick={() => setConfirmPhase(phase)}
-                            disabled={marking}
-                            title="Mark Completed"
-                          >
-                            <i className="bi bi-check-lg" />
-                          </button>
-                        </div>
-                      )}
-                    </div>
+                    {phase.completed_at && (
+                      <div className="text-success small mt-1">
+                        Completed on{" "}
+                        {new Date(phase.completed_at).toLocaleDateString()}
+                      </div>
+                    )}
                   </div>
-                </div>
+
+                  <div className="text-end">
+                    <span
+                      className={`badge mb-2 ${phase.is_completed
+                        ? "bg-success"
+                        : "bg-warning text-dark"
+                        }`}
+                    >
+                      {phase.is_completed ? "Completed" : "Pending"}
+                    </span>
+
+                    {!phase.is_completed && (
+                      <div className="d-flex gap-2 mt-2">
+                        <button
+                          className="btn btn-sm btn-outline-primary"
+                          onClick={() => editPhase(phase)}
+                          disabled={submitting}
+                          title="Edit"
+                        >
+                          <i className="bi bi-pencil" />
+                        </button>
+
+                        <button
+                          className="btn btn-sm btn-outline-success"
+                          onClick={() => setConfirmPhase(phase)}
+                          disabled={marking}
+                          title="Mark Completed"
+                        >
+                          <i className="bi bi-check-lg" />
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                </Card>
               </li>
             ))}
         </ul>

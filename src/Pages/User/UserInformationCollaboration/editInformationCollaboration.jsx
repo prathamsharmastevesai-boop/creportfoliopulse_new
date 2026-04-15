@@ -18,6 +18,9 @@ export const EditInformationCollaboration = ({ data, onClose, onSuccess }) => {
   const [fields, setFields] = useState([{ key: "", value: "" }]);
   const [loading, setLoading] = useState(false);
 
+  const isNumberField = (key) => /phone|mobile|number|contact/i.test(key);
+  const isEmailField = (key) => /email|mail/i.test(key);
+
   useEffect(() => {
     if (!data) return;
 
@@ -61,6 +64,18 @@ export const EditInformationCollaboration = ({ data, onClose, onSuccess }) => {
 
   const handleFieldChange = (index, name, value) => {
     const updated = [...fields];
+    const currentKey = updated[index].key;
+
+    if (name === "value") {
+      if (isNumberField(currentKey)) {
+        value = value.replace(/[^0-9]/g, "");
+      }
+
+      if (isEmailField(currentKey)) {
+        value = value.toLowerCase();
+      }
+    }
+
     updated[index][name] = value;
     setFields(updated);
   };
@@ -73,12 +88,38 @@ export const EditInformationCollaboration = ({ data, onClose, onSuccess }) => {
     setFields(fields.filter((_, i) => i !== index));
   };
 
+  const validateFields = () => {
+    for (let field of fields) {
+      const key = field.key?.trim();
+      const value = field.value;
+
+      if (!key) continue;
+
+      if (isEmailField(key)) {
+        const valid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
+        if (!valid) {
+          return `${key} must be a valid email`;
+        }
+      }
+
+      if (isNumberField(key)) {
+        if (!/^\d+$/.test(value)) {
+          return `${key} must contain only numbers`;
+        }
+      }
+    }
+    return null;
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     if (!category) return toast.error("Select category");
     if (!selectedBuilding && buildings.length > 0)
       return toast.error("Select building");
+
+    const validationError = validateFields();
+    if (validationError) return toast.error(validationError);
 
     const obj = {};
     fields.forEach((f) => {
@@ -94,13 +135,14 @@ export const EditInformationCollaboration = ({ data, onClose, onSuccess }) => {
           category,
           ...(selectedBuilding && { building_id: selectedBuilding }),
           form_data: obj,
-        })
+        }),
       ).unwrap();
 
-      toast.success("Updated successfully");
-      onSuccess?.();
-      onClose?.();
+      if (onSuccess) await onSuccess();
+      if (onClose) onClose();
     } catch (err) {
+      console.error(err);
+      toast.error("Update failed");
     } finally {
       setLoading(false);
     }
@@ -110,27 +152,26 @@ export const EditInformationCollaboration = ({ data, onClose, onSuccess }) => {
     <Form onSubmit={handleSubmit}>
       <Form.Group className="mb-3">
         <Form.Label>Category</Form.Label>
-        <Form.Select
-          value={category}
+        <Form.Control
+          type="text"
+          className="disabled-input"
+          value={
+            {
+              TenantMarket: "Tenant Market",
+              Comps: "Comps",
+              TenantInformation: "Tenant Info",
+              ThirdParty: "Third Party",
+              Colleague: "Employee",
+              BuildingInfo: "Building Info",
+              ComparativeBuilding: "Comparative Building",
+              FireSafety: "Fire Safety",
+              "Lease&Loi": "Lease & LOI",
+              Gemini: "Gemini",
+              portfolio: "Portfolio",
+            }[category] || ""
+          }
           disabled
-          onChange={(e) => {
-            setCategory(e.target.value);
-            setSelectedBuilding("");
-          }}
-        >
-          <option value="">Select</option>
-          <option value="TenantMarket">Tenant Market</option>
-          <option value="Comps">Comps</option>
-          <option value="TenantInformation">Tenant Info</option>
-          <option value="ThirdParty">Third Party</option>
-          <option value="Colleague">Employee</option>
-          <option value="BuildingInfo">Building Info</option>
-          <option value="ComparativeBuilding">Comparative Building</option>
-          <option value="FireSafety">Fire Safety</option>
-          <option value="Lease&Loi">Lease & LOI</option>
-          <option value="Gemini">Gemini</option>
-          <option value="portfolio">Portfolio</option>
-        </Form.Select>
+        />
       </Form.Group>
 
       {buildingLoading && (
@@ -142,11 +183,7 @@ export const EditInformationCollaboration = ({ data, onClose, onSuccess }) => {
       {!buildingLoading && buildings.length > 0 && (
         <Form.Group className="mb-3">
           <Form.Label>Building</Form.Label>
-          <Form.Select
-            value={selectedBuilding}
-            disabled
-            onChange={(e) => setSelectedBuilding(e.target.value)}
-          >
+          <Form.Select value={selectedBuilding} disabled>
             <option value="">Select building</option>
             {buildings.map((b) => (
               <option key={b.id} value={String(b.id)}>
@@ -159,26 +196,54 @@ export const EditInformationCollaboration = ({ data, onClose, onSuccess }) => {
 
       <Form.Label>Extra Details</Form.Label>
 
-      {fields.map((field, index) => (
-        <div key={index} className="d-flex gap-2 mb-2">
-          <Form.Control
-            placeholder="Key"
-            value={field.key}
-            onChange={(e) => handleFieldChange(index, "key", e.target.value)}
-          />
-          <Form.Control
-            placeholder="Value"
-            value={field.value}
-            onChange={(e) => handleFieldChange(index, "value", e.target.value)}
-          />
+      {fields.map((field, index) => {
+        const isNumber = isNumberField(field.key);
+        const isEmail = isEmailField(field.key);
+        const emailInvalid =
+          isEmail &&
+          field.value &&
+          !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(field.value);
 
-          {fields.length > 1 && (
-            <Button variant="danger" onClick={() => removeField(index)}>
-              −
-            </Button>
-          )}
-        </div>
-      ))}
+        return (
+          <div key={index} className="d-flex gap-2 mb-2 align-items-start">
+            <Form.Control
+              placeholder="Key"
+              value={field.key}
+              onChange={(e) => handleFieldChange(index, "key", e.target.value)}
+            />
+
+            <div style={{ width: "100%" }}>
+              <Form.Control
+                placeholder={
+                  isNumber
+                    ? "Only numbers allowed"
+                    : isEmail
+                      ? "Enter valid email"
+                      : "Value"
+                }
+                value={field.value}
+                type={isEmail ? "email" : "text"}
+                isInvalid={emailInvalid}
+                onChange={(e) =>
+                  handleFieldChange(index, "value", e.target.value)
+                }
+              />
+
+              {emailInvalid && (
+                <Form.Control.Feedback type="invalid">
+                  Invalid email format
+                </Form.Control.Feedback>
+              )}
+            </div>
+
+            {fields.length > 1 && (
+              <Button variant="danger" onClick={() => removeField(index)}>
+                −
+              </Button>
+            )}
+          </div>
+        );
+      })}
 
       <Button size="sm" variant="secondary" onClick={addField}>
         + Add Field

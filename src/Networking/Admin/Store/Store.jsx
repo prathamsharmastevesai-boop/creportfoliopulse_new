@@ -17,6 +17,8 @@ import notificationReducer from "../../../Networking/User/Slice/notificationSlic
 import spaceUpReducer from "../../User/Slice/spaceUpSlice";
 import buildingStackReducer from "../Slice/buildingStackSlice";
 import maintenaceReducer from "../../User/Slice/maintenanceSlice";
+import calendarReducer from "../../User/Slice/calendarslice";
+import adminLoiAuditReducer from "../../Admin/Slice/AdminLoiAuditSlice";
 
 const store = configureStore({
   reducer: {
@@ -38,6 +40,8 @@ const store = configureStore({
     spaceUpSlice: spaceUpReducer,
     buildingStackSlice: buildingStackReducer,
     maintenaceSlice: maintenaceReducer,
+    calendarSlice: calendarReducer,
+    adminLoiAudit: adminLoiAuditReducer,
   },
 });
 

@@ -11,8 +11,6 @@ export const DistilledExpenseTrackerlist = () => {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-
-  
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
 
@@ -30,10 +28,14 @@ export const DistilledExpenseTrackerlist = () => {
       });
   }, [dispatch]);
 
-  
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
   const currentData = data.slice(indexOfFirstItem, indexOfLastItem);
+
+  const formatCurrency = (value) => {
+    if (value === null || value === undefined || value === "") return "-";
+    return `$${Number(value).toFixed(2)}`;
+  };
 
   if (loading) {
     return (
@@ -51,58 +53,113 @@ export const DistilledExpenseTrackerlist = () => {
   }
 
   return (
-    <div className="container-fuild p-3">
-      <div className="mb-4 text-center">
-        <h4 className="fw-bold">Distilled Expense Tracker Submissions</h4>
-      </div>
-
+    <div className="container-fluid p-3 pt-0">
       {data.length > 0 ? (
         <>
-          <Table striped bordered hover responsive>
-            <thead>
-              <tr>
-                <th>#</th>
-                <th>Submarket</th>
-                <th>Building SF</th>
-                <th>Class</th>
-                <th>Property Insurance</th>
-                <th>Janitorial</th>
-                <th>Security</th>
-                <th>TI Allowances</th>
-                <th>Date</th>
-              </tr>
-            </thead>
-            <tbody>
-              {currentData.map((item, index) => (
-                <tr key={item.id || index}>
-                  <td>{indexOfFirstItem + index + 1}</td>
-                  <td>{item.submarket_geo}</td>
-                  <td>{item.building_sf_band}</td>
-                  <td>{item.building_class}</td>
-                  <td>{item.property_insurance_psf}</td>
-                  <td>{item.janitorial_cleaning_psf}</td>
-                  <td>{item.security_monitoring_psf}</td>
-                  <td>{item.ti_allowances_psf}</td>
-                  <td>{new Date(item.created_at).toLocaleDateString()}</td>
+          <div
+            className="table-responsive"
+            style={{ maxHeight: "70vh", overflow: "auto" }}
+          >
+            <Table striped bordered hover size="sm" className="mb-0">
+              <thead
+                className="bg-light"
+                style={{ position: "sticky", top: 0, zIndex: 10 }}
+              >
+                <tr>
+                  <th>#</th>
+                  <th>Date</th>
+                  <th>Submarket</th>
+                  <th>Building SF</th>
+                  <th>Class</th>
+                  <th>Real Estate Taxes</th>
+                  <th>Property Insurance</th>
+                  <th>Electric</th>
+                  <th>Gas</th>
+                  <th>Water</th>
+                  <th>Janitorial</th>
+                  <th>Property Mgmt</th>
+                  <th>Lobby Security</th>
+                  <th>Security Monitoring</th>
+                  <th>Accounting</th>
+                  <th>Legal</th>
+                  <th>TI Allowances</th>
+                  <th>Commissions</th>
+                  <th>Interest Rates</th>
                 </tr>
-              ))}
-            </tbody>
-          </Table>
+              </thead>
+              <tbody>
+                {currentData.map((item, index) => (
+                  <tr key={item.id || index}>
+                    <td>{indexOfFirstItem + index + 1}</td>
+                    <td style={{ whiteSpace: "nowrap" }}>
+                      {new Date(item.created_at).toLocaleDateString()}
+                    </td>
+                    <td>{item.submarket_geo || "-"}</td>
+                    <td>{item.building_sf_band || "-"}</td>
+                    <td>{item.building_class || "-"}</td>
+                    <td className="text-end">
+                      {formatCurrency(item.realestate_taxes_psf)}
+                    </td>
+                    <td className="text-end">
+                      {formatCurrency(item.property_insurance_psf)}
+                    </td>
+                    <td className="text-end">
+                      {formatCurrency(item.electric_psf)}
+                    </td>
+                    <td className="text-end">{formatCurrency(item.gas_psf)}</td>
+                    <td className="text-end">
+                      {formatCurrency(item.water_psf)}
+                    </td>
+                    <td className="text-end">
+                      {formatCurrency(item.janitorial_cleaning_psf)}
+                    </td>
+                    <td className="text-end">
+                      {formatCurrency(item.property_mgmt_fees_psf)}
+                    </td>
+                    <td className="text-end">
+                      {formatCurrency(item.lobby_security_psf)}
+                    </td>
+                    <td className="text-end">
+                      {formatCurrency(item.security_monitoring_psf)}
+                    </td>
+                    <td className="text-end">
+                      {formatCurrency(item.accounting_psf)}
+                    </td>
+                    <td className="text-end">
+                      {formatCurrency(item.legal_psf)}
+                    </td>
+                    <td className="text-end">
+                      {formatCurrency(item.ti_allowances_psf)}
+                    </td>
+                    <td className="text-end">
+                      {formatCurrency(item.commissions_psf)}
+                    </td>
+                    <td className="text-end">
+                      {formatCurrency(item.interest_rates_psf)}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </Table>
+          </div>
 
-
-          <Pagination
-            totalItems={data.length}
-            itemsPerPage={itemsPerPage}
-            currentPage={currentPage}
-            onPageChange={setCurrentPage}
-            onItemsPerPageChange={(value) => {
-              setItemsPerPage(value);
-              setCurrentPage(1); 
-            }}
-          />
+          <div className="mt-3">
+            <Pagination
+              totalItems={data.length}
+              itemsPerPage={itemsPerPage}
+              currentPage={currentPage}
+              onPageChange={setCurrentPage}
+              onItemsPerPageChange={(value) => {
+                setItemsPerPage(value);
+                setCurrentPage(1);
+              }}
+            />
+          </div>
         </>
       ) : (
-        <div className="text-center">No submissions found.</div>
+        <div className="text-center py-5">
+          <p>No submissions found.</p>
+        </div>
       )}
     </div>
   );

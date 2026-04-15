@@ -6,6 +6,7 @@ import {
   fetchLineItemsApi,
   uploadDocumentApi,
 } from "../../../Networking/User/APIs/ProjectManagement/projectManagement";
+import Card from "../../../Component/Card/Card";
 
 export const DocumentList = ({ projectId }) => {
   const dispatch = useDispatch();
@@ -75,94 +76,92 @@ export const DocumentList = ({ projectId }) => {
   };
 
   return (
-    <div className="card shadow-sm">
-      <div className="card-body">
-        <div className="d-flex justify-content-between align-items-center mb-3">
-          <h6 className="fw-bold mb-0">Documents</h6>
-          <button
-            className="btn btn-sm btn-secondary"
-            onClick={handleUploadClick}
-            disabled={uploading}
-          >
-            {uploading ? (
-              <>
-                <span className="spinner-border spinner-border-sm me-2" />
-                Uploading
-              </>
-            ) : (
-              <>
-                <i className="bi bi-upload me-1" />
-                Upload
-              </>
-            )}
-          </button>
-        </div>
-
-        <input
-          ref={fileInputRef}
-          type="file"
-          hidden
-          onChange={handleFileChange}
+    <Card className="shadow-sm">
+      <div className="d-flex justify-content-between align-items-center mb-3">
+        <h6 className="fw-bold mb-0">Documents</h6>
+        <button
+          className="btn btn-sm btn-secondary"
+          onClick={handleUploadClick}
           disabled={uploading}
-        />
-        <hr />
-        {loading ? (
-          <ul className="list-group list-group-flush">
-            {Array.from({ length: 3 }).map((_, i) => (
-              <li
-                key={i}
-                className="list-group-item d-flex justify-content-between align-items-center placeholder-glow py-2"
-              >
-                <div className="d-flex align-items-center gap-2 w-75">
-                  <span
-                    className="placeholder rounded"
-                    style={{ width: 24, height: 24 }}
-                  />
-                  <span className="placeholder col-6"></span>
-                </div>
-
-                <span
-                  className="placeholder rounded-circle"
-                  style={{ width: 32, height: 32 }}
-                ></span>
-              </li>
-            ))}
-          </ul>
-        ) : list.length === 0 ? (
-          <div className="text-center text-muted py-4">
-            <i className="bi bi-file-earmark-text fs-3 d-block mb-2" />
-            No documents uploaded
-          </div>
-        ) : (
-          <ul className="list-group list-group-flush">
-            {list.map((doc) => (
-              <li
-                key={doc.id}
-                className="list-group-item d-flex justify-content-between align-items-center py-2"
-              >
-                <div className="d-flex align-items-center gap-2">
-                  <i className="bi bi-file-earmark-text text-primary fs-5" />
-                  <span className="fw-medium">
-                    {doc.document_name || doc.filename}
-                  </span>
-                </div>
-
-                <button
-                  className="btn btn-sm btn-outline-danger"
-                  onClick={() => handleDelete(doc.id)}
-                  disabled={deletingId === doc.id}
-                >
-                  {deletingId === doc.id ? (
-                    <span className="spinner-border spinner-border-sm" />
-                  ) : (
-                    <i className="bi bi-trash" />
-                  )}
-                </button>
-              </li>
-            ))}
-          </ul>
-        )}
+        >
+          {uploading ? (
+            <>
+              <span className="spinner-border spinner-border-sm me-2" />
+              Uploading
+            </>
+          ) : (
+            <>
+              <i className="bi bi-upload me-1" />
+              Upload
+            </>
+          )}
+        </button>
       </div>
-    </div>
+
+      <input
+        ref={fileInputRef}
+        type="file"
+        hidden
+        onChange={handleFileChange}
+        disabled={uploading}
+      />
+      <hr />
+      {loading ? (
+        <ul className="list-group list-group-flush">
+          {Array.from({ length: 3 }).map((_, i) => (
+            <li
+              key={i}
+              className="list-group-item d-flex justify-content-between align-items-center placeholder-glow py-2"
+            >
+              <div className="d-flex align-items-center gap-2 w-75">
+                <span
+                  className="placeholder rounded"
+                  style={{ width: 24, height: 24 }}
+                />
+                <span className="placeholder col-6"></span>
+              </div>
+
+              <span
+                className="placeholder rounded-circle"
+                style={{ width: 32, height: 32 }}
+              ></span>
+            </li>
+          ))}
+        </ul>
+      ) : list.length === 0 ? (
+        <div className="text-center text-muted py-4">
+          <i className="bi bi-file-earmark-text fs-3 d-block mb-2" />
+          No documents uploaded
+        </div>
+      ) : (
+        <ul className="list-group list-group-flush">
+          {list.map((doc) => (
+            <li
+              key={doc.id}
+              className="list-group-item d-flex justify-content-between align-items-center py-2"
+            >
+              <div className="d-flex align-items-center gap-2">
+                <i className="bi bi-file-earmark-text text-primary fs-5" />
+                <span className="fw-medium">
+                  {doc.document_name || doc.filename}
+                </span>
+              </div>
+
+              <button
+                className="btn btn-sm btn-outline-danger"
+                onClick={() => handleDelete(doc.id)}
+                disabled={deletingId === doc.id}
+              >
+                {deletingId === doc.id ? (
+                  <span className="spinner-border spinner-border-sm" />
+                ) : (
+                  <i className="bi bi-trash" />
+                )}
+              </button>
+            </li>
+          ))}
+        </ul>
+      )}
+    </Card>
   );
 };

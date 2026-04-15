@@ -1,5 +1,4 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
-import { toast } from "react-toastify";
 import axiosInstance from "../../../Admin/APIs/AxiosInstance";
 import { Request_permission } from "../../../NWconfig";
 
@@ -11,13 +10,10 @@ export const RequestPermissionSubmit = createAsyncThunk(
   async (data, { rejectWithValue }) => {
     try {
       const response = await axiosInstance.post(Request_permission, data);
-      toast.success(
-        response.data?.message || "Request submitted successfully!"
-      );
+
       return response.data;
     } catch (error) {
-      toast.error(getErrorMsg(error));
       return rejectWithValue(getErrorMsg(error));
     }
-  }
+  },
 );

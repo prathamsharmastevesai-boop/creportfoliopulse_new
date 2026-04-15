@@ -4,7 +4,6 @@ import {
   distilledExpenseTrackerEndpoint,
   distilledExpenseTrackerlistEndPoint,
 } from "../../NWconfig";
-import { toast } from "react-toastify";
 
 export const distilledExpenseTracker = createAsyncThunk(
   "distilledExpenseTracker",
@@ -12,14 +11,14 @@ export const distilledExpenseTracker = createAsyncThunk(
     try {
       const response = await axiosInstance.post(
         distilledExpenseTrackerEndpoint,
-        payload
+        payload,
       );
-      toast.success(response.data.message)
+
       return response.data;
     } catch (error) {
       return rejectWithValue(error.response?.data?.message || error.message);
     }
-  }
+  },
 );
 
 export const getdistilledExpenseTrackerlistApi = createAsyncThunk(
@@ -27,11 +26,11 @@ export const getdistilledExpenseTrackerlistApi = createAsyncThunk(
   async (_, { rejectWithValue }) => {
     try {
       const response = await axiosInstance.get(
-        distilledExpenseTrackerlistEndPoint
+        distilledExpenseTrackerlistEndPoint,
       );
       return response.data;
     } catch (error) {
       return rejectWithValue(error.response?.data?.message);
     }
-  }
+  },
 );

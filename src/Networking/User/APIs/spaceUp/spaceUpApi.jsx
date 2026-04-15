@@ -47,12 +47,9 @@ export const getSpacesByBuilding = createAsyncThunk(
 
 export const addProspect = createAsyncThunk(
   "spaceUp/addProspect",
-  async ({ spaceId, payload }, { rejectWithValue }) => {
+  async (payload, { rejectWithValue }) => {
     try {
-      const res = await axiosInstance.post(
-        `${spaceUpProspectEndpoint}${spaceId}/prospects`,
-        payload,
-      );
+      const res = await axiosInstance.post(`/api/space-up/prospects`, payload);
       return res.data;
     } catch (err) {
       return rejectWithValue(
@@ -64,12 +61,10 @@ export const addProspect = createAsyncThunk(
 
 export const getProspectsBySpace = createAsyncThunk(
   "spaceUp/getProspects",
-  async (spaceId, { rejectWithValue }) => {
+  async (_, { rejectWithValue }) => {
     try {
-      const res = await axiosInstance.get(
-        `${spaceUpProspectEndpoint}${spaceId}/prospects`,
-      );
-      return { spaceId, data: res.data };
+      const res = await axiosInstance.get(`/api/space-up/prospects`);
+      return res.data;
     } catch (err) {
       return rejectWithValue(err.response?.data || "Failed to fetch prospects");
     }

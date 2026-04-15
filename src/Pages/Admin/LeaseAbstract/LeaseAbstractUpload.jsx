@@ -9,6 +9,9 @@ import {
 } from "../../../Networking/Admin/APIs/AiAbstractLeaseAPi";
 import { DownloadGeneratedLease1 } from "../../../Networking/Admin/APIs/AiInslightsAPi";
 import Pagination from "../../../Component/pagination";
+import Card from "../../../Component/Card/Card";
+import { BackButton } from "../../../Component/backButton";
+import { capitalFunction } from "../../../Component/capitalLetter";
 
 export const LeaseAbstractUpload = () => {
   const dispatch = useDispatch();
@@ -40,12 +43,10 @@ export const LeaseAbstractUpload = () => {
     dispatch(DeleteAbstractDoc({ fileId: fileToDelete }))
       .unwrap()
       .then(() => {
-        toast.success("Document deleted");
         fetchDocs();
       })
       .catch((err) => {
         console.error("Delete failed:", err);
-        toast.error("Delete failed");
       })
       .finally(() => {
         setItemLoadingState(fileToDelete, false);
@@ -53,7 +54,6 @@ export const LeaseAbstractUpload = () => {
         setFileToDelete(null);
       });
   };
-
 
   useEffect(() => {
     if (bottomRef.current) {
@@ -81,7 +81,6 @@ export const LeaseAbstractUpload = () => {
   useEffect(() => {
     fetchDocs();
   }, [dispatch]);
-
 
   useEffect(() => {
     if (allDocs.length > 0) {
@@ -118,12 +117,10 @@ export const LeaseAbstractUpload = () => {
     dispatch(UploadAbstractLeaseDoc(payload))
       .unwrap()
       .then(() => {
-        toast.success(`${file.name} uploaded successfully`);
         fetchDocs();
       })
       .catch((err) => {
         console.error("Upload failed:", err);
-
       })
       .finally(() => setLoader(false));
   };
@@ -134,11 +131,8 @@ export const LeaseAbstractUpload = () => {
     }
   };
 
-
   const setItemLoadingState = (fileId, value) =>
     setItemLoading((prev) => ({ ...prev, [fileId]: value }));
-
-
 
   const handleDownloadDraft = async (file_id) => {
     if (!file_id) {
@@ -171,6 +165,7 @@ export const LeaseAbstractUpload = () => {
         className="header-bg {
 -bg d-flex justify-content-start px-3 align-items-center sticky-header"
       >
+        <BackButton />
         <h5 className="mb-0 text-light mx-4"> AI Lease Abstract</h5>
       </div>
 
@@ -198,16 +193,16 @@ export const LeaseAbstractUpload = () => {
           </label>
         </div>
 
-        <div className="card shadow-sm mb-4">
-          <div className="card-header fw-semibold d-flex justify-content-between align-items-center">
-            <span>Uploaded Lease Documents</span>
-          </div>
-
+        <Card
+          className="mb-4"
+          title="Uploaded Lease Documents"
+          variant="elevated"
+          noPadding
+        >
           {loader ? (
             <div className="p-1 text-center">
               <p className="text-muted mt-2">Loading files...</p>
             </div>
-
           ) : (
             <>
               <ul className="list-group list-group-flush">
@@ -224,8 +219,11 @@ export const LeaseAbstractUpload = () => {
                       key={doc.file_id}
                       className="list-group-item d-flex justify-content-between align-items-center"
                     >
-                      <div className="text-truncate" style={{ maxWidth: "60%" }}>
-                        {doc.original_file_name}
+                      <div
+                        className="text-truncate"
+                        style={{ maxWidth: "60%" }}
+                      >
+                        {capitalFunction(doc.original_file_name)}
                       </div>
 
                       <div className="d-flex gap-3 align-items-center">
@@ -249,16 +247,18 @@ export const LeaseAbstractUpload = () => {
 
                         <i
                           className={`bi bi-trash ${isItemLoading ? "text-muted" : "text-danger"}`}
-                          style={{ cursor: isItemLoading ? "not-allowed" : "pointer" }}
-                          onClick={() => !isItemLoading && openDeleteConfirm(doc.file_id)}
+                          style={{
+                            cursor: isItemLoading ? "not-allowed" : "pointer",
+                          }}
+                          onClick={() =>
+                            !isItemLoading && openDeleteConfirm(doc.file_id)
+                          }
                         />
-
                       </div>
                     </li>
                   );
                 })}
               </ul>
-
 
               {allDocs && (
                 <Pagination
@@ -274,7 +274,7 @@ export const LeaseAbstractUpload = () => {
               )}
             </>
           )}
-        </div>
+        </Card>
         {showConfirmModal && (
           <div className="modal fade show d-block" tabIndex="-1">
             <div className="modal-dialog modal-dialog-centered">
@@ -287,13 +287,12 @@ export const LeaseAbstractUpload = () => {
                     disabled={isDeleting}
                     onClick={() => !isDeleting && setShowConfirmModal(false)}
                   />
-
                 </div>
 
                 <div className="modal-body">
                   <p className="mb-0">
-                    Are you sure you want to delete this document?
-                    This action cannot be undone.
+                    Are you sure you want to delete this document? This action
+                    cannot be undone.
                   </p>
                 </div>
 
@@ -320,14 +319,10 @@ export const LeaseAbstractUpload = () => {
                     {isDeleting ? "Deleting..." : "Delete"}
                   </button>
                 </div>
-
               </div>
             </div>
-
-
           </div>
         )}
-
       </div>
     </>
   );

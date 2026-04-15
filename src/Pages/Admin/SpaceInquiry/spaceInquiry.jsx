@@ -8,18 +8,10 @@ import {
   getSpaceInquryview,
   DeleteIngestionConfigs,
 } from "../../../Networking/Admin/APIs/SpaceInquiryApi";
-import {
-  Modal,
-  Form,
-  Button,
-  Spinner,
-  Card,
-  Row,
-  Col,
-  Badge,
-} from "react-bootstrap";
+import { Modal, Form, Button, Spinner, Row, Col, Badge } from "react-bootstrap";
 import { toast } from "react-toastify";
 import RAGLoader from "../../../Component/Loader";
+import Card from "../../../Component/Card/Card";
 
 export const SpaceInquiry = () => {
   const dispatch = useDispatch();
@@ -94,7 +86,6 @@ export const SpaceInquiry = () => {
         setInquiries(res || []);
       } catch (err) {
         console.error("Fetch Inquiry Error:", err);
-        toast.error("Failed to fetch inquiries");
       } finally {
         setLoadingInquiries(false);
       }
@@ -138,7 +129,6 @@ export const SpaceInquiry = () => {
       setShowInquiryView(true);
     } catch (err) {
       console.error("Error fetching inquiry detail:", err);
-      toast.error("Failed to load inquiry details");
     } finally {
       setLoadingInquiryDetail(false);
       setLoadingInquiryId(null);
@@ -189,7 +179,7 @@ export const SpaceInquiry = () => {
 
       setLoadingConfig(true);
       await dispatch(IngestionConfigsSubmit(payload)).unwrap();
-      toast.success("Configuration saved");
+
       setIsSubmitted((s) => !s);
       setShowAdd(false);
       await fetchConfig();
@@ -229,7 +219,6 @@ export const SpaceInquiry = () => {
       setEditMode(false);
     } catch (err) {
       console.error("Fetch config error:", err);
-      toast.error("Failed to load configuration");
     } finally {
       setLoadingConfig(false);
     }
@@ -242,10 +231,8 @@ export const SpaceInquiry = () => {
       resetConfigStates();
       fetchConfig();
       setShowView(false);
-      toast.success("Config deleted successfully");
     } catch (err) {
       console.error(err);
-      toast.error("Delete failed");
     } finally {
       setLoadingDelete(false);
     }
@@ -291,13 +278,12 @@ export const SpaceInquiry = () => {
 
       setLoadingConfig(true);
       await dispatch(UpdateIngestionConfigsSubmit(payload)).unwrap();
-      toast.success("Configuration updated");
+
       await fetchConfig();
       setShowView(false);
       setEditMode(false);
     } catch (err) {
       console.error("Update error:", err);
-      toast.error("Failed to update configuration");
     } finally {
       setLoadingConfig(false);
     }
@@ -306,10 +292,12 @@ export const SpaceInquiry = () => {
   return (
     <>
       <div className="container-fluid p-3">
-        <div className="card shadow-sm border-0">
-          <div className="card-header bg-success text-white d-flex justify-content-between align-items-center">
-            <h5 className="mb-0">📨 Space Inquiry List</h5>
-
+        <Card
+          variant="elevated"
+          className="shadow-sm shadow-sm"
+          noPadding
+          title="📨 Space Inquiry List"
+          headerAction={
             <div className="d-flex gap-2 align-items-center">
               <button
                 className="btn btn-light text-primary fw-semibold px-4 py-2 shadow-sm"
@@ -329,8 +317,8 @@ export const SpaceInquiry = () => {
                 )}
               </button>
             </div>
-          </div>
-
+          }
+        >
           <div className="card-body">
             {loadingInquiries ? (
               <div
@@ -350,78 +338,80 @@ export const SpaceInquiry = () => {
               <Row>
                 {inquiries.map((item) => (
                   <Col md={6} lg={4} className="mb-4" key={item.id}>
-                    <Card className="h-100 shadow-sm border-0">
-                      <Card.Body>
-                        <h6 className="fw-bold mb-2">{item.sender_name}</h6>
+                    <Card
+                      variant="elevated"
+                      className="h-100 shadow-sm"
+                      bodyClass="p-3"
+                    >
+                      <h6 className="fw-bold mb-2">{item.sender_name}</h6>
+                      <p className="text-muted small mb-2">
+                        <i className="bi bi-envelope me-1"></i>
+                        {item.sender_email}
+                      </p>
+
+                      {item.sender_phone && (
                         <p className="text-muted small mb-2">
-                          <i className="bi bi-envelope me-1"></i>
-                          {item.sender_email}
+                          <i className="bi bi-telephone me-1"></i>
+                          {item.sender_phone}
                         </p>
+                      )}
 
-                        {item.sender_phone && (
-                          <p className="text-muted small mb-2">
-                            <i className="bi bi-telephone me-1"></i>
-                            {item.sender_phone}
-                          </p>
+                      {item.broker_company && (
+                        <p className="text-muted small mb-2">
+                          <i className="bi bi-building me-1"></i>
+                          {item.broker_company}
+                        </p>
+                      )}
+
+                      <div className="mb-3">
+                        <small className="text-muted">Building:</small>
+                        <p className="mb-0 text-truncate">
+                          {item.building_address}
+                        </p>
+                      </div>
+
+                      <div className="mb-3">
+                        <small className="text-muted">Inquiry:</small>
+                        <p className="mb-0 text-truncate">
+                          {item.inquiry_text}
+                        </p>
+                      </div>
+
+                      <div className="text-muted small mb-3">
+                        <i className="bi bi-clock me-1"></i>
+                        {item.email_date
+                          ? new Date(item.email_date).toLocaleString("en-US")
+                          : "Date not available"}
+                      </div>
+
+                      <Button
+                        variant="outline-primary"
+                        size="sm"
+                        className="w-100 d-flex align-items-center justify-content-center"
+                        onClick={() => handleViewInquiry(item.id)}
+                        disabled={loadingInquiryId === item.id}
+                      >
+                        {loadingInquiryId === item.id ? (
+                          <>
+                            <span
+                              className="spinner-border spinner-border-sm me-2"
+                              role="status"
+                            ></span>
+                            Loading...
+                          </>
+                        ) : (
+                          <>
+                            <i className="bi bi-eye me-1"></i> View Details
+                          </>
                         )}
-
-                        {item.broker_company && (
-                          <p className="text-muted small mb-2">
-                            <i className="bi bi-building me-1"></i>
-                            {item.broker_company}
-                          </p>
-                        )}
-
-                        <div className="mb-3">
-                          <small className="text-muted">Building:</small>
-                          <p className="mb-0 text-truncate">
-                            {item.building_address}
-                          </p>
-                        </div>
-
-                        <div className="mb-3">
-                          <small className="text-muted">Inquiry:</small>
-                          <p className="mb-0 text-truncate">
-                            {item.inquiry_text}
-                          </p>
-                        </div>
-
-                        <div className="text-muted small mb-3">
-                          <i className="bi bi-clock me-1"></i>
-                          {item.email_date
-                            ? new Date(item.email_date).toLocaleString("en-US")
-                            : "Date not available"}
-                        </div>
-
-                        <Button
-                          variant="outline-primary"
-                          size="sm"
-                          className="w-100 d-flex align-items-center justify-content-center"
-                          onClick={() => handleViewInquiry(item.id)}
-                          disabled={loadingInquiryId === item.id}
-                        >
-                          {loadingInquiryId === item.id ? (
-                            <>
-                              <span
-                                className="spinner-border spinner-border-sm me-2"
-                                role="status"
-                              ></span>
-                              Loading...
-                            </>
-                          ) : (
-                            <>
-                              <i className="bi bi-eye me-1"></i> View Details
-                            </>
-                          )}
-                        </Button>
-                      </Card.Body>
+                      </Button>
                     </Card>
                   </Col>
                 ))}
               </Row>
             )}
           </div>
-        </div>
+        </Card>
       </div>
 
       <Modal
@@ -792,68 +782,81 @@ export const SpaceInquiry = () => {
                 </>
               ) : (
                 <div className="container-fluid">
-                  <div className="mb-4">
-                    <h5 className="fw-bold mb-3"> IMAP Configuration</h5>
-                    <div className="card shadow-sm border-0">
-                      <div className="card-body">
-                        <table className="table table-borderless mb-0">
-                          <tbody>
-                            <tr>
-                              <th>IMAP Host:</th>
-                              <td>{configDetails.imap_host}</td>
-                            </tr>
-                            <tr>
-                              <th>IMAP Port:</th>
-                              <td>{configDetails.imap_port}</td>
-                            </tr>
-                            <tr>
-                              <th>IMAP Username:</th>
-                              <td>{configDetails.imap_username}</td>
-                            </tr>
-                            <tr>
-                              <th>IMAP Password:</th>
-                              <td>******</td>
-                            </tr>
-                          </tbody>
-                        </table>
-                      </div>
-                    </div>
-                  </div>
+                  <Card
+                    variant="elevated"
+                    className="shadow-sm mb-4"
+                    title="IMAP Configuration"
+                  >
+                    <table className="table table-borderless mb-0">
+                      <tbody>
+                        <tr>
+                          <th>IMAP Host:</th>
+                          <td>{configDetails.imap_host}</td>
+                        </tr>
+                        <tr>
+                          <th>IMAP Port:</th>
+                          <td>{configDetails.imap_port}</td>
+                        </tr>
+                        <tr>
+                          <th>IMAP Username:</th>
+                          <td>{configDetails.imap_username}</td>
+                        </tr>
+                        <tr>
+                          <th>IMAP Password:</th>
+                          <td>******</td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </Card>
 
-                  <div className="mb-4">
-                    <h5 className="fw-bold mb-3"> Status</h5>
+                  <Card
+                    variant="elevated"
+                    className="shadow-sm mb-4"
+                    title="Status"
+                  >
                     <span
                       className={`badge px-3  ${
                         configDetails.is_active ? "bg-success" : "bg-danger"
                       }`}
+                      style={{ fontSize: "0.9rem", borderRadius: "20px" }}
                     >
                       {configDetails.is_active ? "Active" : "Inactive"}
                     </span>
-                  </div>
+                  </Card>
 
-                  <div className="mb-4">
-                    <h5 className="fw-bold mb-3">Building Addresses</h5>
-                    <ul className="list-group">
+                  <Card
+                    variant="elevated"
+                    className="shadow-sm mb-4"
+                    title="Building Addresses"
+                  >
+                    <ul className="list-group list-group-flush">
                       {(configDetails.building_addresses_list || []).map(
                         (a, i) => (
                           <li className="list-group-item" key={i}>
+                            <i className="bi bi-geo-alt me-2 text-primary"></i>
                             {a}
                           </li>
                         ),
                       )}
                     </ul>
-                  </div>
+                  </Card>
 
-                  <div>
-                    <h5 className="fw-bold mb-3">Trusted Sender Domains</h5>
-                    {(configDetails.trusted_sender_domains || []).map(
-                      (d, i) => (
-                        <span className="badge bg-primary px-2 me-2" key={i}>
-                          {d}
-                        </span>
-                      ),
-                    )}
-                  </div>
+                  <Card
+                    variant="elevated"
+                    className="shadow-sm mb-4"
+                    title="Trusted Sender Domains"
+                  >
+                    <div className="d-flex flex-wrap gap-2">
+                      {(configDetails.trusted_sender_domains || []).map(
+                        (d, i) => (
+                          <span className="badge bg-primary px-3 py-2" key={i}>
+                            <i className="bi bi-shield-check me-1"></i>
+                            {d}
+                          </span>
+                        ),
+                      )}
+                    </div>
+                  </Card>
                 </div>
               )}
             </>
@@ -903,133 +906,127 @@ export const SpaceInquiry = () => {
             </div>
           ) : selectedInquiry ? (
             <div className="container-fluid">
-              <div className="card shadow-sm border-0 mb-4">
-                <div className="card-header bg-dark text-white">
-                  <h6 className="mb-0 fw-semibold">
-                    <i className="bi bi-person me-2"></i>
-                    Sender Information
-                  </h6>
-                </div>
-
-                <div className="card-body">
-                  <div className="row g-3">
-                    <Info label="ID">
-                      <Badge bg="secondary">{selectedInquiry.id}</Badge>
-                    </Info>
-
-                    <Info label="Name">
-                      {selectedInquiry.sender_name || "N/A"}
-                    </Info>
-
-                    <Info label="Email">
-                      {selectedInquiry.sender_email ? (
-                        <a href={`mailto:${selectedInquiry.sender_email}`}>
-                          {selectedInquiry.sender_email}
-                        </a>
-                      ) : (
-                        "N/A"
-                      )}
-                    </Info>
-
-                    <Info label="Phone">
-                      {selectedInquiry.sender_phone || "N/A"}
-                    </Info>
-
-                    <Info label="Broker Company">
-                      {selectedInquiry.broker_company || "N/A"}
-                    </Info>
+              <Card
+                variant="elevated"
+                className="mb-4 shadow-sm"
+                headerAction={
+                  <div className="text-white d-flex align-items-center gap-2">
+                    <i className="bi bi-person"></i>
+                    <h6 className="mb-0 fw-semibold">Sender Information</h6>
                   </div>
+                }
+              >
+                <div className="row g-3">
+                  <Info label="ID">
+                    <Badge bg="secondary">{selectedInquiry.id}</Badge>
+                  </Info>
+                  <Info label="Name">
+                    {selectedInquiry.sender_name || "N/A"}
+                  </Info>
+                  <Info label="Email">
+                    {selectedInquiry.sender_email ? (
+                      <a href={`mailto:${selectedInquiry.sender_email}`}>
+                        {selectedInquiry.sender_email}
+                      </a>
+                    ) : (
+                      "N/A"
+                    )}
+                  </Info>
+                  <Info label="Phone">
+                    {selectedInquiry.sender_phone || "N/A"}
+                  </Info>
+                  <Info label="Broker Company">
+                    {selectedInquiry.broker_company || "N/A"}
+                  </Info>
                 </div>
-              </div>
+              </Card>
 
-              <div className="card shadow-sm border-0 mb-4">
-                <div className="card-header bg-dark text-white">
-                  <h6 className="mb-0 fw-semibold">
-                    <i className="bi bi-building me-2"></i>
-                    Property Details
-                  </h6>
-                </div>
-
-                <div className="card-body">
-                  <div className="row g-3">
-                    <Info label="Building Address">
-                      {selectedInquiry.building_address || "N/A"}
-                    </Info>
-
-                    <Info label="Email Date">
-                      {selectedInquiry.email_date
-                        ? new Date(selectedInquiry.email_date).toLocaleString()
-                        : "N/A"}
-                    </Info>
-
-                    <Info label="Status">
-                      <Badge
-                        bg={
-                          selectedInquiry.status === "processed"
-                            ? "success"
-                            : selectedInquiry.status === "pending"
-                              ? "warning"
-                              : "secondary"
-                        }
-                      >
-                        {selectedInquiry.status || "new"}
-                      </Badge>
-                    </Info>
-
-                    <Info label="Created At">
-                      {selectedInquiry.created_at
-                        ? new Date(selectedInquiry.created_at).toLocaleString()
-                        : "N/A"}
-                    </Info>
+              <Card
+                variant="elevated"
+                className="mb-4 shadow-sm"
+                headerAction={
+                  <div className="text-white d-flex align-items-center gap-2">
+                    <i className="bi bi-building"></i>
+                    <h6 className="mb-0 fw-semibold">Property Details</h6>
                   </div>
+                }
+              >
+                <div className="row g-3">
+                  <Info label="Building Address">
+                    {selectedInquiry.building_address || "N/A"}
+                  </Info>
+                  <Info label="Email Date">
+                    {selectedInquiry.email_date
+                      ? new Date(selectedInquiry.email_date).toLocaleString()
+                      : "N/A"}
+                  </Info>
+                  <Info label="Status">
+                    <Badge
+                      bg={
+                        selectedInquiry.status === "processed"
+                          ? "success"
+                          : selectedInquiry.status === "pending"
+                            ? "warning"
+                            : "secondary"
+                      }
+                    >
+                      {selectedInquiry.status || "new"}
+                    </Badge>
+                  </Info>
+                  <Info label="Created At">
+                    {selectedInquiry.created_at
+                      ? new Date(selectedInquiry.created_at).toLocaleString()
+                      : "N/A"}
+                  </Info>
                 </div>
-              </div>
+              </Card>
 
-              <div className="card shadow-sm border-0 mb-4">
-                <div className="card-header bg-dark text-white">
-                  <h6 className="mb-0 fw-semibold">
-                    <i className="bi bi-chat-text me-2"></i>
-                    Inquiry Message
-                  </h6>
-                </div>
-
-                <div className="card-body">
-                  <div className="p-3 border rounded small-text">
-                    {selectedInquiry.inquiry_text || "No inquiry text provided"}
+              <Card
+                variant="elevated"
+                className="mb-4 shadow-sm"
+                headerAction={
+                  <div className="text-white d-flex align-items-center gap-2">
+                    <i className="bi bi-chat-text"></i>
+                    <h6 className="mb-0 fw-semibold">Inquiry Message</h6>
                   </div>
+                }
+              >
+                <div className="p-3 border rounded small-text">
+                  {selectedInquiry.inquiry_text || "No inquiry text provided"}
                 </div>
-              </div>
+              </Card>
 
               {(selectedInquiry.additional_notes ||
                 selectedInquiry.attachments) && (
-                <div className="card shadow-sm border-0">
-                  <div className="card-header bg-warning">
-                    <h6 className="mb-0 fw-semibold">
-                      <i className="bi bi-paperclip me-2"></i>
-                      Additional Information
-                    </h6>
-                  </div>
-
-                  <div className="card-body">
-                    {selectedInquiry.additional_notes && (
-                      <div className="mb-3">
-                        <label className="text-muted small">Notes</label>
-                        <div className="p-2 border rounded">
-                          {selectedInquiry.additional_notes}
-                        </div>
+                <Card
+                  variant="elevated"
+                  className="shadow-sm"
+                  headerAction={
+                    <div className="text-warning d-flex align-items-center gap-2">
+                      <i className="bi bi-paperclip"></i>
+                      <h6 className="mb-0 fw-semibold">
+                        Additional Information
+                      </h6>
+                    </div>
+                  }
+                >
+                  {selectedInquiry.additional_notes && (
+                    <div className="mb-3">
+                      <label className="text-muted small">Notes</label>
+                      <div className="p-2 border rounded">
+                        {selectedInquiry.additional_notes}
                       </div>
-                    )}
-
-                    {selectedInquiry.attachments && (
-                      <div>
-                        <label className="text-muted small">Attachments</label>
-                        <div className="p-2 border rounded">
-                          {selectedInquiry.attachments}
-                        </div>
+                    </div>
+                  )}
+                  {selectedInquiry.attachments && (
+                    <div>
+                      <label className="text-muted small">Attachments</label>
+                      <div className="p-2 border rounded">
+                        {selectedInquiry.attachments}
                       </div>
-                    )}
-                  </div>
-                </div>
+                    </div>
+                  )}
+                </Card>
               )}
             </div>
           ) : (

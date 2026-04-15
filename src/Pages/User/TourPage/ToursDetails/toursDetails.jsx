@@ -81,7 +81,7 @@ export const ToursDetails = () => {
           item.id === editTourId ? { ...item, ...payload } : item,
         ),
       );
-      toast.success("Tour updated successfully");
+
       setEditModal(false);
     } catch (err) {
       console.log(err);
@@ -95,9 +95,6 @@ export const ToursDetails = () => {
     try {
       await dispatch(DeleteToursSubmit(deleteId)).unwrap();
       setToursList((prev) => prev.filter((item) => item.id !== deleteId));
-      toast.success("Tour deleted successfully");
-    } catch (err) {
-      toast.error("Error deleting tour");
     } finally {
       setDeleteLoading(false);
       setDeleteId(null);

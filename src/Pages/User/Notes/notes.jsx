@@ -124,7 +124,7 @@ export const Notes = () => {
   return (
     <div>
       <div className="header-bg d-flex justify-content-between px-3 align-items-center sticky-header">
-        <h5 className="mb-0 text-light mx-4">Notes</h5>
+        <h5 className="mb-0  mx-4">Notes</h5>
         <button className="btn btn-secondary btn-sm" onClick={openNewNote}>
           + New Note
         </button>
@@ -208,7 +208,7 @@ export const Notes = () => {
 
                 <div className="d-flex gap-2 justify-content-end align-items-center mt-2">
                   <button
-                    className="btn btn-sm btn-outline-secondary d-flex align-items-center"
+                    className="btn btn-sm d-flex align-items-center"
                     onClick={() => openEditNote(note)}
                     style={{ border: 0, cursor: "pointer", fontSize: 18 }}
                   >
@@ -292,7 +292,7 @@ export const Notes = () => {
                 </small>
               )}
 
-              <div className="mt-2 text-light small">
+              <div className="mt-2 small">
                 Tip: Only you can see your notes.
               </div>
             </Modal.Body>

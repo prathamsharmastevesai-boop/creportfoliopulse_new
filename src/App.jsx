@@ -101,6 +101,9 @@ import { MaintenanceBuildinglist } from "./Pages/Admin/MaintennaceUpdate/mainten
 import { TermsOfUse } from "./Pages/User/TermsOfUse/termsOfUse";
 import { FloorPlanUpload } from "./Pages/User/Dashboard/floorPlanUpload";
 import { LoiAudit } from "./Pages/User/LoiAudit/loiAudit";
+import FilesMedia from "./Pages/Admin/GeneralInfo/files&Media";
+import { Calendar } from "./Pages/User/Calendar/calendar";
+import AdminLoiAudit from "./Pages/Admin/LoiAudit/AdminLoiAudit";
 
 function App() {
   return (
@@ -161,10 +164,10 @@ function App() {
                       element={<LeaseDraftingUpload />}
                     />
 
-                    <Route
-                      path="/admin-spaceup"
+                    {/* <Route
+                      path="/admin-broker-index"
                       element={<AdminSpaceUpBuildinglist />}
-                    />
+                    /> */}
 
                     <Route
                       path="/admin-maintenance-building-list"
@@ -198,6 +201,7 @@ function App() {
                       path="/building-info-list"
                       element={<BuildingInfoList />}
                     />
+
                     <Route
                       path="/admin-fire-safety-building-mechanicals-list"
                       element={<FireSafetyBuildingList />}
@@ -287,6 +291,10 @@ function App() {
                       element={<PortfolioForum />}
                     />
 
+                    <Route
+                      path="/admin-loi-audit"
+                      element={<AdminLoiAudit />}
+                    />
                     <Route path="/space-inquiry" element={<SpaceInquiry />} />
                   </Route>
                   <Route
@@ -309,6 +317,8 @@ function App() {
                     }
                   >
                     <Route path="/dashboard" element={<Dashboard />} />
+
+                    <Route path="/calendar" element={<Calendar />} />
 
                     <Route path="/portfolio-chat" element={<PortfolioChat />} />
 
@@ -372,10 +382,10 @@ function App() {
                     <Route path="/work-letter" element={<WorkLetter />} />
 
                     <Route
-                      path="/space-up/buildingList"
+                      path="/broker-index/buildingList"
                       element={<SpaceUpBuildinglist />}
                     />
-                    <Route path="/space-up" element={<SpaceUp />} />
+                    <Route path="/broker-index" element={<SpaceUp />} />
 
                     <Route
                       path="/maintenance-building-list"
@@ -408,7 +418,7 @@ function App() {
                       path="/floor-plan-upload"
                       element={<FloorPlanUpload />}
                     />
-
+                    <Route path="/user-files-media" element={<FilesMedia />} />
                     <Route
                       path="/comparative-user-building-list"
                       element={<ComparativeUserBuildinglist />}

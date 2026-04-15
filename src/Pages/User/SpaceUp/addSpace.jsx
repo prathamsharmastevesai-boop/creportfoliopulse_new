@@ -60,7 +60,6 @@ export const AddSpaceModal = ({ show, onClose, buildingId }) => {
     await dispatch(getSpacesByBuilding(buildingId));
 
     if (createSpace.fulfilled.match(result)) {
-      toast.success("Space added successfully");
       onClose();
     }
   };

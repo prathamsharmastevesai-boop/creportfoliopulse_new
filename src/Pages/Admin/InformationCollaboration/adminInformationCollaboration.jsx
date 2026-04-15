@@ -4,7 +4,6 @@ import { getadminfeedbacksubmit } from "../../../Networking/Admin/APIs/feedbackA
 import { Modal, Button, Form } from "react-bootstrap";
 import RAGLoader from "../../../Component/Loader";
 import Pagination from "../../../Component/pagination";
-import { toast } from "react-toastify";
 import {
   DeleteFeedbackSubmit,
   ReviewInformationCollaboration,
@@ -71,9 +70,6 @@ export const AdminInformationCollaboration = () => {
     try {
       await dispatch(DeleteFeedbackSubmit(deleteId)).unwrap();
       setSubmissions((prev) => prev.filter((item) => item.id !== deleteId));
-      toast.success("Deleted successfully");
-    } catch (err) {
-      toast.error("Delete failed");
     } finally {
       setDeleteLoading(false);
       setDeleteId(null);
@@ -93,7 +89,6 @@ export const AdminInformationCollaboration = () => {
       ).unwrap();
 
       fetchSubmissions();
-      toast.success(`Status updated to ${newStatus}`);
     } catch (err) {
       console.error("Status update error:", err);
     } finally {
@@ -162,17 +157,20 @@ export const AdminInformationCollaboration = () => {
                     <td>
                       {updatingStatusId === item.id ? (
                         "Updating..."
+                      ) : role !== "admin" ? (
+                        <span
+                          className={`badge rounded-pill ${getStatusBadge(item.status)}`}
+                        >
+                          {item.status}
+                        </span>
                       ) : (
                         <Form.Select
                           size="sm"
                           value={item.status}
-                          disabled={role !== "admin"}
                           onChange={(e) =>
                             handleStatusChange(item.id, e.target.value)
                           }
-                          className={`border-0 rounded-pill ${getStatusBadge(
-                            item.status,
-                          )}`}
+                          className={`border-0 rounded-pill ${getStatusBadge(item.status)}`}
                         >
                           <option disabled value="pending">
                             Pending
@@ -293,6 +291,7 @@ export const AdminInformationCollaboration = () => {
               key={selectedSubmission.id}
               data={selectedSubmission}
               onClose={() => setEditModal(false)}
+              onSuccess={fetchSubmissions}
             />
           )}
         </Modal.Body>

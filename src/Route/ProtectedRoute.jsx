@@ -5,7 +5,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { USER_ROUTE_FEATURE_MAP } from "./userRouteFeatureMap";
 import { getProfileDetail } from "../Networking/User/APIs/Profile/ProfileApi";
 
-const IDLE_TIMEOUT = 3 * 60 * 1000;
+const IDLE_TIMEOUT = 30 * 60 * 1000;
 
 const matchRoute = (pathname, routeMap) => {
   return Object.keys(routeMap).find((route) => {

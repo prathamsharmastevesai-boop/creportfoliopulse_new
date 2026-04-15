@@ -1,7 +1,8 @@
 import React from "react";
-import { Card, Button, Container, Row, Col } from "react-bootstrap";
+import { Button, Container, Row, Col } from "react-bootstrap";
 import { useNavigate, useLocation } from "react-router-dom";
 import { FaArrowLeft } from "react-icons/fa";
+import Card from "../../../Component/Card/Card";
 
 export const SelectUserBuildingCategory = () => {
   const navigate = useNavigate();
@@ -50,40 +51,44 @@ export const SelectUserBuildingCategory = () => {
       <Container className="pb-5">
         <Row className="justify-content-center g-4">
           <Col xs={12} sm={10} md={6} lg={5}>
-            <Card className="shadow-lg border-0 h-100">
-              <Card.Body className="d-flex flex-column justify-content-center align-items-center text-center p-4">
-                <Card.Title className="fs-4 mb-3">Floor Plan</Card.Title>
-                <Card.Text className="fs-6 mb-4">
-                  documents related to <strong>Floor Plan</strong>.
-                </Card.Text>
-                <Button
-                  variant="dark"
-                  size="lg"
-                  className="w-100"
-                  onClick={() => handleCategory("floor_plan")}
-                >
-                  Floor Plan
-                </Button>
-              </Card.Body>
+            <Card
+              className="shadow-lg border-0 h-100 p-4 d-flex flex-column justify-content-center align-items-center text-center"
+              variant="elevated"
+              title="Floor Plan"
+              noPadding
+            >
+              <p className="fs-6 mb-4">
+                documents related to <strong>Floor Plan</strong>.
+              </p>
+              <Button
+                variant="dark"
+                size="lg"
+                className="w-100"
+                onClick={() => handleCategory("floor_plan")}
+              >
+                Floor Plan
+              </Button>
             </Card>
           </Col>
 
           <Col xs={12} sm={10} md={6} lg={5}>
-            <Card className="shadow-lg border-0 h-100">
-              <Card.Body className="d-flex flex-column justify-content-center align-items-center text-center p-4">
-                <Card.Title className="fs-4 mb-3">Building Stack</Card.Title>
-                <Card.Text className="fs-6 mb-4">
-                  documents related to <strong>Building Stack</strong>.
-                </Card.Text>
-                <Button
-                  variant="dark"
-                  size="lg"
-                  className="w-100"
-                  onClick={() => handleCategory("building_stack")}
-                >
-                  Building Stack
-                </Button>
-              </Card.Body>
+            <Card
+              className="shadow-lg border-0 h-100 p-4 d-flex flex-column justify-content-center align-items-center text-center"
+              variant="elevated"
+              title="Building Stack"
+              noPadding
+            >
+              <p className="fs-6 mb-4">
+                documents related to <strong>Building Stack</strong>.
+              </p>
+              <Button
+                variant="dark"
+                size="lg"
+                className="w-100"
+                onClick={() => handleCategory("building_stack")}
+              >
+                Building Stack
+              </Button>
             </Card>
           </Col>
         </Row>

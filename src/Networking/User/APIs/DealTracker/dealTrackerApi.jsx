@@ -1,6 +1,5 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
 import axiosInstance from "../../../Admin/APIs/AxiosInstance";
-import { toast } from "react-toastify";
 import { dealformEndpoint, dealList, deleteDeal } from "../../../NWconfig";
 
 export const DealFormApi = createAsyncThunk(
@@ -8,7 +7,7 @@ export const DealFormApi = createAsyncThunk(
   async (data, { rejectWithValue }) => {
     try {
       const response = await axiosInstance.post(dealformEndpoint, data);
-      toast.success(response.data?.message);
+
       return response.data;
     } catch (error) {
       return rejectWithValue(error.response?.data?.message);
@@ -45,7 +44,7 @@ export const updateDealTracker = createAsyncThunk(
   async ({ dealId, data }, { rejectWithValue }) => {
     try {
       const response = await axiosInstance.put(`/deals/${dealId}`, data);
-      toast.success(response.data?.message || "Deal updated successfully!");
+
       return response.data;
     } catch (error) {
       console.error("Update deal error:", error.response || error);

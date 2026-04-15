@@ -12,14 +12,15 @@ export const AdminSpaceUpBuildinglist = () => {
   return (
     <>
       <BuildingList
-        title="Space Up Building List"
+        title="Broker Index Building List"
         fetchAction={ListBuildingSubmit}
+        category="BuildingInfo"
         selector={(state) => ({
           data: state.BuildingSlice.BuildingList,
           loading: state.BuildingSlice.loading,
         })}
         searchKey="address"
-        navigateTo="/space-up"
+        navigateTo="/broker-index"
         renderItem={(building) => (
           <div className="d-flex justify-content-between align-items-center">
             <div>{building.address}</div>

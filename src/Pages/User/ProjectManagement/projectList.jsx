@@ -11,6 +11,8 @@ import {
   updateProjectApi,
 } from "../../../Networking/User/APIs/ProjectManagement/projectManagement";
 import { BackButton } from "../../../Component/backButton";
+import Card from "../../../Component/Card/Card";
+
 
 export const ProjectList = () => {
   const location = useLocation();
@@ -301,9 +303,10 @@ export const ProjectList = () => {
 
       <div className="row g-3">
         {projects.map((project) => (
-          <div className="col-12 col-sm-6 col-lg-4" key={project.id}>
-            <div
-              className="card border-0 shadow-sm h-100 rounded-4 cursor-pointer hover-shadow"
+          <div className="col-12 col-sm-6 col-lg-4 mb-3" key={project.id}>
+            <Card
+              className="border-0 shadow-sm h-100 rounded-4 cursor-pointer hover-shadow"
+              variant="elevated"
               onClick={() =>
                 navigate("/work-letter", {
                   state: {
@@ -313,61 +316,59 @@ export const ProjectList = () => {
                 })
               }
             >
-              <div className="card-body">
-                <div className="d-flex flex-wrap justify-content-between align-items-start gap-2 mb-2">
-                  <div className="d-flex">
-                    <i className="bi bi-geo-alt-fill me-1"></i>
-                    <h6 className="fw-bold mb-0">{address}</h6>
-                  </div>
-                  <div className="d-flex align-items-center gap-2">
-                    <StatusBadge status={project.status} />
-                    <i
-                      className="bi bi-pencil-square text-primary cursor-pointer"
-                      title="Edit project"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleEditClick(project);
-                      }}
-                    />
-                    <i
-                      className="bi text-danger cursor-pointer"
-                      title="Delete project"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        openDeleteModal(project.id);
-                      }}
-                    >
-                      {deletingProjectId === project.id ? (
-                        <span className="spinner-border spinner-border-sm text-danger"></span>
-                      ) : (
-                        <i className="bi bi-trash"></i>
-                      )}
-                    </i>
-                  </div>
+              <div className="d-flex flex-wrap justify-content-between align-items-start gap-2 mb-2">
+                <div className="d-flex">
+                  <i className="bi bi-geo-alt-fill me-1"></i>
+                  <h6 className="fw-bold mb-0">{address}</h6>
                 </div>
-
-                <div className="d-flex flex-column flex-sm-row justify-content-between gap-2 mb-2">
-                  <div>
-                    <small className="text-muted">Landlord Cost</small>
-                    <div className="fw-semibold text-success">
-                      {project.landlordCost}
-                    </div>
-                  </div>
-                  <div>
-                    <small className="text-muted">Tenant Cost</small>
-                    <div className="fw-semibold text-primary">
-                      {project.tenantCost}
-                    </div>
-                  </div>
-                </div>
-
-                <hr />
-                <div className="d-flex justify-content-between small text-muted">
-                  <span>Start: {project.startDate}</span>
-                  <span>Target: {project.targetDate}</span>
+                <div className="d-flex align-items-center gap-2">
+                  <StatusBadge status={project.status} />
+                  <i
+                    className="bi bi-pencil-square text-primary cursor-pointer"
+                    title="Edit project"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleEditClick(project);
+                    }}
+                  />
+                  <i
+                    className="bi text-danger cursor-pointer"
+                    title="Delete project"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      openDeleteModal(project.id);
+                    }}
+                  >
+                    {deletingProjectId === project.id ? (
+                      <span className="spinner-border spinner-border-sm text-danger"></span>
+                    ) : (
+                      <i className="bi bi-trash"></i>
+                    )}
+                  </i>
                 </div>
               </div>
-            </div>
+
+              <div className="d-flex flex-column flex-sm-row justify-content-between gap-2 mb-2">
+                <div>
+                  <small className="text-muted">Landlord Cost</small>
+                  <div className="fw-semibold text-success">
+                    {project.landlordCost}
+                  </div>
+                </div>
+                <div>
+                  <small className="text-muted">Tenant Cost</small>
+                  <div className="fw-semibold text-primary">
+                    {project.tenantCost}
+                  </div>
+                </div>
+              </div>
+
+              <hr />
+              <div className="d-flex justify-content-between small text-muted">
+                <span>Start: {project.startDate}</span>
+                <span>Target: {project.targetDate}</span>
+              </div>
+            </Card>
           </div>
         ))}
       </div>
@@ -396,7 +397,7 @@ export const ProjectList = () => {
                   <label className="form-label fw-semibold">Building</label>
                   <input
                     type="text"
-                    className="form-control bg-light"
+                    className="form-control"
                     value={address}
                     disabled
                   />
@@ -500,7 +501,7 @@ export const ProjectList = () => {
                   <label className="form-label fw-semibold">Building</label>
                   <input
                     type="text"
-                    className="form-control bg-light"
+                    className="form-control"
                     value={address}
                     disabled
                   />
@@ -636,20 +637,22 @@ export const ProjectList = () => {
 
 const StatCard = ({ title, value, icon, color = "primary" }) => (
   <div className="col-6 col-sm-4 col-md-3 col-lg-2">
-    <div className="card border-0 shadow-sm rounded-4 h-100">
-      <div className="card-body d-flex flex-column align-items-center justify-content-center text-center gap-2">
-        <div
-          className={`bg-${color} bg-opacity-10 text-${color} rounded-circle d-flex align-items-center justify-content-center`}
-          style={{ width: 42, height: 42 }}
-        >
-          <i className={`bi ${icon} fs-5`} />
-        </div>
-
-        <small className="text-muted">{title}</small>
-
-        <div className="fw-bold fs-6">{value ?? "-"}</div>
+    <Card
+      className="border-0 shadow-sm rounded-4 h-100"
+      variant="elevated"
+      bodyClass="d-flex flex-column align-items-center justify-content-center text-center gap-2"
+    >
+      <div
+        className={`bg-${color} bg-opacity-10 text-${color} rounded-circle d-flex align-items-center justify-content-center`}
+        style={{ width: 42, height: 42 }}
+      >
+        <i className={`bi ${icon} fs-5`} />
       </div>
-    </div>
+
+      <small className="text-muted">{title}</small>
+
+      <div className="fw-bold fs-6">{value ?? "-"}</div>
+    </Card>
   </div>
 );
 

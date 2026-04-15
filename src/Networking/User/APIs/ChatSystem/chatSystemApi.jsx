@@ -39,54 +39,6 @@ export const fetchMessages = createAsyncThunk(
   },
 );
 
-// export const uploadfileChatSystemAPi = createAsyncThunk(
-//   "chat/uploadFile",
-//   async ({ file, receiverId, myUserId }, { rejectWithValue, dispatch }) => {
-//     if (!file || !receiverId || !myUserId) {
-//       return rejectWithValue("Missing required data for file upload");
-//     }
-
-//     try {
-//       const formData = new FormData();
-//       formData.append("file", file);
-//       formData.append("category", "chat_files");
-
-//       const token = sessionStorage.getItem("access_token");
-
-//       const response = await axiosInstance.post(
-//         conversationUploadFileEndpoint,
-//         formData,
-//         {
-//           headers: {
-//             "Content-Type": "multipart/form-data",
-//             Authorization: `Bearer ${token}`,
-//           },
-//           onUploadProgress: (progressEvent) => {
-//             const progress = Math.round(
-//               (progressEvent.loaded * 100) / progressEvent.total,
-//             );
-
-//             dispatch(setUploadProgress(progress));
-//           },
-//         },
-//       );
-
-//       const fileId = response.data.file_id;
-
-//       return {
-//         fileId,
-//         fileName: file.name,
-//         fileType: file.type,
-//         fileSize: file.size,
-//         receiverId,
-//         myUserId,
-//       };
-//     } catch (err) {
-//       return rejectWithValue(err.response?.data || err.message);
-//     }
-//   },
-// );
-
 export const fetchFileUrl = createAsyncThunk(
   "chat/fetchFileUrl",
   async (fileId, { rejectWithValue }) => {
@@ -235,6 +187,20 @@ export const deleteConversationApi = createAsyncThunk(
       return conversationId;
     } catch (err) {
       return rejectWithValue(err.response?.data || err.message);
+    }
+  },
+);
+
+export const getMessengerList = createAsyncThunk(
+  "messenger/getList",
+  async (_, { rejectWithValue }) => {
+    try {
+      const res = await axiosInstance.get("/messenger/list");
+      return res.data;
+    } catch (err) {
+      return rejectWithValue(
+        err.response?.data || "Failed to fetch messenger list",
+      );
     }
   },
 );

@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from "react";
-import { Card, Button, Form, Modal, Accordion, Spinner } from "react-bootstrap";
+import { Button, Form, Modal, Spinner } from "react-bootstrap";
+import ForumCard from "../../../Component/Card/Card";
+
 import { useDispatch, useSelector } from "react-redux";
 import {
   createThoughtApi,
@@ -12,6 +14,8 @@ import {
 import { CreateThread } from "./createThread";
 import { toast } from "react-toastify";
 import { getProfileDetail } from "../../../Networking/User/APIs/Profile/ProfileApi";
+import { capitalFunction } from "../../../Component/capitalLetter";
+import PageHeader from "../../../Component/PageHeader/PageHeader";
 
 export const PortfolioForum = () => {
   const dispatch = useDispatch();
@@ -26,7 +30,6 @@ export const PortfolioForum = () => {
   const [newMessage, setNewMessage] = useState("");
   const [threadMessages, setThreadMessages] = useState([]);
 
-  const [userdetail, setUserdetail] = useState({});
   const [selectedFile, setSelectedFile] = useState(null);
   const [selectedFilePreview, setSelectedFilePreview] = useState(null);
   const [isExistingFile, setIsExistingFile] = useState(false);
@@ -42,6 +45,8 @@ export const PortfolioForum = () => {
   const [threadToDelete, setThreadToDelete] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
 
+  const [showDeleteThoughtModal, setShowDeleteThoughtModal] = useState(false);
+  const [thoughtToDelete, setThoughtToDelete] = useState(null);
   const [currentView, setCurrentView] = useState("list");
 
   const scrollToBottom = () => {
@@ -101,9 +106,6 @@ export const PortfolioForum = () => {
         setThreadMessages([]);
         setCurrentView("list");
       }
-      toast.success("Thread deleted successfully");
-    } catch (err) {
-      toast.error("Failed to delete thread");
     } finally {
       setDeletingId(null);
       setShowDeleteModal(false);
@@ -116,7 +118,7 @@ export const PortfolioForum = () => {
     setCurrentView("thread");
     setThreadMessages([]);
     setLoadingHistory(true);
-    setUserdetail(userdata?.id);
+
     setEditingThoughtId(null);
     setNewMessage("");
     setSelectedFile(null);
@@ -125,8 +127,6 @@ export const PortfolioForum = () => {
     try {
       const data = await dispatch(getThreadhistory(thread.id)).unwrap();
       setThreadMessages(data.thoughts || []);
-    } catch (error) {
-      toast.error("Failed to load thread history");
     } finally {
       setLoadingHistory(false);
     }
@@ -155,28 +155,42 @@ export const PortfolioForum = () => {
     }
   };
 
-  const handleDelete = async (threadId, thoughtId) => {
+  const handleDelete = (threadId, thoughtId) => {
     if (!thoughtId) {
       toast.error("Thought ID is missing!");
       return;
     }
+    setThoughtToDelete({ threadId, thoughtId });
+    setShowDeleteThoughtModal(true);
+  };
 
+  const confirmDeleteThought = async () => {
+    const { threadId, thoughtId } = thoughtToDelete;
     try {
       setLoadingId(thoughtId);
+      setShowDeleteThoughtModal(false);
+
       await dispatch(
         deleteThoughtApi({ thread_id: threadId, thought_id: thoughtId }),
       ).unwrap();
 
-      toast.success("Thought deleted successfully");
       setThreadMessages((prev) => prev.filter((msg) => msg.id !== thoughtId));
+
+      if (editingThoughtId === thoughtId) {
+        setEditingThoughtId(null);
+        setNewMessage("");
+        setSelectedFile(null);
+        setSelectedFilePreview(null);
+        setIsExistingFile(false);
+      }
+
       await dispatch(get_Threads_Api()).unwrap();
     } catch (err) {
-      toast.error(err || "Failed to delete thought");
     } finally {
       setLoadingId(null);
+      setThoughtToDelete(null);
     }
   };
-
   const handleFileSelect = (e) => {
     const file = e.target.files[0];
     if (!file) return;
@@ -253,10 +267,6 @@ export const PortfolioForum = () => {
 
       const data = await dispatch(getThreadhistory(selectedThread.id)).unwrap();
       setThreadMessages(data.thoughts || []);
-
-      toast.success("Thought updated successfully");
-    } catch (err) {
-      toast.error("Failed to update thought");
     } finally {
       setSending(false);
     }
@@ -316,27 +326,31 @@ export const PortfolioForum = () => {
   };
 
   return (
-    <div className="container-fluid p-0" style={{ height: "100vh" }}>
+    <div className="container-fluid p-2" style={{ height: "100vh" }}>
+      <PageHeader title="Portfolio Forum" />
       {currentView === "list" ? (
-        <div className="p-3 h-100 overflow-auto">
-          <h5 className="fw-bold px-4 px-md-0">
-            Portfolio Threads ({threads.length})
-          </h5>
+        <div className="p-1 h-100 overflow-auto">
+          <div className="d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-2 mb-3">
+            <h5 className="custom-card-title mb-0">
+              Portfolio Threads ({threads.length})
+            </h5>
 
-          <Button
-            className="w-100 my-3"
-            style={{ background: "#6c757d", border: 0 }}
-            onClick={handleCreatethread}
-          >
-            + New Portfolio Thread
-          </Button>
+            <div className="d-flex flex-column flex-sm-row gap-2 w-md-auto">
+              <Button
+                className="w-100 w-sm-auto btn-secondary"
+                onClick={handleCreatethread}
+              >
+                + New Portfolio Thread
+              </Button>
+            </div>
+          </div>
 
           <Form.Control
             type="text"
-            placeholder="Search threads by title or author..."
-            className="mb-3"
+            placeholder="Search threads..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
+            className="w-100 mb-4"
           />
 
           {loadingThreads ? (
@@ -346,13 +360,15 @@ export const PortfolioForum = () => {
             </div>
           ) : (
             filteredThreads.map((t) => (
-              <Card
+              <ForumCard
                 key={t.id}
                 className={`p-3 mb-2 shadow-sm thread_card border ${
                   selectedThread?.id === t.id ? "border-primary" : ""
                 }`}
                 style={{ cursor: "pointer" }}
                 onClick={() => handlethreadhistory(t)}
+                variant="elevated"
+                noPadding
               >
                 <div className="d-flex flex-column flex-md-row justify-content-between align-items-start pb-2">
                   <div className="flex-grow-1 thread_title">
@@ -389,7 +405,7 @@ export const PortfolioForum = () => {
                 </div>
                 <div className="d-flex justify-content-between align-content-center">
                   <span className="text-center" style={{ fontSize: 14 }}>
-                    {t.author_name}
+                    {capitalFunction(t.author_name)}
                   </span>
 
                   <span className="text-center " style={{ fontSize: 14 }}>
@@ -399,13 +415,13 @@ export const PortfolioForum = () => {
                       : "-"}
                   </span>
                 </div>
-              </Card>
+              </ForumCard>
             ))
           )}
         </div>
       ) : (
         <div
-          className="d-flex flex-column p-3"
+          className="d-flex flex-column p-1"
           style={{ height: "100vh", overflow: "hidden" }}
         >
           <div className="d-flex align-items-center mb-3 mx-3 mx-md-0">
@@ -417,12 +433,11 @@ export const PortfolioForum = () => {
             >
               <i className="bi bi-arrow-left"></i>
             </Button>
-            <h5 className="fw-bold px-4 px-md-0">{selectedThread?.title}</h5>
+            <h5 className="custom-card-title">{selectedThread?.title}</h5>
             <span className="text-muted ms-auto">
               {selectedThread?.thought_count || 0} thoughts
             </span>
           </div>
-          <hr />
 
           <div
             style={{
@@ -457,7 +472,7 @@ export const PortfolioForum = () => {
             ) : (
               <div className="d-flex flex-column">
                 {threadMessages.map((msg) => (
-                  <Card
+                  <ForumCard
                     key={msg.id}
                     className={`p-3 mb-3 shadow-sm ${
                       msg.deleted ? "border-danger bg-light" : ""
@@ -466,6 +481,8 @@ export const PortfolioForum = () => {
                         ? "admin-thread"
                         : "user-thread"
                     }`}
+                    variant="elevated"
+                    noPadding
                   >
                     <div className="d-flex justify-content-between align-items-start mb-2">
                       <small
@@ -473,7 +490,7 @@ export const PortfolioForum = () => {
                           msg.author_role === "admin" ? "text-primary" : ""
                         }`}
                       >
-                        {msg.author_name || "Unknown User"}
+                        {capitalFunction(msg.author_name || "Unknown User")}
                         {msg.author_role === "admin" && (
                           <span className="badge bg-primary ms-2">Admin</span>
                         )}
@@ -496,7 +513,7 @@ export const PortfolioForum = () => {
                         {msg.has_file && getFileDisplay(msg)}
 
                         <div className="d-flex justify-content-end mt-3">
-                          {(userdata.role === "admin" ||
+                          {(userdata?.role === "admin" ||
                             Number(msg.author_uid) === userdata?.id) && (
                             <div className="d-flex gap-2">
                               <button
@@ -530,7 +547,7 @@ export const PortfolioForum = () => {
                         </div>
                       </>
                     )}
-                  </Card>
+                  </ForumCard>
                 ))}
                 <div ref={messagesEndRef} />
               </div>
@@ -545,7 +562,7 @@ export const PortfolioForum = () => {
             }}
           >
             {selectedFilePreview && (
-              <div className="mb-3 p-3 bg-light border rounded d-flex justify-content-between align-items-center">
+              <div className="mb-3 p-3 border rounded d-flex justify-content-between align-items-center">
                 <div className="d-flex align-items-center">
                   <i
                     className={`${getFileIcon(selectedFilePreview.type)} me-3`}
@@ -650,6 +667,39 @@ export const PortfolioForum = () => {
             disabled={deletingId === threadToDelete}
           >
             {deletingId === threadToDelete ? (
+              <Spinner size="sm" animation="border" />
+            ) : (
+              "Delete"
+            )}
+          </Button>
+        </Modal.Footer>
+      </Modal>
+
+      <Modal
+        show={showDeleteThoughtModal}
+        onHide={() => setShowDeleteThoughtModal(false)}
+        centered
+      >
+        <Modal.Header closeButton>
+          <Modal.Title>Delete Thought</Modal.Title>
+        </Modal.Header>
+
+        <Modal.Body>Are you sure you want to delete this thought?</Modal.Body>
+
+        <Modal.Footer>
+          <Button
+            variant="secondary"
+            onClick={() => setShowDeleteThoughtModal(false)}
+          >
+            Cancel
+          </Button>
+
+          <Button
+            variant="danger"
+            onClick={confirmDeleteThought}
+            disabled={loadingId === thoughtToDelete?.thoughtId}
+          >
+            {loadingId === thoughtToDelete?.thoughtId ? (
               <Spinner size="sm" animation="border" />
             ) : (
               "Delete"

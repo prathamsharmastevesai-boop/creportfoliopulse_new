@@ -31,6 +31,7 @@ export const Sidebar = ({ collapsed, setCollapsed }) => {
     employee_contact_enabled: false,
     building_info_enabled: false,
     comparative_building_data_enabled: false,
+
     tenant_information_enabled: false,
     tenants_in_the_market_enabled: false,
     comps_enabled: false,
@@ -39,6 +40,7 @@ export const Sidebar = ({ collapsed, setCollapsed }) => {
     leases_agreement_data_enabled: false,
     deal_tracker_enabled: false,
     tour_enabled: false,
+    chat_history: false,
     information_collaboration_enabled: false,
     project_management_enabled: false,
     Conversation: false,
@@ -84,6 +86,8 @@ export const Sidebar = ({ collapsed, setCollapsed }) => {
           third_party_enabled: userdata?.third_party_enabled || false,
           employee_contact_enabled: userdata?.employee_contact_enabled || false,
           building_info_enabled: userdata?.building_info_enabled || false,
+          maintenance_updates_enabled:
+            userdata?.maintenance_updates_enabled || false,
           comparative_building_data_enabled:
             userdata?.comparative_building_data_enabled || false,
           tenant_information_enabled:
@@ -98,6 +102,7 @@ export const Sidebar = ({ collapsed, setCollapsed }) => {
             userdata?.leases_agreement_data_enabled || false,
           deal_tracker_enabled: userdata?.deal_tracker_enabled || false,
           tour_enabled: userdata?.tour_enabled || false,
+          chat_history: userdata?.chat_history || false,
           information_collaboration_enabled:
             userdata?.information_collaboration_enabled || false,
           project_management_enabled:
@@ -284,18 +289,24 @@ export const Sidebar = ({ collapsed, setCollapsed }) => {
             isActivePath={isActive("/distilled-expense-tracker")}
           />
           <NavItem
+            path="/admin-loi-audit"
+            icon="bi-file-earmark-check"
+            label="LOI Audit"
+            isActivePath={isActive("/admin-loi-audit")}
+          />
+          <NavItem
             path="/space-inquiry"
             icon="bi-journal-text"
             label="Space Inquiry"
             isActivePath={isActive("/space-inquiry")}
           />
 
-          <NavItem
-            path="/admin-spaceup"
+          {/* <NavItem
+            path="/admin-broker-index"
             icon="bi-megaphone"
-            label="Space Up"
-            isActivePath={isActive("/admin-spaceup")}
-          />
+            label="Broker Index"
+            isActivePath={isActive("/admin-broker-index")}
+          /> */}
           <NavItem
             path="/admin-maintenance-building-list"
             icon="bi-tools"
@@ -360,6 +371,7 @@ export const Sidebar = ({ collapsed, setCollapsed }) => {
                 label="Building Info Data"
                 isActivePath={isActive("/building-info-list")}
               />
+
               <NavItem
                 path="/sublease-tracker-list"
                 icon="bi-journal-text"
@@ -415,6 +427,7 @@ export const Sidebar = ({ collapsed, setCollapsed }) => {
       "employee_contact_enabled",
       "building_info_enabled",
       "comparative_building_data_enabled",
+      "maintenance_updates_enabled",
       "tenant_information_enabled",
       "tenants_in_the_market_enabled",
       "comps_enabled",
@@ -422,6 +435,7 @@ export const Sidebar = ({ collapsed, setCollapsed }) => {
       "renewal_tracker_enabled",
       "leases_agreement_data_enabled",
       "tour_enabled",
+      "chat_history",
       "deal_tracker_enabled",
     ]);
 
@@ -445,19 +459,38 @@ export const Sidebar = ({ collapsed, setCollapsed }) => {
           enabled={profileData.building_info_enabled}
         />
         <NavItem
+          path="/user-files-media"
+          icon="bi-building"
+          label="Files and Media"
+          isActivePath={isActive("/user-files-media")}
+        />
+        <NavItem
+          path="/calendar"
+          icon="bi-calendar"
+          label="Calendar"
+          isActivePath={isActive("/calendar")}
+        />
+        <NavItem
           path="/portfolio-chat"
           icon="bi-mic"
           label="Portfolio Voice"
           isActivePath={isActive("/portfolio-chat")}
           enabled={profileData.portfolio_insights_enabled}
         />
-        <NavItem
+        {/* <NavItem
           path="/cre-news"
           icon="bi-newspaper"
           label="CRE News"
           isActivePath={isActive("/cre-news")}
           enabled={true}
         />
+        <NavItem
+          path="/the-pulse"
+          icon="bi-activity"
+          label="THE PULSE"
+          isActivePath={isActive("/the-pulse")}
+          enabled={true}
+        /> */}
         <NavItem
           path="/email-drafting"
           icon="bi-envelope-open"
@@ -466,7 +499,7 @@ export const Sidebar = ({ collapsed, setCollapsed }) => {
           enabled={profileData.email_drafting_enabled}
         />
 
-        {profileData.gemini_chat_enabled && (
+        {/* {profileData.gemini_chat_enabled && (
           <NavItem
             path="/gemini-chat"
             icon="bi-chat-dots-fill"
@@ -474,7 +507,7 @@ export const Sidebar = ({ collapsed, setCollapsed }) => {
             isActivePath={isActive("/gemini-chat")}
             enabled={profileData.gemini_chat_enabled}
           />
-        )}
+        )} */}
 
         <NavItem
           path="/notes"
@@ -494,13 +527,13 @@ export const Sidebar = ({ collapsed, setCollapsed }) => {
           />
         )}
 
-        <NavItem
+        {/* <NavItem
           path="/ai-lease-abstract-upload"
           icon="bi-file-earmark-text"
           label="AI Lease Abstract"
           isActivePath={isActive("/ai-lease-abstract-upload")}
           enabled={profileData.ai_lease_abstract_enabled}
-        />
+        /> */}
         <NavItem
           path="/information-collaboration"
           icon="bi-people"
@@ -553,10 +586,10 @@ export const Sidebar = ({ collapsed, setCollapsed }) => {
         />
 
         <NavItem
-          path="/space-up/buildingList"
+          path="/broker-index"
           icon="bi-megaphone"
-          label="Space Up"
-          isActivePath={isActive("/space-up/buildingList")}
+          label="Broker Index"
+          isActivePath={isActive("/broker-index")}
           enabled={profileData.space_up_enabled}
         />
         <NavItem
@@ -564,6 +597,7 @@ export const Sidebar = ({ collapsed, setCollapsed }) => {
           icon="bi-tools"
           label="Maintenance Update"
           isActivePath={isActive("/maintenance-building-list")}
+          enabled={profileData.maintenance_updates_enabled}
         />
 
         <NavItem
@@ -667,13 +701,13 @@ export const Sidebar = ({ collapsed, setCollapsed }) => {
               isActivePath={isActive("/tours")}
               enabled={profileData.tour_enabled}
             />
-            <NavItem
+            {/* <NavItem
               path="/deal-list"
               icon="bi-kanban"
               label="Lead and Deal Tracker"
               isActivePath={isActive("/deal-list")}
               enabled={profileData.deal_tracker_enabled}
-            />
+            /> */}
           </ul>
         )}
 

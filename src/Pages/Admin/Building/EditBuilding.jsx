@@ -3,6 +3,8 @@ import { useDispatch } from "react-redux";
 import { useLocation, useNavigate } from "react-router-dom";
 import { UpdateBuildingSubmit } from "../../../Networking/Admin/APIs/BuildingApi";
 import RAGLoader from "../../../Component/Loader";
+import Card from "../../../Component/Card/Card";
+import PageHeader from "../../../Component/PageHeader/PageHeader";
 
 export const UpdateBuilding = () => {
   const dispatch = useDispatch();
@@ -65,17 +67,15 @@ export const UpdateBuilding = () => {
 
   return (
     <div className="container py-5 position-relative">
-      <div className="text-center mb-5">
-        <h2 className="fw-bold text-dark">🛠️ Update Buildings</h2>
-        <p className="text-muted">
-          Modify details for your existing buildings below.
-        </p>
-      </div>
+      <PageHeader
+        title="🛠️ Update Buildings"
+        subtitle="Modify details for your existing buildings below."
+      />
 
       <form onSubmit={handleSubmit}>
         {buildings.map((building, index) => (
-          <div key={index} className="card shadow-sm mb-4 border-0">
-            <div className="card-body">
+          <Card key={index} className="mb-4 border-0">
+
               <div className="d-flex justify-content-between align-items-center mb-3">
                 <h5 className="card-title mb-0">Building No. {index + 1}</h5>
                 {buildings.length > 1 && (
@@ -109,8 +109,7 @@ export const UpdateBuilding = () => {
                   />
                 </div>
               </div>
-            </div>
-          </div>
+          </Card>
         ))}
 
         <div className="d-flex gap-2 mb-4">

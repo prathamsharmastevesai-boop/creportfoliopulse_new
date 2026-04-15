@@ -6,7 +6,7 @@ import { useDispatch } from "react-redux";
 import { askBuildingStack } from "../Networking/Admin/APIs/buildingStackApi";
 
 export const ChatBotModal = ({ category, buildingId }) => {
-  console.log(buildingId, "buildingId");
+
 
   const [open, setOpen] = useState(false);
   const [messages, setMessages] = useState([]);
@@ -72,7 +72,7 @@ export const ChatBotModal = ({ category, buildingId }) => {
   return (
     <>
       <button onClick={() => setOpen(true)} className="chatbot-button shadow">
-        <BsChatDots size={22} className="activity-log"/>
+        <BsChatDots size={22} className="activity-log" />
       </button>
 
       {open && (
@@ -99,18 +99,16 @@ export const ChatBotModal = ({ category, buildingId }) => {
             {messages.map((msg, index) => (
               <div
                 key={index}
-                className={`d-flex mb-2 ${
-                  msg.sender === "user"
-                    ? "justify-content-end"
-                    : "justify-content-start"
-                }`}
+                className={`d-flex mb-2 ${msg.sender === "user"
+                  ? "justify-content-end"
+                  : "justify-content-start"
+                  }`}
               >
                 <div
-                  className={`chatbot-chat-bubble ${
-                    msg.sender === "user"
-                      ? "chatbot-user-bubble"
-                      : "chatbot-bot-bubble"
-                  }`}
+                  className={`chatbot-chat-bubble ${msg.sender === "user"
+                    ? "chatbot-user-bubble"
+                    : "chatbot-bot-bubble"
+                    }`}
                 >
                   {msg.sender === "user" ? (
                     msg.text

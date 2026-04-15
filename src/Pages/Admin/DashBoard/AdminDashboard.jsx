@@ -7,6 +7,9 @@ import {
   getdashboardApi,
 } from "../../../Networking/Admin/APIs/dashboardApi";
 import { useNavigate } from "react-router-dom";
+import Card from "../../../Component/Card/Card";
+import PageHeader from "../../../Component/PageHeader/PageHeader";
+
 
 export const AdminDashboard = () => {
   const dispatch = useDispatch();
@@ -77,12 +80,10 @@ export const AdminDashboard = () => {
 
   return (
     <div className="container-fluid p-3">
-      <div className="mb-4 text-center text-md-start">
-        <h4 className="fw-bold">Dashboard Overview</h4>
-        <p className="text-muted">
-          Manage your real estate portfolio data and AI system
-        </p>
-      </div>
+      <PageHeader
+        title="Dashboard Overview"
+        subtitle="Manage your real estate portfolio data and AI system"
+      />
 
       <div className="row g-3 mb-4">
         <DashboardCard
@@ -113,49 +114,46 @@ export const AdminDashboard = () => {
 
       <div className="row g-3 mb-4">
         <div className="col-12 col-lg-6">
-          <div className="card shadow-sm border-0 h-100">
-            <div className="card-body">
-              <h5 className="fw-semibold mb-3">Recent Activity</h5>
-              <p className="text-muted mb-0">
-                No recent activity <br />
-                <small>Activity will appear here once data is uploaded</small>
-              </p>
-            </div>
-          </div>
+          <Card className="h-100" variant="elevated">
+            <h5 className="fw-semibold mb-3">Recent Activity</h5>
+            <p className="text-muted mb-0">
+              No recent activity <br />
+              <small>Activity will appear here once data is uploaded</small>
+            </p>
+          </Card>
         </div>
 
         <div className="col-12 col-lg-6">
-          <div className="card shadow-sm border-0 h-100">
-            <div className="card-body">
-              <h5 className="fw-semibold mb-3">Quick Actions</h5>
-              <div className="row g-3">
-                <div className="col-12 col-sm-6">
-                  <button
-                    className="btn btn-outline-secondary w-100 py-3"
-                    onClick={handleAIAnalytics}
-                  >
-                    <TrendingUp size={20} className="me-2" />
-                    AI Analytics
-                  </button>
-                </div>
-                <div className="col-12 col-sm-6">
-                  <button
-                    className="btn btn-outline-success w-100 py-3"
-                    onClick={handleBuilding}
-                  >
-                    <Building2 size={20} className="me-2" />
-                    Add Building
-                  </button>
-                </div>
+          <Card className="h-100" variant="elevated">
+            <h5 className="fw-semibold mb-3">Quick Actions</h5>
+            <div className="row g-3">
+              <div className="col-12 col-sm-6">
+                <button
+                  className="btn btn-outline-secondary w-100 py-3"
+                  onClick={handleAIAnalytics}
+                >
+                  <TrendingUp size={20} className="me-2" />
+                  AI Analytics
+                </button>
+              </div>
+              <div className="col-12 col-sm-6">
+                <button
+                  className="btn btn-outline-success w-100 py-3"
+                  onClick={handleBuilding}
+                >
+                  <Building2 size={20} className="me-2" />
+                  Add Building
+                </button>
               </div>
             </div>
-          </div>
+          </Card>
         </div>
       </div>
 
-      <div className="my-4 text-center text-md-start">
-        <h4 className="fw-bold">Compliance Overview</h4>
-      </div>
+      <PageHeader
+        title="Compliance Overview"
+        subtitle="Monitor user status and system certifications"
+      />
 
       <div className="row g-3 mb-4">
         <DashboardCard
@@ -205,20 +203,18 @@ export const AdminDashboard = () => {
 
 const DashboardCard = ({ title, value, icon, color }) => (
   <div className="col-12 col-sm-6 col-lg-3">
-    <div className="card border-0 shadow-sm rounded-4 h-100">
-      <div className="card-body d-flex align-items-center">
-        <div
-          className={`rounded-3 bg-${color} bg-opacity-10 text-${color} d-flex align-items-center justify-content-center me-3`}
-          style={{ width: "42px", height: "42px" }}
-        >
-          {icon}
-        </div>
-        <div>
-          <h6 className="text-muted mb-1">{title}</h6>
-          <h5 className="fw-bold mb-0">{value}</h5>
-        </div>
+    <Card className="h-100" variant="elevated" bodyClass="d-flex align-items-center">
+      <div
+        className={`rounded-3 bg-${color} bg-opacity-10 text-${color} d-flex align-items-center justify-content-center me-3`}
+        style={{ width: "42px", height: "42px" }}
+      >
+        {icon}
       </div>
-    </div>
+      <div>
+        <h6 className="text-muted mb-1">{title}</h6>
+        <h5 className="fw-bold mb-0">{value}</h5>
+      </div>
+    </Card>
   </div>
 );
 

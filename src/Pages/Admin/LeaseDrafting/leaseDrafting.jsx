@@ -12,6 +12,10 @@ import {
   UpdateDraftingtext,
   UploadDraftingLeaseDoc,
 } from "../../../Networking/Admin/APIs/AiAbstractLeaseAPi";
+import Card from "../../../Component/Card/Card";
+import PageHeader from "../../../Component/PageHeader/PageHeader";
+import { capitalFunction } from "../../../Component/capitalLetter";
+import ConfirmDeleteModal from "../../../Component/confirmDeleteModal";
 
 export const LeaseDraftingUpload = () => {
   const dispatch = useDispatch();
@@ -28,10 +32,17 @@ export const LeaseDraftingUpload = () => {
   const [feedback, setFeedback] = useState(null);
   const [feedbackComment, setFeedbackComment] = useState("");
   const [submittedFeedback, setSubmittedFeedback] = useState(false);
-  const [loader, setLoader] = useState(false);
+
   const [updateloading, setUpadteLoading] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const [previewData, setPreviewData] = useState("");
+
+  const [previewLoader, setPreviewLoader] = useState(false);
+  const [pageLoader, setPageLoader] = useState(false);
+
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [deleteId, setDeleteId] = useState(null);
+  const [deleteLoading, setDeleteLoading] = useState(false);
 
   const [metadata, setMetadata] = useState({
     tenant_name: "",
@@ -55,7 +66,8 @@ export const LeaseDraftingUpload = () => {
   }, [aiDraft, submittedFeedback]);
 
   const fetchDocs = () => {
-    setLoader(true);
+    setPageLoader(true);
+
     dispatch(ListDraftingLeaseDoc({ category: "lease_gen" }))
       .unwrap()
       .then((res) => {
@@ -64,7 +76,7 @@ export const LeaseDraftingUpload = () => {
       .catch((err) => {
         console.error("Failed to fetch lease docs:", err);
       })
-      .finally(() => setLoader(false));
+      .finally(() => setPageLoader(false));
   };
 
   useEffect(() => {
@@ -89,17 +101,12 @@ export const LeaseDraftingUpload = () => {
     }
 
     const payload = { file, category: "lease_gen" };
-    setLoader(true);
+    setPageLoader(true);
     dispatch(UploadDraftingLeaseDoc(payload))
       .unwrap()
-      .then(() => {
-        toast.success(`${file.name} uploaded successfully`);
-        fetchDocs();
-      })
-      .catch((err) => {
-        console.error("Upload failed:", err);
-      })
-      .finally(() => setLoader(false));
+      .then(() => fetchDocs())
+      .catch((err) => console.error("Upload failed:", err))
+      .finally(() => setPageLoader(false));
   };
 
   const handleFileChange = (e) => {
@@ -110,33 +117,38 @@ export const LeaseDraftingUpload = () => {
 
   const handlefilePreview = async (fileId) => {
     try {
-      setLoader(true);
-      const [Textdata1] = await Promise.all([
-        dispatch(getTextViewData(fileId)).unwrap(),
-      ]);
-      setPreviewData(Textdata1);
+      setPreviewLoader(true);
+
+      const data = await dispatch(getTextViewData(fileId)).unwrap();
+
+      setPreviewData(data);
       setShowModal(true);
     } catch (error) {
       console.error("Failed to fetch preview data:", error);
     } finally {
-      setLoader(false);
+      setPreviewLoader(false);
     }
   };
 
   const handleDelete = (fileId) => {
-    if (!window.confirm("Are you sure you want to delete this document?"))
-      return;
+    setDeleteId(fileId);
+    setShowDeleteModal(true);
+  };
 
-    setLoader(true);
-    dispatch(DeleteDrafingDoc({ fileId }))
-      .unwrap()
-      .then(() => {
-        fetchDocs();
-      })
-      .catch((err) => {
-        console.error("Delete failed:", err);
-      })
-      .finally(() => setLoader(false));
+  const confirmDelete = async () => {
+    try {
+      setDeleteLoading(true);
+
+      await dispatch(DeleteDrafingDoc({ fileId: deleteId })).unwrap();
+      await fetchDocs();
+
+      setShowDeleteModal(false);
+      setDeleteId(null);
+    } catch (err) {
+      console.error("Delete failed:", err);
+    } finally {
+      setDeleteLoading(false);
+    }
   };
 
   const handleGenerateDraft = async (id) => {
@@ -191,9 +203,6 @@ export const LeaseDraftingUpload = () => {
       setAiDraft(editedDraft);
       setIsEditing(false);
       setShowDiff(false);
-    } catch (error) {
-      console.error("Error saving draft:", error);
-      toast.error("Failed to update draft");
     } finally {
       setUpadteLoading(false);
     }
@@ -205,7 +214,6 @@ export const LeaseDraftingUpload = () => {
       return;
     }
     setSubmittedFeedback(true);
-    toast.success("Feedback submitted. Thank you!");
   };
 
   const handleDownloadDraft = () => {
@@ -264,14 +272,11 @@ export const LeaseDraftingUpload = () => {
   };
 
   return (
-    <div className="container-fuild p-3">
-      <div className="text-center text-md-start">
-        <h4 className="fw-bold">AI Lease Drafting</h4>
-        <p className="text-muted">
-          Upload an LOI, review extracted terms, and generate a draft lease
-          automatically.
-        </p>
-      </div>
+    <div className="container-fuild p-3 position-relative">
+      <PageHeader
+        title="AI Lease Drafting"
+        subtitle="Upload an LOI, review extracted terms, and generate a draft lease automatically"
+      />
 
       <div className="border border-2 rounded-3 py-5 text-center mb-4">
         <i className="bi bi-upload fs-1 text-primary"></i>
@@ -291,57 +296,53 @@ export const LeaseDraftingUpload = () => {
         </label>
       </div>
 
-      <div className="card shadow-sm mb-4">
-        <div className="card-header fw-semibold">Uploaded LOI Documents</div>
-        {loader ? (
-          <div className="text-center p-1">
-            <div className="text-center">
-              <p className="text-muted mt-2">Loading files...</p>
-            </div>
-          </div>
-        ) : (
-          <ul className="list-group list-group-flush">
-            {docs.length === 0 && (
-              <li className="list-group-item text-muted">
-                No documents uploaded yet.
-              </li>
-            )}
-            {docs.map((doc) => (
-              <li
-                key={doc.file_id}
-                className="list-group-item d-flex justify-content-between align-items-center"
-              >
-                <div>
-                  <input
-                    type="radio"
-                    name="selectedDoc"
-                    checked={selectedDoc?.file_id === doc.file_id}
-                    onChange={() => setSelectedDoc(doc)}
-                    className="me-2"
-                  />
-                  {doc.original_file_name}
-                </div>
-                <div className="d-flex gap-3 align-items-center">
-                  <a
-                    href={doc.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="btn btn-sm btn-outline-info"
-                    onClick={() => handlefilePreview(doc.file_id)}
-                  >
-                    Preview
-                  </a>
-                  <i
-                    className="bi bi-trash text-danger"
-                    style={{ cursor: "pointer" }}
-                    onClick={() => handleDelete(doc.file_id)}
-                  />
-                </div>
-              </li>
-            ))}
-          </ul>
-        )}
-      </div>
+      <Card
+        className="mb-4"
+        title="Uploaded LOI Documents"
+        variant="elevated"
+        noPadding
+      >
+        <ul className="list-group list-group-flush">
+          {docs.length === 0 && (
+            <li className="list-group-item text-muted">
+              No documents uploaded yet.
+            </li>
+          )}
+          {docs.map((doc) => (
+            <li
+              key={doc.file_id}
+              className="list-group-item d-flex justify-content-between align-items-center"
+            >
+              <div>
+                <input
+                  type="radio"
+                  name="selectedDoc"
+                  checked={selectedDoc?.file_id === doc.file_id}
+                  onChange={() => setSelectedDoc(doc)}
+                  className="me-2"
+                />
+                {capitalFunction(doc.original_file_name)}{" "}
+              </div>
+              <div className="d-flex gap-3 align-items-center">
+                <a
+                  href={doc.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="btn btn-sm btn-outline-info"
+                  onClick={() => handlefilePreview(doc.file_id)}
+                >
+                  Preview Draft
+                </a>
+                <i
+                  className="bi bi-trash text-danger"
+                  style={{ cursor: "pointer" }}
+                  onClick={() => handleDelete(doc.file_id)}
+                />
+              </div>
+            </li>
+          ))}
+        </ul>
+      </Card>
 
       <div
         className={`modal fade ${showModal ? "show d-block" : ""}`}
@@ -405,10 +406,11 @@ export const LeaseDraftingUpload = () => {
       </button>
 
       {aiDraft && (
-        <div className="card shadow-sm">
-          <div className="card-header d-flex justify-content-between align-items-center fw-semibold">
-            AI Drafted Lease
-            {!isEditing ? (
+        <Card
+          variant="elevated"
+          title="AI Drafted Lease"
+          headerAction={
+            !isEditing ? (
               <i
                 className="bi bi-pencil-square text-primary"
                 style={{ cursor: "pointer", fontSize: "1.2rem" }}
@@ -443,9 +445,49 @@ export const LeaseDraftingUpload = () => {
                   }}
                 />
               </div>
-            )}
-          </div>
-
+            )
+          }
+          footer={
+            !isEditing && !submittedFeedback ? (
+              <>
+                <h6 className="fw-semibold mb-2">Provide Feedback</h6>
+                <div className="d-flex gap-3 align-items-center mb-3">
+                  <i
+                    className={`bi bi-hand-thumbs-up-fill ${
+                      feedback === "up" ? "text-success" : "text-muted"
+                    }`}
+                    style={{ cursor: "pointer", fontSize: "1.5rem" }}
+                    onClick={() => setFeedback("up")}
+                  />
+                  <i
+                    className={`bi bi-hand-thumbs-down-fill ${
+                      feedback === "down" ? "text-danger" : "text-muted"
+                    }`}
+                    style={{ cursor: "pointer", fontSize: "1.5rem" }}
+                    onClick={() => setFeedback("down")}
+                  />
+                </div>
+                <textarea
+                  className="form-control mb-2"
+                  rows={3}
+                  placeholder="Add optional feedback..."
+                  value={feedbackComment}
+                  onChange={(e) => setFeedbackComment(e.target.value)}
+                />
+                <button
+                  className="btn btn-outline-primary"
+                  onClick={handleSubmitFeedback}
+                >
+                  Submit Feedback
+                </button>
+              </>
+            ) : submittedFeedback ? (
+              <div className="text-success fw-semibold">
+                Thank you for your feedback!
+              </div>
+            ) : null
+          }
+        >
           <div className="card-body">
             {isEditing ? (
               showDiff ? (
@@ -462,58 +504,31 @@ export const LeaseDraftingUpload = () => {
               <div style={{ whiteSpace: "pre-wrap" }}>{aiDraft}</div>
             )}
           </div>
-          <div className="d-flex justify-content-end m-3">
-            <button
-              className="btn btn-outline-success"
-              onClick={handleDownloadDraft}
-            >
-              <i className="bi bi-download me-2"></i>
-              Download Draft
-            </button>
-          </div>
-
-          {!isEditing && !submittedFeedback && (
-            <div className="card-footer">
-              <h6 className="fw-semibold mb-2">Provide Feedback</h6>
-              <div className="d-flex gap-3 align-items-center mb-3">
-                <i
-                  className={`bi bi-hand-thumbs-up-fill ${feedback === "up" ? "text-success" : "text-muted"
-                    }`}
-                  style={{ cursor: "pointer", fontSize: "1.5rem" }}
-                  onClick={() => setFeedback("up")}
-                />
-                <i
-                  className={`bi bi-hand-thumbs-down-fill ${feedback === "down" ? "text-danger" : "text-muted"
-                    }`}
-                  style={{ cursor: "pointer", fontSize: "1.5rem" }}
-                  onClick={() => setFeedback("down")}
-                />
-              </div>
-              <textarea
-                className="form-control mb-2"
-                rows={3}
-                placeholder="Add optional feedback..."
-                value={feedbackComment}
-                onChange={(e) => setFeedbackComment(e.target.value)}
-              />
-              <button
-                className="btn btn-outline-primary"
-                onClick={handleSubmitFeedback}
-              >
-                Submit Feedback
-              </button>
-            </div>
-          )}
-
-          {submittedFeedback && (
-            <div className="card-footer text-success fw-semibold">
-              Thank you for your feedback!
-            </div>
-          )}
-
           <div ref={bottomRef}></div>
+        </Card>
+      )}
+      {(pageLoader || previewLoader) && (
+        <div
+          className="position-absolute top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center rounded"
+          style={{
+            backdropFilter: "blur(2px)",
+            background: "rgba(0,0,0,0.4)",
+            zIndex: 10,
+          }}
+        >
+          <RAGLoader />
         </div>
       )}
+      <ConfirmDeleteModal
+        show={showDeleteModal}
+        selectedEmail={selectedDoc?.original_file_name || "this document"}
+        deleteLoading={deleteLoading}
+        onClose={() => {
+          setShowDeleteModal(false);
+          setDeleteId(null);
+        }}
+        onDelete={confirmDelete}
+      />
     </div>
   );
 };

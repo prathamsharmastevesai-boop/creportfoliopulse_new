@@ -7,7 +7,6 @@ import {
   threadData,
   ToggleForum,
 } from "../../NWconfig";
-import { toast } from "react-toastify";
 
 export const get_Threads_Api = createAsyncThunk(
   "get_Threads_Api",
@@ -110,7 +109,7 @@ export const getBenchmark = createAsyncThunk(
           building_class,
         },
       });
-      toast.success(response.data.message);
+
       return response.data;
     } catch (error) {
       return rejectWithValue(

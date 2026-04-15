@@ -24,12 +24,9 @@ export const CreateThread = ({ onClose }) => {
 
       await dispatch(get_Threads_Api()).unwrap();
 
-      toast.success("Thread Created!");
       setTitle("");
 
       if (onClose) onClose();
-    } catch (error) {
-      toast.error(error || "Failed to create thread");
     } finally {
       setLoading(false);
     }

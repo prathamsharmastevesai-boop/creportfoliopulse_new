@@ -134,11 +134,10 @@ export const EmailDraftingModal = () => {
           content: editContent,
         }),
       ).unwrap();
-      toast.success("Template updated successfully!");
+
       await fetchData();
       setShowEditModal(false);
     } catch (error) {
-      toast.error("Failed to update template");
     } finally {
       setLoading(false);
     }
@@ -160,7 +159,6 @@ export const EmailDraftingModal = () => {
         localStorage.removeItem(DRAFT_STORAGE_KEY);
       }
     } catch (error) {
-      toast.error("Failed to delete template");
     } finally {
       setDeleteLoading(false);
     }
@@ -188,7 +186,7 @@ export const EmailDraftingModal = () => {
     setDetail(selectedTemplate.content || "");
     setIsEditable(true);
     localStorage.setItem(DRAFT_STORAGE_KEY, selectedTemplate.content || "");
-    toast.success("Template loaded! You can now edit and send.");
+    toast.success("Template loaded");
   };
 
   const handleAddInfoModal = () => {
@@ -211,11 +209,10 @@ export const EmailDraftingModal = () => {
           content: newInfoContent,
         }),
       ).unwrap();
-      toast.success("Template added successfully!");
+
       await fetchData();
       setShowInfoModal(false);
     } catch (error) {
-      toast.error("Failed to add template");
     } finally {
       setLoading(false);
     }
@@ -329,7 +326,6 @@ export const EmailDraftingModal = () => {
 
                 <Col sm={2}>
                   <Button
-                    variant="outline-success"
                     className="w-100 mt-2 mt-sm-0"
                     onClick={handleAddInfoModal}
                     title="Add New Template"

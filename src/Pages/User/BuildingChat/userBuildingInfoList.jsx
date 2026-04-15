@@ -4,6 +4,7 @@ import "bootstrap-icons/font/bootstrap-icons.css";
 import { ListBuildingSubmit } from "../../../Networking/Admin/APIs/BuildingApi";
 import { useDispatch, useSelector } from "react-redux";
 import RAGLoader from "../../../Component/Loader";
+import Card from "../../../Component/Card/Card";
 
 export const UserBuildingInfolist = () => {
   const { BuildingList, loading } = useSelector((state) => state.BuildingSlice);
@@ -83,10 +84,11 @@ export const UserBuildingInfolist = () => {
           <div className="row">
             {[...filteredBuildings].reverse().map((building) => (
               <div className="col-12 mb-3" key={building.id}>
-                <div
+                <Card
                   ref={(el) => (cardsRef.current[building.id] = el)}
-                  className="card border-0 shadow-sm slide-in-top p-3"
+                  className="border-0 shadow-sm slide-in-top p-3"
                   style={{ borderRadius: "16px" }}
+                  noPadding
                 >
                   <div className="d-flex align-items-center justify-content-between ">
                     <div className="d-flex flex-column">
@@ -142,7 +144,7 @@ export const UserBuildingInfolist = () => {
                       </button>
                     </div>
                   </div>
-                </div>
+                </Card>
               </div>
             ))}
           </div>

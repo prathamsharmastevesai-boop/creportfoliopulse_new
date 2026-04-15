@@ -4,6 +4,8 @@ import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 import { RenewalTrackerSubmit } from "../../../Networking/Admin/APIs/RenewalTrackeApi";
 import { BackButton } from "../../../Component/backButton";
+import Card from "../../../Component/Card/Card";
+import PageHeader from "../../../Component/PageHeader/PageHeader";
 
 export const RenewalTracker = () => {
   const dispatch = useDispatch();
@@ -24,7 +26,7 @@ export const RenewalTracker = () => {
     tenant_current_rent: "",
     most_recent_building_comp: "",
     tenant_contact_info: "",
-    tenant_broker_contact_info: "", // New field added
+    tenant_broker_contact_info: "",
     notes: "",
     q1: {
       check_in: false,
@@ -68,7 +70,7 @@ export const RenewalTracker = () => {
       tenant_current_rent: "",
       most_recent_building_comp: "",
       tenant_contact_info: "",
-      tenant_broker_contact_info: "", // New field added to reset
+      tenant_broker_contact_info: "",
       notes: "",
       q1: {
         check_in: false,
@@ -147,7 +149,7 @@ export const RenewalTracker = () => {
       tenant_current_rent: form.tenant_current_rent,
       most_recent_building_comp: form.most_recent_building_comp,
       tenant_contact_info: form.tenant_contact_info,
-      tenant_broker_contact_info: form.tenant_broker_contact_info, // New field added to payload
+      tenant_broker_contact_info: form.tenant_broker_contact_info,
       notes: form.notes,
       q1: form.q1,
       q2: form.q2,
@@ -157,7 +159,7 @@ export const RenewalTracker = () => {
 
     try {
       await dispatch(RenewalTrackerSubmit(payload)).unwrap();
-      toast.success("Renewal tracker created successfully!");
+
       resetForm();
 
       {
@@ -167,104 +169,117 @@ export const RenewalTracker = () => {
       }
     } catch (error) {
       console.error("Error creating renewal tracker:", error);
-      toast.error(error?.message || "Failed to create renewal tracker");
     } finally {
       setLoading(false);
     }
   };
 
   const renderQuarterSection = (quarter, quarterName) => (
-    <div key={quarter} className="mb-4">
-      <h5 className="mb-3 fw-bold">{quarterName}</h5>
-      <div className="card p-3" style={{ backgroundColor: "#e9eef6" }}>
-        <div className="row">
-          <div className="col-md-6 mb-2">
-            <div className="form-check form-switch">
-              <input
-                type="checkbox"
-                className="form-check-input"
-                checked={form[quarter]?.check_in || false}
-                onChange={() => handleQuarterToggle(quarter, "check_in")}
-                id={`${quarter}-checkin`}
-              />
-              <label
-                className="form-check-label"
-                htmlFor={`${quarter}-checkin`}
-              >
-                Check In
-              </label>
-            </div>
+    <Card
+      key={quarter}
+      className="mb-4"
+      variant="elevated"
+      title={quarterName}
+      bodyClass="p-3"
+      style={{ backgroundColor: "#e9eef6" }}
+    >
+      <div className="row">
+        <div className="col-md-6 mb-2">
+          <div className="form-check form-switch">
+            <input
+              type="checkbox"
+              className="form-check-input"
+              checked={form[quarter]?.check_in || false}
+              onChange={() => handleQuarterToggle(quarter, "check_in")}
+              id={`${quarter}-checkin`}
+            />
+            <label className="form-check-label" htmlFor={`${quarter}-checkin`}>
+              Check In
+            </label>
           </div>
+        </div>
 
-          <div className="col-md-6 mb-2">
-            <div className="form-check form-switch">
-              <input
-                type="checkbox"
-                className="form-check-input"
-                checked={form[quarter]?.headcount_confirmation || false}
-                onChange={() =>
-                  handleQuarterToggle(quarter, "headcount_confirmation")
-                }
-                id={`${quarter}-headcount`}
-              />
-              <label
-                className="form-check-label"
-                htmlFor={`${quarter}-headcount`}
-              >
-                Headcount Confirmation
-              </label>
-            </div>
+        <div className="col-md-6 mb-2">
+          <div className="form-check form-switch">
+            <input
+              type="checkbox"
+              className="form-check-input"
+              checked={form[quarter]?.headcount_confirmation || false}
+              onChange={() =>
+                handleQuarterToggle(quarter, "headcount_confirmation")
+              }
+              id={`${quarter}-headcount`}
+            />
+            <label
+              className="form-check-label"
+              htmlFor={`${quarter}-headcount`}
+            >
+              Headcount Confirmation
+            </label>
           </div>
+        </div>
 
-          <div className="col-md-6 mb-2">
-            <div className="form-check form-switch">
-              <input
-                type="checkbox"
-                className="form-check-input"
-                checked={form[quarter]?.building_update_note_sent || false}
-                onChange={() =>
-                  handleQuarterToggle(quarter, "building_update_note_sent")
-                }
-                id={`${quarter}-note-sent`}
-              />
-              <label
-                className="form-check-label"
-                htmlFor={`${quarter}-note-sent`}
-              >
-                Building Update Note Sent
-              </label>
-            </div>
+        <div className="col-md-6 mb-2">
+          <div className="form-check form-switch">
+            <input
+              type="checkbox"
+              className="form-check-input"
+              checked={form[quarter]?.building_update_note_sent || false}
+              onChange={() =>
+                handleQuarterToggle(quarter, "building_update_note_sent")
+              }
+              id={`${quarter}-note-sent`}
+            />
+            <label
+              className="form-check-label"
+              htmlFor={`${quarter}-note-sent`}
+            >
+              Building Update Note Sent
+            </label>
           </div>
+        </div>
 
-          <div className="col-md-6 mb-2">
-            <div className="form-check form-switch">
-              <input
-                type="checkbox"
-                className="form-check-input"
-                checked={form[quarter]?.holiday_gift || false}
-                onChange={() => handleQuarterToggle(quarter, "holiday_gift")}
-                id={`${quarter}-holiday-gift`}
-              />
-              <label
-                className="form-check-label"
-                htmlFor={`${quarter}-holiday-gift`}
-              >
-                Holiday Gift
-              </label>
-            </div>
+        <div className="col-md-6 mb-2">
+          <div className="form-check form-switch">
+            <input
+              type="checkbox"
+              className="form-check-input"
+              checked={form[quarter]?.holiday_gift || false}
+              onChange={() => handleQuarterToggle(quarter, "holiday_gift")}
+              id={`${quarter}-holiday-gift`}
+            />
+            <label
+              className="form-check-label"
+              htmlFor={`${quarter}-holiday-gift`}
+            >
+              Holiday Gift
+            </label>
           </div>
         </div>
       </div>
-    </div>
+    </Card>
   );
 
   return (
     <div className="container-fuild p-3">
-      <div className="d-flex align-items-center my-4">
-        <BackButton />
-        <h2 className="fw-bold ms-2">New Renewal Tracker</h2>
-      </div>
-      <div className="p-4 shadow-sm rounded border position-relative">
+      <PageHeader
+        backButton={<BackButton />}
+        title="New Renewal Tracker"
+        subtitle="Input essential tenant, lease, and renewal details"
+        actions={
+          <button
+            className="btn btn-outline-secondary btn-sm px-4"
+            onClick={() => {
+              Role === "admin"
+                ? navigate("/admin-renewal-tracker-list")
+                : navigate("/user-renewal-tracker-list");
+            }}
+          >
+            Move to List
+          </button>
+        }
+      />
+      <Card className="mb-4 shadow-sm" bodyClass="p-4" variant="elevated">
         <h5 className="fw-bold pb-2 border-bottom my-3">Basic Information</h5>
         <div className="row g-3">
           {[
@@ -439,7 +454,7 @@ export const RenewalTracker = () => {
             )}
           </button>
         </div>
-      </div>
+      </Card>
     </div>
   );
 };

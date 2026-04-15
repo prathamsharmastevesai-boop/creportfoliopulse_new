@@ -1,12 +1,12 @@
 import { BuildingList } from "../../../Component/BuildingList";
-import { ListBuildingSubmit } from "../../../Networking/Admin/APIs/BuildingApi";
+import { ListuserBuildingSubmit } from "../../../Networking/Admin/APIs/BuildingApi";
 
 export const FireSafetyandBuildingList = () => {
   return (
     <BuildingList
       title="Fire Safety and Building Mechanicals"
-      category="FireSafety"
-      fetchAction={ListBuildingSubmit}
+      category="fire_safety"
+      fetchAction={ListuserBuildingSubmit}
       selector={(state) => ({
         data: state.BuildingSlice.BuildingList,
         loading: state.BuildingSlice.loading,

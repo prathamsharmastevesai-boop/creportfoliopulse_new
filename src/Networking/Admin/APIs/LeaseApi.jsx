@@ -1,6 +1,6 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
 import axiosInstance from "./AxiosInstance";
-import { toast } from "react-toastify";
+
 import {
   CreateLeaseEndpoint,
   DeleteLeaseEndpoint,
@@ -14,16 +14,16 @@ export const CreateLeaseSubmit = createAsyncThunk(
     try {
       const response = await axiosInstance.post(
         CreateLeaseEndpoint,
-        credentials
+        credentials,
       );
-      toast.success(response.data?.message || "Lease created successfully!");
+
       return response.data;
     } catch (error) {
       return rejectWithValue(
-        error.response?.data?.message || "Failed to create lease"
+        error.response?.data?.message || "Failed to create lease",
       );
     }
-  }
+  },
 );
 
 export const ListLeaseSubmit = createAsyncThunk(
@@ -31,15 +31,15 @@ export const ListLeaseSubmit = createAsyncThunk(
   async (buildingId, { rejectWithValue }) => {
     try {
       const response = await axiosInstance.get(
-        `${LeaselistEndpoint}?building_id=${buildingId}`
+        `${LeaselistEndpoint}?building_id=${buildingId}`,
       );
       return response.data;
     } catch (error) {
       return rejectWithValue(
-        error.response?.data?.message || "Failed to fetch leases"
+        error.response?.data?.message || "Failed to fetch leases",
       );
     }
-  }
+  },
 );
 
 export const UpdateLeaseSubmit = createAsyncThunk(
@@ -48,16 +48,16 @@ export const UpdateLeaseSubmit = createAsyncThunk(
     try {
       const response = await axiosInstance.patch(
         UpdateLeaseeEndpoint,
-        formData
+        formData,
       );
-      toast.success(response.data?.message || "Lease updated successfully!");
+
       return response.data;
     } catch (error) {
       return rejectWithValue(
-        error.response?.data?.message || "Failed to update lease"
+        error.response?.data?.message || "Failed to update lease",
       );
     }
-  }
+  },
 );
 
 export const DeleteLease = createAsyncThunk(
@@ -66,14 +66,14 @@ export const DeleteLease = createAsyncThunk(
     try {
       const { lease_id, building_id } = ids;
       const response = await axiosInstance.delete(
-        `${DeleteLeaseEndpoint}?lease_id=${lease_id}&building_id=${building_id}`
+        `${DeleteLeaseEndpoint}?lease_id=${lease_id}&building_id=${building_id}`,
       );
-      toast.success(response.data?.message || "Lease deleted successfully!");
+
       return response.data;
     } catch (error) {
       return rejectWithValue(
-        error.response?.data?.message || "Failed to delete lease"
+        error.response?.data?.message || "Failed to delete lease",
       );
     }
-  }
+  },
 );

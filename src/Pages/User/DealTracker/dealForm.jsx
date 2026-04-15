@@ -24,6 +24,7 @@ const DealForm = () => {
   });
 
   const baseStages = [
+    { stage_name: "Space Inquiry", order_index: 1 },
     { stage_name: "Tour", order_index: 1 },
     { stage_name: "Follow Up (Post Tour 1)", order_index: 2 },
     { stage_name: "Tour 2", order_index: 3 },
@@ -184,6 +185,20 @@ const DealForm = () => {
     if (value) {
       const date = new Date(value);
       setForm({ ...form, [key]: date.toISOString() });
+
+      if (key === "space_inquiry_date") {
+        const updatedStages = stages.map((stage) => {
+          if (stage.stage_name === "Space Inquiry") {
+            return {
+              ...stage,
+              is_completed: true,
+              completed_at: date.toISOString(),
+            };
+          }
+          return stage;
+        });
+        setStages(updatedStages);
+      }
     } else {
       setForm({ ...form, [key]: "" });
     }
@@ -302,34 +317,6 @@ const DealForm = () => {
                 />
               </div>
             ))}
-          </div>
-
-          <div className="row g-3 my-2">
-            <div className="col-md-6 col-12">
-              <label className="fw-semibold">Space Inquiry Date</label>
-              <input
-                type="date"
-                className="form-control"
-                value={formatDateForInput(form.space_inquiry_date)}
-                onChange={(e) =>
-                  handleDateChange("space_inquiry_date", e.target.value)
-                }
-                disabled={saving}
-              />
-            </div>
-
-            <div className="col-md-6 col-12">
-              <label className="fw-semibold">Space Inquiry Notes</label>
-              <input
-                className="form-control"
-                placeholder="Enter inquiry notes..."
-                value={form.space_inquiry_notes}
-                onChange={(e) =>
-                  setForm({ ...form, space_inquiry_notes: e.target.value })
-                }
-                disabled={saving}
-              />
-            </div>
           </div>
 
           <h5 className="fw-bold mt-4 pb-2 border-bottom">

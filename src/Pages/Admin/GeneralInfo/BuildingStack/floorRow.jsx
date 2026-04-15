@@ -62,7 +62,7 @@ export const FloorRow = ({
         )}
       </div>
 
-      <div className="bs-floor-meta flex-shrink-0 d-none d-sm-flex">
+      <div className="bs-floor-meta flex-shrink-0 d-sm-flex">
         <span className="bs-floor-meta__label">FLOOR {floor.floor_number}</span>
         <span className="bs-floor-meta__sub">
           {isEditingFloor ? (

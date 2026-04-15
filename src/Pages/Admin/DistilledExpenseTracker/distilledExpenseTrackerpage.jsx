@@ -1,42 +1,58 @@
 import React, { useState } from "react";
+import { useTheme } from "../../../Context/ThemeContext";
 import { Button, Card, Container, Row, Col } from "react-bootstrap";
 import { DistilledExpenseTracker } from "./distilledExpenseTracker";
 import { DistilledExpenseTrackerlist } from "./distilledExpenseTrackerlist";
+import PageHeader from "../../../Component/PageHeader/PageHeader";
 
 export const DistilledExpenseTrackerPage = () => {
+  const { theme } = useTheme();
   const [activeTab, setActiveTab] = useState("form");
+
+  const getBtnVariant = (tab) => {
+    const isActive = activeTab === tab;
+    if (theme === "light") {
+      return isActive ? "dark" : "light";
+    } else if (theme === "blue") {
+      return isActive ? "primary" : "outline-light";
+    } else {
+
+      return isActive ? "light" : "outline-light";
+    }
+  };
 
   const headerTitle =
     activeTab === "form" ? "Add Submission" : "Submissions List";
 
   return (
     <>
-      <div
-        className="px-3 py-3 sticky-top"
-        style={{ backgroundColor: "#212529", zIndex: 10 }}
-      >
-        <div className="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-2">
-          <h5 className="text-white m-0 text-center text-md-start mb-2 mb-md-0">
-            {headerTitle}
-          </h5>
-          <div className="d-flex flex-wrap gap-2">
+      <PageHeader
+        className="p-2"
+        title="Distilled Expense Tracker"
+        subtitle={
+          activeTab === "form"
+            ? "Submit new expense data for processing and analysis"
+            : "Monitor and manage historical expense submissions and reports"
+        }
+        actions={
+          <div className="d-flex gap-2 flex-wrap">
             <Button
-              variant={activeTab === "form" ? "light" : "outline-light"}
+              variant={getBtnVariant("form")}
+              size="sm"
               onClick={() => setActiveTab("form")}
-              className="flex-grow-1 flex-md-grow-0"
             >
               Add Submission
             </Button>
             <Button
-              variant={activeTab === "list" ? "light" : "outline-light"}
+              variant={getBtnVariant("list")}
+              size="sm"
               onClick={() => setActiveTab("list")}
-              className="flex-grow-1 flex-md-grow-0"
             >
               View Submissions
             </Button>
           </div>
-        </div>
-      </div>
+        }
+      />
 
       <Col md={12}>
         <Card className="shadow-sm border-0">

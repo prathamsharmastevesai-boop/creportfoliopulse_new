@@ -1,6 +1,7 @@
 import { useDispatch, useSelector } from "react-redux";
 import { getProfileDetail } from "../../../Networking/User/APIs/Profile/ProfileApi";
 import { useEffect } from "react";
+import { BackButton } from "../../../Component/backButton";
 
 export const CreNews = () => {
   const token = sessionStorage.getItem("access_token");
@@ -17,6 +18,10 @@ export const CreNews = () => {
 
   return (
     <div className="pt-5 pt-md-0" style={{ width: "100%", height: "100vh" }}>
+      <div className="d-block d-md-none">
+        <BackButton />
+      </div>
+
       <iframe
         src="https://www.connectcre.com/new-york-tri-state/"
         title="Connect CRE News"

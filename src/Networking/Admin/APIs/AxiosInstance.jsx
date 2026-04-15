@@ -17,15 +17,38 @@ axiosInstance.interceptors.request.use((config) => {
     config.headers["Content-Type"] = "application/json";
     config.headers["Accept"] = "application/json";
   }
+
   const token = sessionStorage.getItem("access_token");
 
-  config.headers["Authorization"] = `Bearer ${token}`;
+  if (token) {
+    config.headers["Authorization"] = `Bearer ${token}`;
+  }
 
   return config;
 });
 
 axiosInstance.interceptors.response.use(
-  (response) => response,
+  (response) => {
+    const method = response.config.method?.toLowerCase();
+    const status = response.status;
+
+    const showSuccess = response.config?.showSuccess !== false;
+
+    if (showSuccess) {
+      if (method === "post" && [200, 201].includes(status)) {
+        toast.success(response.data?.message);
+      } else if (
+        (method === "put" || method === "patch") &&
+        [200, 202].includes(status)
+      ) {
+        toast.success(response.data?.message || "Updated successfully!");
+      } else if (method === "delete" && [200, 202, 204].includes(status)) {
+        toast.success(response.data?.message || "Deleted successfully!");
+      }
+    }
+
+    return response;
+  },
   (error) => {
     const status = error.response?.status;
     const message =
@@ -35,6 +58,7 @@ axiosInstance.interceptors.response.use(
       window.location.href = "/";
     } else if ([400, 403, 404, 409].includes(status)) {
       let errorMessage = "An error occurred. Please try again.";
+
       switch (status) {
         case 400:
           errorMessage =
@@ -54,17 +78,18 @@ axiosInstance.interceptors.response.use(
             message || "Conflict. There was a conflict with your request.";
           break;
       }
+
       toast.error(errorMessage);
     } else if (status >= 500) {
       toast.error(
-        message || "An internal server error occurred. Please try again later."
+        message || "An internal server error occurred. Please try again later.",
       );
     } else if (!status) {
       toast.error("Network error. Please check your connection.");
     }
 
     return Promise.reject(error);
-  }
+  },
 );
 
 export default axiosInstance;

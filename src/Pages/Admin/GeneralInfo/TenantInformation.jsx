@@ -5,7 +5,6 @@ export const TenantInformationUpload = () => {
   const location = useLocation();
 
   const buildingId = location?.state?.office?.buildingId;
-
   return (
     <DocumentManager
       category="TenantInformation"

@@ -1,48 +1,57 @@
 .rag-loader {
   display: inline-flex;
+  align-items: flex-end;
   gap: 5px;
-  font-weight: bold;
+  font-weight: 800;
   font-size: 1.2rem;
-  color: white;
+  color: var(--text-primary);
+  user-select: none;
+  flex-wrap: wrap;
 }
 
 .rag-letter {
-  animation: rag-bounce 0.6s infinite alternate;
+  display: inline-block;
+  color: var(--text-primary);
+  animation: rag-bounce 0.6s infinite alternate ease-in-out;
+  transition:
+    color 0.3s ease,
+    text-shadow 0.3s ease,
+    transform 0.3s ease;
 }
 
-.rag-letter:nth-child(1) {
-  animation-delay: 0s;
+:root .rag-letter {
+  color: var(--text-primary);
+  text-shadow: 0 0 6px rgba(13, 110, 253, 0.08);
 }
-.rag-letter:nth-child(2) {
-  animation-delay: 0.1s;
+
+[data-theme="dark"] .rag-letter {
+  color: #ffffff;
+  text-shadow:
+    0 0 6px rgba(61, 139, 253, 0.35),
+    0 0 12px rgba(61, 139, 253, 0.18);
 }
-.rag-letter:nth-child(3) {
-  animation-delay: 0.2s;
-}
-.rag-letter:nth-child(4) {
-  animation-delay: 0.3s;
-}
-.rag-letter:nth-child(5) {
-  animation-delay: 0.4s;
-}
-.rag-letter:nth-child(6) {
-  animation-delay: 0.5s;
-}
-.rag-letter:nth-child(7) {
-  animation-delay: 0.6s;
-}
-.rag-letter:nth-child(8) {
-  animation-delay: 0.7s;
-}
-.rag-letter:nth-child(9) {
-  animation-delay: 0.8s;
+
+[data-theme="blue"] .rag-letter {
+  color: #ffffff;
+  text-shadow:
+    0 0 8px rgba(0, 162, 255, 0.55),
+    0 0 16px rgba(0, 162, 255, 0.3);
 }
 
 @keyframes rag-bounce {
   0% {
-    transform: translateY(0);
+    transform: translateY(0) scale(1);
+    opacity: 0.85;
   }
   100% {
-    transform: translateY(-6px);
+    transform: translateY(-8px) scale(1.05);
+    opacity: 1;
+  }
+}
+
+@media (max-width: 576px) {
+  .rag-loader {
+    gap: 3px;
+    justify-content: center;
   }
 }

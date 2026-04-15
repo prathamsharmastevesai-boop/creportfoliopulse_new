@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Form, Button, Card, Modal, Dropdown, Row, Col } from "react-bootstrap";
+import { Form, Button, Modal, Dropdown, Row, Col } from "react-bootstrap";
 import { useDispatch } from "react-redux";
 import {
   Deletetemplate,
@@ -9,6 +9,7 @@ import {
 } from "../../../Networking/User/APIs/EmailDrafting/emailDraftingApi";
 import RAGLoader from "../../../Component/Loader";
 import { toast } from "react-toastify";
+import Card from "../../../Component/Card/Card";
 
 const DRAFT_STORAGE_KEY = "emailDrafting_currentDraft";
 
@@ -117,11 +118,9 @@ export const EmailDrafting = () => {
           content: editContent,
         }),
       ).unwrap();
-      toast.success("Template updated successfully!");
+
       await fetchData();
       setShowEditModal(false);
-    } catch (error) {
-      toast.error("Failed to update template");
     } finally {
       setLoading(false);
     }
@@ -133,7 +132,7 @@ export const EmailDrafting = () => {
     setDeleteLoading(true);
     try {
       await dispatch(Deletetemplate({ template_id })).unwrap();
-      toast.success("Template deleted successfully!");
+
       await fetchData();
 
       if (String(selectedTemplateId) === String(template_id)) {
@@ -142,8 +141,6 @@ export const EmailDrafting = () => {
         setIsEditable(false);
         localStorage.removeItem(DRAFT_STORAGE_KEY);
       }
-    } catch (error) {
-      toast.error("Failed to delete template");
     } finally {
       setDeleteLoading(false);
     }
@@ -194,11 +191,9 @@ export const EmailDrafting = () => {
           content: newInfoContent,
         }),
       ).unwrap();
-      toast.success("Template added successfully!");
+
       await fetchData();
       setShowInfoModal(false);
-    } catch (error) {
-      toast.error("Failed to add template");
     } finally {
       setLoading(false);
     }
@@ -225,8 +220,10 @@ export const EmailDrafting = () => {
       </div>
 
       <Card
-        className="p-3 mt-3 p-md-4 shadow-sm mx-auto"
+        className="mt-3 shadow-sm mx-auto"
         style={{ maxWidth: 900 }}
+        bodyClass="p-3 p-md-4"
+        variant="elevated"
       >
         {loading && (
           <div className="text-center loader-items">

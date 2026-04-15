@@ -2,6 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { Approved_list_submit, Denied_list_submit } from '../../Networking/Admin/APIs/PermissionApi';
 import { useDispatch } from 'react-redux';
 import RAGLoader from '../../Component/Loader';
+import PageHeader from '../../Component/PageHeader/PageHeader';
+import Card from '../../Component/Card/Card';
 
 export const Approved_Denied_list = () => {
   const [approvedList, setApprovedList] = useState([]);
@@ -93,49 +95,60 @@ export const Approved_Denied_list = () => {
 
   return (
     <div className="container p-4">
+      <PageHeader
+        title="Request Status History"
+        subtitle="Track all approved and denied building access requests"
+      />
+      
       <div className="row">
         <div className="col-md-6 mb-4">
-          <div className="card border-success shadow-sm h-100">
-            <div className="card-header text-dark fw-bold">
-              Approved Requests
-            </div>
-            <div className="card-body overflow-auto" style={{ maxHeight: '400px' }}>
+          <Card 
+            title="Approved Requests" 
+            headerClass="bg-success text-white"
+            className="h-100 shadow-sm"
+          >
+            <div className="overflow-auto" style={{ maxHeight: '400px' }}>
               {approvedList.length === 0 ? (
-                <p className="text-muted">No approved requests</p>
+                <p className="text-muted text-center py-4">No approved requests yet.</p>
               ) : (
                 approvedList.map((item, index) => (
-                  <div key={index} className="mb-3 p-3 border rounded bg-light">
-                    <p><strong>User:</strong> {item.userName}</p>
-                    <p><strong>Building:</strong> {item.building}</p>
-                    <p><strong>Status:</strong> <span className="text-success">{item.status}</span></p>
-                    <p className="text-muted small mb-0"><em>Updated at:</em> {formatDate(item.updatedAt)}</p>
+                  <div key={index} className="mb-3 p-3 border rounded bg-light hover-bg-white transition-all">
+                    <div className="d-flex justify-content-between">
+                      <p className="mb-1"><strong>{item.userName}</strong></p>
+                      <span className="badge bg-success-subtle text-success border border-success-subtle small px-2 py-1">Approved</span>
+                    </div>
+                    <p className="mb-1 small"><strong>Building:</strong> {item.building}</p>
+                    <p className="text-muted extra-small mb-0"><em>Updated:</em> {formatDate(item.updatedAt)}</p>
                   </div>
                 ))
               )}
             </div>
-          </div>
+          </Card>
         </div>
 
         <div className="col-md-6 mb-4">
-          <div className="card border-danger shadow-sm h-100">
-            <div className="card-header text-dark fw-bold">
-              Denied Requests
-            </div>
-            <div className="card-body overflow-auto" style={{ maxHeight: '400px' }}>
+          <Card 
+            title="Denied Requests" 
+            headerClass="bg-danger text-white"
+            className="h-100 shadow-sm"
+          >
+            <div className="overflow-auto" style={{ maxHeight: '400px' }}>
               {deniedList.length === 0 ? (
-                <p className="text-muted">No denied requests</p>
+                <p className="text-muted text-center py-4">No denied requests recorded.</p>
               ) : (
                 deniedList.map((item, index) => (
-                  <div key={index} className="mb-3 p-3 border rounded bg-light">
-                    <p><strong>User:</strong> {item.userName}</p>
-                    <p><strong>Building:</strong> {item.building}</p>
-                    <p><strong>Status:</strong> <span className="text-danger">{item.status}</span></p>
-                    <p className="text-muted small mb-0"><em>Updated at:</em> {formatDate(item.updatedAt)}</p>
+                  <div key={index} className="mb-3 p-3 border rounded bg-light hover-bg-white transition-all">
+                    <div className="d-flex justify-content-between">
+                      <p className="mb-1"><strong>{item.userName}</strong></p>
+                      <span className="badge bg-danger-subtle text-danger border border-danger-subtle small px-2 py-1">Denied</span>
+                    </div>
+                    <p className="mb-1 small"><strong>Building:</strong> {item.building}</p>
+                    <p className="text-muted extra-small mb-0"><em>Updated:</em> {formatDate(item.updatedAt)}</p>
                   </div>
                 ))
               )}
             </div>
-          </div>
+          </Card>
         </div>
       </div>
     </div>

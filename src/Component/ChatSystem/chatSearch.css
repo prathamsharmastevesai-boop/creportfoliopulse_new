@@ -163,7 +163,7 @@
 .result-preview {
   flex: 1;
   font-size: 13px;
-  color: var(--text-primary);
+  color: var(--text-secondary);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;

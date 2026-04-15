@@ -1,8 +1,10 @@
 import React, { useEffect, useState, useMemo, useCallback } from "react";
 import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import { getAdminlistApi } from "../../../Networking/SuperAdmin/AdminSuperApi";
-import { createGroupApi } from "../../../Networking/User/APIs/ChatSystem/chatSystemApi";
+import {
+  createGroupApi,
+  getMessengerList,
+} from "../../../Networking/User/APIs/ChatSystem/chatSystemApi";
 
 const S = {
   root: {
@@ -372,11 +374,11 @@ const avatarColor = (id) =>
 const getUserId = (user, index) =>
   String(
     user.user_id ??
-    user.id ??
-    user._id ??
-    user.admin_id ??
-    user.userId ??
-    index,
+      user.id ??
+      user._id ??
+      user.admin_id ??
+      user.userId ??
+      index,
   );
 
 export const CreateGroupScreen = () => {
@@ -393,7 +395,7 @@ export const CreateGroupScreen = () => {
   useEffect(() => {
     (async () => {
       try {
-        const res = await dispatch(getAdminlistApi()).unwrap();
+        const res = await dispatch(getMessengerList()).unwrap();
         setUsers(res || []);
       } catch (err) {
         console.error(err);

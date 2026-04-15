@@ -320,7 +320,6 @@ export const ChatWindow = ({
       scrollToBottom();
     } catch (error) {
       console.error("Error sending message:", error);
-      toast.error("Message failed to send.");
     } finally {
       setIsSending(false);
       setIsReplyLoading(false);
@@ -336,7 +335,7 @@ export const ChatWindow = ({
 
   const handleNavigation = () => {
     if (category == "floor_plan") {
-      navigate("/floor-plan-upload", {
+      navigate("/user-files-media", {
         state: {
           buildingId: building_id,
         },
@@ -386,7 +385,7 @@ export const ChatWindow = ({
                     </button>
                   )}
 
-                {(category === "LOI" || category === "floor_plan") && (
+                {category === "LOI" && (
                   <button
                     className="btn btn-outline-secondary btn-sm"
                     onClick={() => handleNavigation()}
@@ -394,8 +393,7 @@ export const ChatWindow = ({
                     <i className="bi bi-upload" style={{ fontSize: 14 }} />
 
                     <span className="d-none d-md-inline ms-1">
-                      UPLOAD NEW/{" "}
-                      {category === "LOI" ? "VIEW LOI’s" : "VIEW Plans"}
+                      UPLOAD NEW/ "VIEW LOI’s"
                     </span>
                   </button>
                 )}

@@ -4,6 +4,10 @@ import { useNavigate } from "react-router-dom";
 import RAGLoader from "./Loader";
 import "bootstrap-icons/font/bootstrap-icons.css";
 
+import Card from "./Card/Card";
+import PageHeader from "./PageHeader/PageHeader";
+import { capitalFunction } from "./capitalLetter";
+
 export const BuildingList = ({
   title = "Building List",
   fetchAction,
@@ -76,18 +80,22 @@ export const BuildingList = ({
 
   return (
     <>
-      <div className="header-bg d-flex justify-content-start px-3 align-items-center sticky-header">
-        <h4 className="mb-0 text-light mx-4">{title}</h4>
-      </div>
-
-      <div className="container-fluid p-3">
-        <input
-          type="search"
-          className="form-control"
-          placeholder={`Search by ${searchKey}...`}
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          autoComplete="off"
+      <div className="container-fluid px-4 pt-3">
+        <PageHeader
+          title={title}
+          actions={
+            <div className="position-relative" style={{ minWidth: "300px" }}>
+              <i className="bi bi-search position-absolute top-50 start-0 translate-middle-y ms-3 text-muted"></i>
+              <input
+                type="search"
+                className="form-control form-control-sm ps-5"
+                placeholder={`Search ${searchKey}...`}
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                autoComplete="off"
+              />
+            </div>
+          }
         />
       </div>
 
@@ -106,10 +114,10 @@ export const BuildingList = ({
 
               return (
                 <div className="col-12 mb-3" key={item.id}>
-                  <div
+                  <Card
                     ref={(el) => (cardsRef.current[item.id] = el)}
-                    className="card border-0 shadow-sm slide-in-top p-3"
-                    style={{ borderRadius: "16px" }}
+                    className="slide-in-top"
+                    variant="elevated"
                   >
                     {renderItem ? (
                       renderItem(item)
@@ -121,7 +129,9 @@ export const BuildingList = ({
                           onClick={() => handleNavigate(item)}
                         >
                           <i className="bi bi-geo-alt-fill me-2 text-primary"></i>
-                          <div>{item?.[searchKey] || "N/A"}</div>
+                          <div>
+                            {capitalFunction(item?.[searchKey] || "N/A")}
+                          </div>
                         </div>
                         {category === "maintenance" && (
                           <i
@@ -138,7 +148,7 @@ export const BuildingList = ({
                         )}
                       </div>
                     )}
-                  </div>
+                  </Card>
                 </div>
               );
             })}

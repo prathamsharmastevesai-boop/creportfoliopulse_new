@@ -9,6 +9,8 @@ import {
 } from "../../../Networking/Admin/APIs/BuildingApi";
 import { useDispatch, useSelector } from "react-redux";
 import RAGLoader from "../../../Component/Loader";
+import PageHeader from "../../../Component/PageHeader/PageHeader";
+import { Modal, Button } from "react-bootstrap";
 
 const DeleteModal = ({ building, onClose, onConfirm }) => {
   const [deleting, setDeleting] = useState(false);
@@ -21,37 +23,36 @@ const DeleteModal = ({ building, onClose, onConfirm }) => {
   };
 
   return (
-    <div style={modalOverlayStyle} onClick={onClose}>
-      <div style={modalBoxStyle} onClick={(e) => e.stopPropagation()}>
-        <div className="text-center mb-3">
-          <i
-            className="bi bi-exclamation-triangle-fill text-danger"
-            style={{ fontSize: "2.5rem" }}
-          ></i>
-        </div>
-        <h5 className="text-center fw-semibold mb-1">Delete Building?</h5>
-        <p className="text-center text-muted small mb-4">
-          <strong>{building.address}</strong> will be permanently removed. This
-          action cannot be undone.
-        </p>
-        <div className="d-flex justify-content-center gap-3">
-          <button
-            className="btn btn-secondary btn-sm px-4"
-            onClick={onClose}
-            disabled={deleting}
-          >
-            Cancel
-          </button>
-          <button
-            className="btn btn-danger btn-sm px-4"
-            onClick={handleConfirm}
-            disabled={deleting}
-          >
-            {deleting ? "Deleting…" : "Delete"}
-          </button>
-        </div>
-      </div>
-    </div>
+    <Modal show={!!building} centered onHide={() => !deleting && onClose()}>
+      <Modal.Header closeButton={!deleting}>
+        <Modal.Title>Delete Building?</Modal.Title>
+      </Modal.Header>
+
+      <Modal.Body>
+        {deleting ? (
+          <div className="text-center py-2">
+            <div className="spinner-border text-danger" />
+            <p className="mt-2">Deleting...</p>
+          </div>
+        ) : (
+          <>
+            <div className="text-center"></div>
+            <p className="text-center text-muted small mb-0">
+              <strong>{building?.address}</strong> will be permanently removed.
+            </p>
+          </>
+        )}
+      </Modal.Body>
+
+      <Modal.Footer>
+        <Button variant="secondary" onClick={onClose} disabled={deleting}>
+          Cancel
+        </Button>
+        <Button variant="danger" onClick={handleConfirm} disabled={deleting}>
+          {deleting ? "Deleting…" : "Yes, Delete"}
+        </Button>
+      </Modal.Footer>
+    </Modal>
   );
 };
 
@@ -169,12 +170,12 @@ const BuildingCard = ({
           </>
         ) : (
           <>
-            <button
+            {/* <button
               className="btn btn-light btn-sm"
               onClick={() => onGoToChat(building.id, "floor_plan")}
             >
               <i className="bi bi-image"></i>
-            </button>
+            </button> */}
             <button
               className="btn btn-light btn-sm"
               onClick={() => onGoToChat(building.id, "building_stack")}
@@ -345,14 +346,19 @@ export const BuildingInfoList = () => {
 
   return (
     <div className="container p-3">
-      <h4 className="text-center mb-3">Building Info List</h4>
-
-      <input
-        type="search"
-        className="form-control mb-3"
-        placeholder="Search..."
-        value={searchTerm}
-        onChange={(e) => setSearchTerm(e.target.value)}
+      <PageHeader
+        title="Building Info List"
+        subtitle="Manage detailed building information, occupancy, and documentation"
+        actions={
+          <input
+            type="search"
+            className="form-control"
+            style={{ maxWidth: "300px" }}
+            placeholder="Search buildings..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
+        }
       />
 
       <form onSubmit={handleAddSubmit} className="row g-2 mb-3">
@@ -398,7 +404,9 @@ export const BuildingInfoList = () => {
       </form>
 
       {loading ? (
-        <RAGLoader />
+        <div className="d-flex justify-content-center align-items-center vh-100">
+          <RAGLoader />
+        </div>
       ) : (
         <div className="d-flex flex-column gap-3">
           {filteredBuildings.map((building, index) => (

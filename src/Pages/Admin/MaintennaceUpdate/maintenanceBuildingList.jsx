@@ -1,7 +1,10 @@
 import { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { BuildingList } from "../../../Component/BuildingList";
-import { ListBuildingSubmit } from "../../../Networking/Admin/APIs/BuildingApi";
+import {
+  ListBuildingSubmit,
+  ListuserBuildingSubmit,
+} from "../../../Networking/Admin/APIs/BuildingApi";
 import {
   createSubscription,
   fetchSubscriptions,
@@ -10,6 +13,7 @@ import {
 export const MaintenanceBuildinglist = () => {
   const dispatch = useDispatch();
   const role = sessionStorage.getItem("role");
+  console.log(role, "role");
 
   const [subscriptions, setSubscriptions] = useState([]);
 
@@ -44,8 +48,10 @@ export const MaintenanceBuildinglist = () => {
   return (
     <BuildingList
       title="Maintenance Building List"
-      fetchAction={ListBuildingSubmit}
-      category="maintenance"
+      fetchAction={
+        role == "admin" ? ListBuildingSubmit : ListuserBuildingSubmit
+      }
+      category="maintenance_updates"
       selector={(state) => ({
         data: state.BuildingSlice.BuildingList,
         loading: state.BuildingSlice.loading,

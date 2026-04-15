@@ -35,7 +35,6 @@ export const Tours = () => {
 
     try {
       await dispatch(toursCreateSubmit(formData)).unwrap();
-      toast.success("Tour created successfully");
 
       setFormData({
         date: "",
@@ -45,8 +44,6 @@ export const Tours = () => {
         broker: "",
         notes: "",
       });
-    } catch (err) {
-      toast.error("Failed to Add tour");
     } finally {
       setLoading(false);
     }

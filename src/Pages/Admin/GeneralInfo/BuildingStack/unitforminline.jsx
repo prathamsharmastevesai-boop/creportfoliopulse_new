@@ -24,7 +24,7 @@ export const UnitFormInline = ({
       <input
         className="bs-input"
         placeholder="Tenant (optional)"
-        value={unit.tenant_name}
+        value={unit.tenant_name || ""}
         onChange={(e) => onChange("tenant_name", e.target.value)}
         disabled={isSaving}
       />
@@ -32,7 +32,7 @@ export const UnitFormInline = ({
         className="bs-input"
         type="number"
         placeholder="SF *"
-        value={unit.square_footage}
+        value={unit.square_footage || ""}
         onChange={(e) => onChange("square_footage", e.target.value)}
         disabled={isSaving}
       />
@@ -45,13 +45,59 @@ export const UnitFormInline = ({
       />
       <select
         className="bs-input"
-        value={unit.status}
+        value={unit.status || "vacant"}
         onChange={(e) => onChange("status", e.target.value)}
         disabled={isSaving}
       >
         <option value="vacant">Vacant</option>
         <option value="occupied">Occupied</option>
       </select>
+      <input
+        className="bs-input"
+        type="number"
+        placeholder="Block order"
+        value={unit.block_order ?? 0}
+        onChange={(e) => onChange("block_order", e.target.value)}
+        disabled={isSaving}
+      />
+
+      <input
+        className="bs-input"
+        placeholder="Company website"
+        value={unit.company_website || ""}
+        onChange={(e) => onChange("company_website", e.target.value)}
+        disabled={isSaving}
+      />
+      <input
+        className="bs-input"
+        placeholder="Contact name"
+        value={unit.contact_name || ""}
+        onChange={(e) => onChange("contact_name", e.target.value)}
+        disabled={isSaving}
+      />
+      <input
+        className="bs-input"
+        type="email"
+        placeholder="Contact email"
+        value={unit.contact_email || ""}
+        onChange={(e) => onChange("contact_email", e.target.value)}
+        disabled={isSaving}
+      />
+      <input
+        className="bs-input"
+        type="tel"
+        placeholder="Contact phone"
+        value={unit.contact_phone || ""}
+        onChange={(e) => onChange("contact_phone", e.target.value)}
+        disabled={isSaving}
+      />
+      <input
+        className="bs-input"
+        placeholder="Latest update"
+        value={unit.latest_update || ""}
+        onChange={(e) => onChange("latest_update", e.target.value)}
+        disabled={isSaving}
+      />
 
       <div className="bs-unit-edit-form__row d-flex gap-1 mt-1">
         <button className="bs-btn-save" onClick={onSave} disabled={isSaving}>

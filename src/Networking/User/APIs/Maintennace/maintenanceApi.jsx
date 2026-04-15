@@ -1,6 +1,5 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
 import axiosInstance from "../../../Admin/APIs/AxiosInstance";
-import { toast } from "react-toastify";
 import {
   maintenanceCreateEndPoint,
   maintenanceCreateSubscriptionEndPoint,
@@ -152,7 +151,7 @@ export const createSubscription = createAsyncThunk(
           section,
         },
       );
-      toast.success(response.data.message);
+
       return response.data;
     } catch (error) {
       return rejectWithValue(error.response?.data?.message);

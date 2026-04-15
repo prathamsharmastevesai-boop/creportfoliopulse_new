@@ -1,18 +1,30 @@
 import React from "react";
 import "./LoaderCss.css";
 
+const letters = [
+  { char: "P", size: "fs-1" },
+  { char: "o", size: "fs-2" },
+  { char: "r", size: "fs-3" },
+  { char: "t", size: "fs-4" },
+  { char: "f", size: "fs-5" },
+  { char: "o", size: "fs-4" },
+  { char: "l", size: "fs-3" },
+  { char: "i", size: "fs-2" },
+  { char: "o", size: "fs-1" },
+];
+
 const RAGLoader = () => {
   return (
-    <div className="rag-loader text-dark">
-      <span className="rag-letter fs-1">P</span>
-      <span className="rag-letter fs-2">o</span>
-      <span className="rag-letter fs-3">r</span>
-      <span className="rag-letter fs-4">t</span>
-      <span className="rag-letter fs-5">f</span>
-      <span className="rag-letter fs-4">o</span>
-      <span className="rag-letter fs-3">l</span>
-      <span className="rag-letter fs-2">i</span>
-      <span className="rag-letter fs-1">o</span>
+    <div className="rag-loader" aria-label="Loading Portfolio">
+      {letters.map((item, index) => (
+        <span
+          key={index}
+          className={`rag-letter ${item.size}`}
+          style={{ animationDelay: `${index * 0.1}s` }}
+        >
+          {item.char}
+        </span>
+      ))}
     </div>
   );
 };

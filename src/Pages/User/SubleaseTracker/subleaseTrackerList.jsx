@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import "bootstrap-icons/font/bootstrap-icons.css";
 import { ListBuildingSubmit } from "../../../Networking/Admin/APIs/BuildingApi";
 import { useDispatch, useSelector } from "react-redux";
+import Card from "../../../Component/Card/Card";
 
 import RAGLoader from "../../../Component/Loader";
 
@@ -106,29 +107,23 @@ export const SubleaseTrackerUserBuildinglist = () => {
           <div className="row">
             {[...filteredBuildings].reverse().map((building, index) => (
               <div className="col-12 mb-3" key={building.id}>
-                <div
-                  ref={(el) => (cardsRef.current[building.id] = el)}
-                  className="card border-0 shadow-sm slide-in-top d-flex flex-row align-items-center p-3"
+                <Card
+                  variant="elevated"
+                  className="border-0 shadow-sm slide-in-top p-0"
+                  bodyClass="p-3 d-flex flex-row align-items-center"
+                  onClick={() => handleSubmit(building)}
                   style={{
-                    backgroundColor: "#fff",
-                    borderWidth: "0.1px",
-                    borderColor: "#cacacaff",
                     borderRadius: "16px",
+                    cursor: "pointer",
                   }}
                 >
-                  <div
-                    className="card-body d-flex flex-column justify-content-center position-relative p-0"
-                    onClick={() => handleSubmit(building)}
-                    style={{ cursor: "pointer" }}
-                  >
-                    <div className="d-flex mx-1">
-                      <i className="bi bi-geo-alt-fill me-2 text-primary"></i>
-                      <div className="mx-2 check w-75">
-                        {building.address || "N/A"}
-                      </div>
+                  <div className="d-flex mx-1">
+                    <i className="bi bi-geo-alt-fill me-2 text-primary"></i>
+                    <div className="mx-2 check w-100 text-truncate">
+                      {building.address || "N/A"}
                     </div>
                   </div>
-                </div>
+                </Card>
               </div>
             ))}
           </div>

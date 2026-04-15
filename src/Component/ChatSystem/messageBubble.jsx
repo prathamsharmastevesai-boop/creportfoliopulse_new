@@ -278,7 +278,16 @@ export const ChatMessages = ({
                       )}
 
                       <div className="message-time">
-                        {format(new Date(msg.created_at), "HH:mm")}
+                        {format(new Date(msg.created_at || new Date()), "HH:mm")}
+                        {isMe && (
+                          <span className={`read-status ${msg.is_read ? "read" : ""}`} style={{ marginLeft: '4px' }}>
+                            {msg.is_read ? (
+                              <i className="ri-double-check-line" style={{ color: "#34B7F1", fontSize: '16px' }} />
+                            ) : (
+                              <i className="ri-check-line" style={{ fontSize: '16px', opacity: 0.6 }} />
+                            )}
+                          </span>
+                        )}
                       </div>
                     </div>
                   </div>

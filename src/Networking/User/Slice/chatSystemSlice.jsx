@@ -77,12 +77,22 @@ const chatSystemSlice = createSlice({
 
     setUserStatus: (state, action) => {
       const { user_id, online, last_seen } = action.payload;
+
       if (!user_id) return;
 
-      (online,
-        (state.userStatus[user_id] = {
-          last_seen,
-        }));
+      const uid = String(user_id);
+
+      state.userStatus[uid] = {
+        online: online === true,
+        last_seen: last_seen || state.userStatus[uid]?.last_seen || null,
+      };
+
+      state.conversations = (state.conversations || []).map((conv) => {
+        if (!conv.is_group && Number(conv.receiver_id) === Number(user_id)) {
+          return { ...conv, is_online: online === true };
+        }
+        return conv;
+      });
     },
 
     setTypingStatus: (state, action) => {
@@ -115,6 +125,69 @@ const chatSystemSlice = createSlice({
         (msg) =>
           !(msg.conversation_id === conversation_id && msg.id === message_id),
       );
+    },
+
+    markMessagesRead: (state, action) => {
+      const { conversation_id, message_ids } = action.payload;
+
+      if (!conversation_id || !message_ids?.length) return;
+
+      state.messages = state.messages.map((msg) => {
+        if (
+          msg.conversation_id === conversation_id &&
+          message_ids.includes(msg.id) &&
+          !msg.is_read
+        ) {
+          return {
+            ...msg,
+            is_read: true,
+            read_at: new Date().toISOString(),
+          };
+        }
+        return msg;
+      });
+
+      if (state.conversations) {
+        const conversationIndex = state.conversations.findIndex(
+          (c) => c.id === conversation_id,
+        );
+        if (conversationIndex !== -1) {
+          const conversation = state.conversations[conversationIndex];
+          if (conversation.unreadCount) {
+            conversation.unreadCount = Math.max(
+              0,
+              conversation.unreadCount - message_ids.length,
+            );
+          }
+        }
+      }
+    },
+
+    updateConversationWithMessage: (state, action) => {
+      const { conversation_id, last_message, sender_id } = action.payload;
+
+      const conversationIndex = state.conversations.findIndex(
+        (conv) => conv.id === conversation_id,
+      );
+
+      if (conversationIndex !== -1) {
+        const conversation = state.conversations[conversationIndex];
+
+        conversation.lastMessage = last_message;
+        conversation.last_message_time = last_message.created_at;
+
+        const isActiveConversation =
+          state.activeConversation?.id === conversation_id;
+        if (
+          sender_id !== state.activeConversation?.currentUserId &&
+          !isActiveConversation
+        ) {
+          conversation.unreadCount = (conversation.unreadCount || 0) + 1;
+        }
+
+        state.conversations.splice(conversationIndex, 1);
+        state.conversations.unshift(conversation);
+      }
     },
   },
 
@@ -209,6 +282,8 @@ export const {
   clearMessages,
   clearTypingForConversation,
   deleteMessageSocket,
+  markMessagesRead,
+  updateConversationWithMessage,
 } = chatSystemSlice.actions;
 
 export default chatSystemSlice.reducer;

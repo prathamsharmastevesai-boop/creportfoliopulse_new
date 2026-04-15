@@ -4,6 +4,7 @@ export const FEATURE_KEYS = {
   HISTORY: "chat_history",
   USER_BUILDING_LIST: "building_info_enabled",
   COMPARATIVE_BUILDING: "comparative_building_data_enabled",
+  MAINTENANCEUPDATE: "maintenance_updates_enabled",
   LEASE_LOI: "lease_loi_enabled",
   LOI_DOCUMENTS: "loi_documents_enabled",
   CRE_NEWS: "cre_news",
@@ -20,7 +21,7 @@ export const FEATURE_KEYS = {
   FIRESAFETY: "fire_safety_enabled",
   WORKLETTER: "project_management_enabled",
   SPACEUP: "space_up_enabled",
-  MAINTENANCEUPDATE: "space_up_enabled",
+  // MAINTENANCEUPDATE: "space_up_enabled",
   DCT_CHAT: "dct_enabled",
 
   CHAT_SYSTEM: "Conversation",

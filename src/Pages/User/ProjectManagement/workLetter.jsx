@@ -13,6 +13,7 @@ import { DocumentList } from "./documentList";
 import { WorkLetterChat } from "./workLetterChat";
 import { TimelinePhaseSection } from "./timeLine";
 import { BackButton } from "../../../Component/backButton";
+import Card from "../../../Component/Card/Card";
 
 export const WorkLetter = () => {
   const location = useLocation();
@@ -91,31 +92,6 @@ export const WorkLetter = () => {
 
       await fetchData();
       setDeleteTarget(null);
-    } catch (err) {
-      console.error("Delete failed", err);
-    } finally {
-      setDeletingId(null);
-    }
-  };
-
-  const handleDeleteLineItem = async (itemId) => {
-    const confirmed = window.confirm(
-      "Are you sure you want to delete this line item?",
-    );
-
-    if (!confirmed) return;
-
-    try {
-      setDeletingId(itemId);
-
-      await dispatch(
-        deleteLineItemApi({
-          projectId,
-          lineItemId: itemId,
-        }),
-      ).unwrap();
-
-      await fetchData();
     } catch (err) {
       console.error("Delete failed", err);
     } finally {
@@ -568,25 +544,23 @@ const SummaryCard = ({
   onClick,
 }) => (
   <div className="col-md-3">
-    <div
-      className="card summary-tile h-100"
+    <Card
+      className="summary-tile h-100"
       onClick={onClick}
-      role={onClick ? "button" : undefined}
+      variant="elevated"
     >
-      <div className="card-body">
-        <small className="fw-medium">{title}</small>
+      <small className="fw-medium text-muted mb-1 d-block">{title}</small>
 
-        <div className={`fw-bold fs-5 mt-1 ${valueColor}`}>{value}</div>
+      <div className={`fw-bold fs-5 ${valueColor}`}>{value}</div>
 
-        {progress !== undefined && (
-          <div className="progress progress-sm mt-2">
-            <div className="progress-bar" style={{ width: `${progress}%` }} />
-          </div>
-        )}
+      {progress !== undefined && (
+        <div className="progress progress-sm mt-2">
+          <div className="progress-bar" style={{ width: `${progress}%` }} />
+        </div>
+      )}
 
-        {sub && <small className="d-block mt-2">{sub}</small>}
-      </div>
-    </div>
+      {sub && <small className="text-secondary d-block mt-2">{sub}</small>}
+    </Card>
   </div>
 );
 

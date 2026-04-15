@@ -10,13 +10,8 @@ import {
   get_Session_List_Specific,
 } from "../../../Networking/User/APIs/Chat/ChatApi";
 import TypingIndicator from "../../../Component/TypingIndicator";
-import {
-  AskQuestionGeminiAPI,
-  DeleteGeneralDocSubmit,
-  ListGeminiDoc,
-  UploadgeminiDocSubmit,
-} from "../../../Networking/Admin/APIs/GeneralinfoApi";
-import { Modal } from "react-bootstrap";
+import { AskQuestionGeminiAPI } from "../../../Networking/Admin/APIs/GeneralinfoApi";
+import { BackButton } from "../../../Component/backButton";
 
 const SafeMarkdown = ({ children, className = "" }) => {
   const [error, setError] = useState(null);
@@ -73,7 +68,6 @@ export const GeminiChat = () => {
 
   const [sessionId, setSessionId] = useState(location.state?.sessionId || null);
 
-  const [category, setCategory] = useState(location.state?.type);
   const [messages, setMessages] = useState([]);
 
   const [isSending, setIsSending] = useState(false);
@@ -85,11 +79,7 @@ export const GeminiChat = () => {
   const [isReplyLoading, setIsReplyLoading] = useState(false);
   const [isChatStarted, setIsChatStarted] = useState(false);
   const [sessionReady, setSessionReady] = useState(false);
-  const [isUploading, setIsUploading] = useState(false);
-  const [deletingDocId, setDeletingDocId] = useState(null);
-  const [showDocsModal, setShowDocsModal] = useState(false);
-  const [docs, setDocs] = useState([]);
-  const [isDocsLoading, setIsDocsLoading] = useState(false);
+
   const [initialLoadComplete, setInitialLoadComplete] = useState(false);
   const [attachedFile, setAttachedFile] = useState(null);
   const [attachedPreview, setAttachedPreview] = useState(null);
@@ -164,10 +154,10 @@ export const GeminiChat = () => {
               file:
                 Array.isArray(item.file_meta) && item.file_meta.length > 0
                   ? {
-                    name: item.file_meta[0].name,
-                    size: item.file_meta[0].size,
-                    url: item.file_meta[0].url || null,
-                  }
+                      name: item.file_meta[0].name,
+                      size: item.file_meta[0].size,
+                      url: item.file_meta[0].url || null,
+                    }
                   : null,
 
               timestamp: item.created_at,
@@ -351,9 +341,9 @@ export const GeminiChat = () => {
       formData.append(
         "question",
         message ||
-        (attachedFile
-          ? `Analyze this document: ${attachedPreview.name}`
-          : ""),
+          (attachedFile
+            ? `Analyze this document: ${attachedPreview.name}`
+            : ""),
       );
 
       if (attachedFile) {
@@ -428,14 +418,16 @@ export const GeminiChat = () => {
 
     return (
       <div
-        className={`d-inline-block px-3 py-2 position-relative responsive-box ${isAdmin ? "" : "bg-secondary text-light"
-          }`}
+        className={`d-inline-block px-3 py-2 position-relative responsive-box ${
+          isAdmin ? "" : "bg-secondary text-light"
+        }`}
         style={{ maxWidth: "85%" }}
       >
         {isAdmin && msg.message && (
           <i
-            className={`bi ${speakingIndex === index ? "bi-volume-up-fill" : "bi-volume-mute"
-              }`}
+            className={`bi ${
+              speakingIndex === index ? "bi-volume-up-fill" : "bi-volume-mute"
+            }`}
             style={{
               cursor: "pointer",
               fontSize: "1rem",
@@ -449,7 +441,7 @@ export const GeminiChat = () => {
         )}
 
         {msg.file && (
-          <div className="mb-2 p-2 bg-light rounded border">
+          <div className="mb-2 p-2 rounded border">
             <div className="d-flex align-items-center">
               <i className="bi bi-file-earmark-pdf text-danger me-2"></i>
               <div className="small">
@@ -472,6 +464,7 @@ export const GeminiChat = () => {
 
   return (
     <div className="container-fluid py-3" style={{ height: "100vh" }}>
+      <BackButton />
       <AnimatePresence mode="wait">
         {!isChatStarted && messages.length === 0 ? (
           <motion.div
@@ -579,15 +572,17 @@ export const GeminiChat = () => {
                       </button>
                     ) : (
                       <button
-                        className={`btn rounded-circle ${isRecording ? "btn-danger" : "btn-outline-secondary"
-                          } ${isActionDisabled ? "disabled" : ""}`}
+                        className={`btn rounded-circle ${
+                          isRecording ? "btn-danger" : "btn-outline-secondary"
+                        } ${isActionDisabled ? "disabled" : ""}`}
                         onClick={startRecording}
                         disabled={isSending || isActionDisabled}
                         style={{ width: "38px", height: "38px" }}
                       >
                         <i
-                          className={`bi ${isRecording ? "bi-mic-mute-fill" : "bi-mic-fill"
-                            }`}
+                          className={`bi ${
+                            isRecording ? "bi-mic-mute-fill" : "bi-mic-fill"
+                          }`}
                         ></i>
                       </button>
                     )}
@@ -703,7 +698,7 @@ export const GeminiChat = () => {
                     </div>
                   )}
 
-                  <div className="d-flex align-items-end rounded-pill py-2 px-3 bg-white shadow-sm border">
+                  <div className="d-flex align-items-end rounded-pill py-2 px-3 shadow-sm border">
                     <label
                       htmlFor="chatFileUpload"
                       className={`btn btn-link p-0 me-2 d-flex align-items-center ${isActionDisabled ? "disabled" : ""}`}
@@ -768,8 +763,9 @@ export const GeminiChat = () => {
                       </button>
                     ) : (
                       <button
-                        className={`btn rounded-circle ${isRecording ? "btn-danger" : "btn-outline-secondary"
-                          } ${isActionDisabled ? "disabled" : ""}`}
+                        className={`btn rounded-circle ${
+                          isRecording ? "btn-danger" : "btn-outline-secondary"
+                        } ${isActionDisabled ? "disabled" : ""}`}
                         onClick={startRecording}
                         disabled={
                           isSending || isReplyLoading || isActionDisabled
@@ -777,8 +773,9 @@ export const GeminiChat = () => {
                         style={{ width: "38px", height: "38px" }}
                       >
                         <i
-                          className={`bi ${isRecording ? "bi-mic-mute-fill" : "bi-mic-fill"
-                            }`}
+                          className={`bi ${
+                            isRecording ? "bi-mic-mute-fill" : "bi-mic-fill"
+                          }`}
                         ></i>
                       </button>
                     )}

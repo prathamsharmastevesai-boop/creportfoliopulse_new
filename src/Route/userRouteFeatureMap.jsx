@@ -48,8 +48,8 @@ export const USER_ROUTE_FEATURE_MAP = {
   "/project-management": [FEATURE_KEYS.WORKLETTER],
   "/projects": [FEATURE_KEYS.WORKLETTER],
   "/work-letter": [FEATURE_KEYS.WORKLETTER],
-  "/space-up/buildingList": [FEATURE_KEYS.SPACEUP],
-  "/space-up": [FEATURE_KEYS.SPACEUP],
+  "/broker-index/buildingList": [FEATURE_KEYS.SPACEUP],
+  "/broker-index": [FEATURE_KEYS.SPACEUP],
   // "/maintenance-update": [FEATURE_KEYS.MAINTENANCEUPDATE],
   // "/maintenance-building-list": [FEATURE_KEYS.MAINTENANCEUPDATE],
 };

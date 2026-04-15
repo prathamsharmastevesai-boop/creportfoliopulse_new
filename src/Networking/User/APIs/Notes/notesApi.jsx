@@ -1,6 +1,5 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
 import axiosInstance from "../../../Admin/APIs/AxiosInstance";
-import { toast } from "react-toastify";
 import { notes } from "../../../NWconfig";
 
 export const createNoteApi = createAsyncThunk(
@@ -68,7 +67,7 @@ export const deleteNoteApi = createAsyncThunk(
   async (noteId, { rejectWithValue }) => {
     try {
       const response = await axiosInstance.delete(`${notes}${noteId}`);
-      toast.success("Note deleted!");
+
       return { noteId };
     } catch (error) {
       return rejectWithValue(error.response?.data?.message);

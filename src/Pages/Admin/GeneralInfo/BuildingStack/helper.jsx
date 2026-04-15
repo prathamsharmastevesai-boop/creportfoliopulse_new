@@ -2,7 +2,14 @@ export const fmt = (n) => (n ? n.toLocaleString() + " SF" : "— SF");
 
 export const formatLeaseDate = (dateString) => {
   if (!dateString) return null;
-  return new Date(dateString).getFullYear().toString();
+
+  const date = new Date(dateString);
+
+  return date.toLocaleDateString("en-GB", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+  });
 };
 
 export const formatActivityMessage = (activity) => {
@@ -13,34 +20,33 @@ export const formatActivityMessage = (activity) => {
 
   if (entity === "floor") {
     if (action === "create")
-      return `${role.toUpperCase()} '${userName}': Created Floor ${activity.new_value?.floor_number}, RSF ${activity.new_value?.total_rsf?.toLocaleString()}`;
+      return `Created Floor ${activity.new_value?.floor_number}, RSF ${activity.new_value?.total_rsf?.toLocaleString()}`;
     if (action === "update")
-      return `${role.toUpperCase()} '${userName}': Updated Floor ${activity.old_value?.floor_number} → ${activity.new_value?.floor_number}, RSF ${activity.new_value?.total_rsf?.toLocaleString()}`;
+      return ` Updated Floor ${activity.old_value?.floor_number} → ${activity.new_value?.floor_number}, RSF ${activity.new_value?.total_rsf?.toLocaleString()}`;
     if (action === "delete")
-      return `${role.toUpperCase()} '${userName}': Deleted Floor ${activity.old_value?.floor_number}`;
+      return `Deleted Floor ${activity.old_value?.floor_number}`;
   }
 
   if (entity === "unit") {
     if (action === "create")
-      return `${role.toUpperCase()} '${userName}': Added unit ${activity.new_value?.square_footage} SF to Floor ${activity.floor_id}`;
+      return ` Added unit ${activity.new_value?.square_footage} SF to Floor ${activity.floor_number}`;
     if (action === "update")
-      return `${role.toUpperCase()} '${userName}': Updated unit on Floor ${activity.floor_id}`;
+      return `Updated unit on Floor ${activity.floor_number}`;
     if (action === "split")
-      return `${role.toUpperCase()} '${userName}': Split unit on Floor ${activity.floor_id}`;
-    if (action === "merge")
-      return `${role.toUpperCase()} '${userName}': Merged units`;
+      return ` Split unit on Floor ${activity.floor_number}`;
+    if (action === "merge") return `Merged units`;
     if (action === "delete")
-      return `${role.toUpperCase()} '${userName}': Deleted unit on Floor ${activity.floor_id}`;
+      return ` Deleted unit on Floor ${activity.floor_number}`;
   }
 
   if (entity === "building_update") {
     if (action === "note") {
-      return `${role.toUpperCase()} '${userName}':  ${activity.new_value?.note || "Added note"}`;
+      return ` ${activity.new_value?.note || "Added note"}`;
     }
-    return `${role.toUpperCase()} '${userName}': ${action} building update`;
+    return ` ${action} building update`;
   }
 
-  return `${role.toUpperCase()} '${userName}': ${action} ${entity}`;
+  return `${action} ${entity}`;
 };
 
 export const EMPTY_UNIT = {
@@ -49,4 +55,9 @@ export const EMPTY_UNIT = {
   lease_expiration: "",
   status: "vacant",
   block_order: 0,
+  company_website: "",
+  contact_name: "",
+  contact_email: "",
+  contact_phone: "",
+  latest_update: "",
 };

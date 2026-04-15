@@ -6,7 +6,6 @@ import {
   AskQuestionReportEndpoint,
   updateGenralDoc,
 } from "../../NWconfig";
-import { toast } from "react-toastify";
 
 export const UploadfloorStack = createAsyncThunk(
   "UploadfloorStack",
@@ -137,7 +136,7 @@ export const FloorPlanStackDeleteSubmit = createAsyncThunk(
       const response = await axiosInstance.delete(
         `/building/files/bs_and_fp_delete?file_id=${file_id}`,
       );
-      toast.success(response.data.message);
+
       return response.data;
     } catch (error) {
       return rejectWithValue(error.response?.data?.message);

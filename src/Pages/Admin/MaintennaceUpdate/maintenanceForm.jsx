@@ -1,4 +1,4 @@
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import {
   CATEGORY_ICONS,
   CATEGORY_LABELS,
@@ -15,10 +15,38 @@ const MaintenanceForm = ({
   isLoading = false,
 }) => {
   const fileRef = useRef();
+  const [errors, setErrors] = useState({});
+
+  const validateForm = () => {
+    const newErrors = {};
+
+    if (!form.category) {
+      newErrors.category = "Category is required";
+    }
+
+    if (!form.status) {
+      newErrors.status = "Status is required";
+    }
+
+    if (!form.description || form.description.trim() === "") {
+      newErrors.description = "Description is required";
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
 
   const handleSubmit = () => {
     if (isLoading) return;
+
+    if (!validateForm()) return;
+
     onSubmit();
+  };
+
+  const handleChange = (field, value) => {
+    setForm((f) => ({ ...f, [field]: value }));
+    setErrors((prev) => ({ ...prev, [field]: "" }));
   };
 
   return (
@@ -45,17 +73,20 @@ const MaintenanceForm = ({
             <select
               className="mu2-select"
               value={form.category}
-              onChange={(e) =>
-                setForm((f) => ({ ...f, category: e.target.value }))
-              }
+              onChange={(e) => handleChange("category", e.target.value)}
               disabled={isLoading}
             >
+              <option value="">Select Category</option>
               {CATEGORIES.map((c) => (
                 <option key={c} value={c}>
                   {CATEGORY_ICONS[c]} {CATEGORY_LABELS[c]}
                 </option>
               ))}
             </select>
+
+            {errors.category && (
+              <div className="mu2-error">{errors.category}</div>
+            )}
           </div>
 
           <div className="mu2-field">
@@ -67,19 +98,22 @@ const MaintenanceForm = ({
                 .map(([k, v]) => (
                   <button
                     key={k}
+                    type="button"
                     className={`mu2-status-opt ${
                       form.status === k ? "mu2-status-opt--on" : ""
                     }`}
                     style={
                       form.status === k ? { "--oc": v.color, "--ob": v.bg } : {}
                     }
-                    onClick={() => setForm((f) => ({ ...f, status: k }))}
+                    onClick={() => handleChange("status", k)}
                     disabled={isLoading}
                   >
                     {v.label}
                   </button>
                 ))}
             </div>
+
+            {errors.status && <div className="mu2-error">{errors.status}</div>}
           </div>
 
           <div className="mu2-field">
@@ -90,11 +124,13 @@ const MaintenanceForm = ({
               rows={3}
               placeholder="e.g. Elevator 4 out of service…"
               value={form.description}
-              onChange={(e) =>
-                setForm((f) => ({ ...f, description: e.target.value }))
-              }
+              onChange={(e) => handleChange("description", e.target.value)}
               disabled={isLoading}
             />
+
+            {errors.description && (
+              <div className="mu2-error">{errors.description}</div>
+            )}
           </div>
 
           <div className="mu2-toggle-row">
@@ -106,12 +142,11 @@ const MaintenanceForm = ({
             </div>
 
             <button
+              type="button"
               className={`mu2-toggle ${
                 form.tour_impact ? "mu2-toggle--on" : ""
               }`}
-              onClick={() =>
-                setForm((f) => ({ ...f, tour_impact: !f.tour_impact }))
-              }
+              onClick={() => handleChange("tour_impact", !form.tour_impact)}
               disabled={isLoading}
             >
               <span className="mu2-toggle__knob" />
@@ -138,9 +173,7 @@ const MaintenanceForm = ({
               type="file"
               accept="image/*"
               style={{ display: "none" }}
-              onChange={(e) =>
-                setForm((f) => ({ ...f, photo: e.target.files[0] }))
-              }
+              onChange={(e) => handleChange("photo", e.target.files[0])}
               disabled={isLoading}
             />
           </div>

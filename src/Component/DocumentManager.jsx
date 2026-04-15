@@ -12,12 +12,13 @@ import { toast } from "react-toastify";
 import RAGLoader from "./Loader";
 import { BackButton } from "./backButton";
 import Pagination from "./pagination";
+import Card from "./Card/Card";
+import PageHeader from "./PageHeader/PageHeader";
+import ConfirmDeleteModal from "./confirmDeleteModal";
 
 const DocumentManager = ({ category, title, description, building_Id }) => {
   const dispatch = useDispatch();
   const [docs, setDocs] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [listLoading, setListLoading] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
   const [deleteLoading, setDeleteLoading] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
@@ -26,6 +27,7 @@ const DocumentManager = ({ category, title, description, building_Id }) => {
   const [tagSearch, setTagSearch] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(5);
+  const [pageLoader, setPageLoader] = useState(false);
 
   const indexOfLastDoc = currentPage * itemsPerPage;
   const indexOfFirstDoc = indexOfLastDoc - itemsPerPage;
@@ -35,7 +37,7 @@ const DocumentManager = ({ category, title, description, building_Id }) => {
   );
 
   const fetchData = async () => {
-    setListLoading(true);
+    setPageLoader(true);
     try {
       const res = await dispatch(
         isFloorPlanCategory
@@ -55,7 +57,7 @@ const DocumentManager = ({ category, title, description, building_Id }) => {
     } catch (err) {
       console.error(`Error fetching ${category} docs:`, err);
     } finally {
-      setListLoading(false);
+      setPageLoader(false);
     }
   };
 
@@ -106,7 +108,7 @@ const DocumentManager = ({ category, title, description, building_Id }) => {
       return;
     }
 
-    setLoading(true);
+    setPageLoader(true);
     try {
       if (isFloorPlanOrStack) {
         await dispatch(
@@ -124,13 +126,11 @@ const DocumentManager = ({ category, title, description, building_Id }) => {
         ).unwrap();
       }
       setTag("");
-      toast.success("File uploaded successfully");
       await fetchData();
     } catch (err) {
       console.error("Upload failed:", err);
-      toast.error("File upload failed");
     } finally {
-      setLoading(false);
+      setPageLoader(false);
     }
   };
 
@@ -156,6 +156,7 @@ const DocumentManager = ({ category, title, description, building_Id }) => {
     setFileToDelete(file);
     setShowDeleteModal(true);
   };
+
   const confirmDelete = async () => {
     if (!fileToDelete) return;
     setDeleteLoading(true);
@@ -168,7 +169,6 @@ const DocumentManager = ({ category, title, description, building_Id }) => {
       await fetchData();
     } catch (err) {
       console.error("Delete failed:", err);
-      toast.error("Failed to delete document");
     } finally {
       setDeleteLoading(false);
       setShowDeleteModal(false);
@@ -182,14 +182,12 @@ const DocumentManager = ({ category, title, description, building_Id }) => {
   const currentDocs = filteredDocs.slice(indexOfFirstDoc, indexOfLastDoc);
 
   return (
-    <div className="container-fluid px-2 px-md-4">
-      <div className="d-flex align-items-start align-items-md-center gap-2 pt-5 pt-md-3 pb-3">
-        <BackButton className="flex-shrink-0" />
-        <div className="flex-grow-1 min-w-0">
-          <h5 className="fw-bold mb-0">{title}</h5>
-          <p className="text-muted mb-0 description small">{description}</p>
-        </div>
-      </div>
+    <div className="container-fluid p-2 px-md-4 position-relative min-vh-100">
+      <PageHeader
+        backButton={<BackButton className="flex-shrink-0" />}
+        title={title}
+        subtitle={description}
+      />
 
       {(category === "floor_plan" || category === "LOI") && (
         <div className="mb-3 d-flex gap-2 flex-wrap">
@@ -244,119 +242,108 @@ const DocumentManager = ({ category, title, description, building_Id }) => {
               : "PDF, DOCX, CSV, XLSX"}{" "}
           up to 30MB
         </p>
-
-        {loading && <RAGLoader />}
       </div>
 
-      <div className="card shadow-sm mt-4">
-        <div className="card-header fw-semibold d-flex align-items-center justify-content-between">
-          <span>Uploaded Documents</span>
-          {(category === "floor_plan" || category === "LOI") && (
+      <Card
+        className="mt-4"
+        title="Uploaded Documents"
+        variant="elevated"
+        noPadding
+        headerAction={
+          (category === "floor_plan" || category === "LOI") && (
             <input
               type="text"
-              className="form-control w-50"
+              className="form-control form-control-sm"
+              style={{ maxWidth: "300px" }}
               placeholder="Search by Tag Name"
               value={tagSearch}
               onChange={(e) => setTagSearch(e.target.value)}
             />
+          )
+        }
+      >
+        <ul className="list-group list-group-flush">
+          {currentDocs.length === 0 && (
+            <li className="list-group-item text-muted text-center py-4">
+              No documents uploaded yet.
+            </li>
           )}
-        </div>
 
-        {listLoading ? (
-          <div className="p-1 text-center">
-            <p className="text-muted mt-2">Loading files...</p>
-          </div>
-        ) : (
-          <ul className="list-group list-group-flush">
-            {currentDocs.length === 0 && (
-              <li className="list-group-item text-muted text-center">
-                No documents uploaded yet.
-              </li>
-            )}
-
-            {currentDocs.map((file) => (
-              <li
-                key={file.file_id}
-                className="list-group-item d-flex justify-content-between align-items-center flex-wrap"
+          {currentDocs.map((file) => (
+            <li
+              key={file.file_id}
+              className="list-group-item d-flex justify-content-between align-items-center py-3"
+            >
+              <div
+                className="d-flex align-items-center text-truncate me-2"
+                style={{ maxWidth: "80%" }}
               >
-                <div
-                  className="d-flex align-items-center text-truncate me-2"
-                  style={{ maxWidth: "70%" }}
-                >
-                  <i className="bi bi-file-earmark-text text-primary me-2"></i>
-                  <span className="text-truncate">{file.name}</span>
+                <i className="bi bi-file-earmark-text text-primary fs-5 me-3"></i>
+                <div className="d-flex flex-column min-w-0">
+                  <span className="text-truncate fw-medium">{file.name}</span>
                   {file.tag && (
-                    <span className="badge bg-secondary ms-2">{file.tag}</span>
+                    <span
+                      className="badge text-secondary align-self-start mt-1"
+                      style={{
+                        fontSize: "0.7rem",
+                        border: "1px solid #dee2e6",
+                      }}
+                    >
+                      {file.tag}
+                    </span>
                   )}
                 </div>
-                <div className="d-flex gap-2 mt-2 mt-md-0">
-                  <i
-                    className="bi bi-trash text-danger"
-                    style={{ cursor: "pointer" }}
-                    onClick={() => openDeleteModal(file)}
-                  ></i>
-                </div>
-              </li>
-            ))}
-          </ul>
-        )}
+              </div>
+              <div className="d-flex gap-2">
+                <button
+                  className="btn btn-link text-danger p-0 border-0"
+                  onClick={() => openDeleteModal(file)}
+                  title="Delete document"
+                >
+                  <i className="bi bi-trash fs-5"></i>
+                </button>
+              </div>
+            </li>
+          ))}
+        </ul>
 
         {filteredDocs.length > 0 && (
-          <Pagination
-            totalItems={filteredDocs.length}
-            itemsPerPage={itemsPerPage}
-            currentPage={currentPage}
-            onPageChange={setCurrentPage}
-            onItemsPerPageChange={(value) => {
-              setItemsPerPage(value);
-              setCurrentPage(1);
-            }}
-          />
-        )}
-      </div>
-
-      {showDeleteModal && (
-        <div
-          className="modal fade show"
-          style={{ display: "block", background: "rgba(0,0,0,0.5)" }}
-        >
-          <div className="modal-dialog modal-dialog-centered">
-            <div className="modal-content">
-              <div className="modal-header">
-                <h5 className="modal-title">Confirm Delete</h5>
-                <button
-                  className="btn-close"
-                  onClick={() => setShowDeleteModal(false)}
-                ></button>
-              </div>
-              <div className="modal-body">
-                <p>
-                  Are you sure you want to delete:
-                  <br />
-                  <strong>{fileToDelete?.name}</strong> ?
-                </p>
-              </div>
-              <div className="modal-footer">
-                <button
-                  className="btn btn-secondary"
-                  onClick={() => setShowDeleteModal(false)}
-                >
-                  Cancel
-                </button>
-                <button
-                  className="btn btn-danger"
-                  onClick={confirmDelete}
-                  disabled={deleteLoading}
-                >
-                  {deleteLoading ? (
-                    <span className="spinner-border spinner-border-sm"></span>
-                  ) : (
-                    "Delete"
-                  )}
-                </button>
-              </div>
-            </div>
+          <div className="px-3 pb-2 pt-1 border-top">
+            <Pagination
+              totalItems={filteredDocs.length}
+              itemsPerPage={itemsPerPage}
+              currentPage={currentPage}
+              onPageChange={setCurrentPage}
+              onItemsPerPageChange={(value) => {
+                setItemsPerPage(value);
+                setCurrentPage(1);
+              }}
+            />
           </div>
+        )}
+      </Card>
+
+      <ConfirmDeleteModal
+        show={showDeleteModal}
+        selectedEmail={fileToDelete?.name || "this document"}
+        deleteLoading={deleteLoading}
+        onClose={() => {
+          setShowDeleteModal(false);
+          setFileToDelete(null);
+        }}
+        onDelete={confirmDelete}
+      />
+
+      {pageLoader && (
+        <div
+          className="position-absolute top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center"
+          style={{
+            backdropFilter: "blur(2px)",
+            background: "rgba(0,0,0,0.4)",
+            zIndex: 10,
+          }}
+        >
+          <RAGLoader />
         </div>
       )}
     </div>

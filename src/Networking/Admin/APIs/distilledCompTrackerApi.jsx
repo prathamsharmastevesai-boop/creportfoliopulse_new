@@ -6,7 +6,6 @@ import {
   distilledCompTrackerEndpoint,
   distilledCompTrackerlistEndPoint,
 } from "../../NWconfig";
-import { toast } from "react-toastify";
 
 export const distilledCompTracker = createAsyncThunk(
   "distilledCompTracker",
@@ -14,14 +13,14 @@ export const distilledCompTracker = createAsyncThunk(
     try {
       const response = await axiosInstance.post(
         distilledCompTrackerEndpoint,
-        payload
+        payload,
       );
-      toast.success(response.data.message)
+
       return response.data;
     } catch (error) {
       return rejectWithValue(error.response?.data?.message || error.message);
     }
-  }
+  },
 );
 
 export const getdistilledCompTrackerlistApi = createAsyncThunk(
@@ -29,13 +28,13 @@ export const getdistilledCompTrackerlistApi = createAsyncThunk(
   async (_, { rejectWithValue }) => {
     try {
       const response = await axiosInstance.get(
-        distilledCompTrackerlistEndPoint
+        distilledCompTrackerlistEndPoint,
       );
       return response.data;
     } catch (error) {
       return rejectWithValue(error.response?.data?.message);
     }
-  }
+  },
 );
 
 export const AskQuestionDCTAPI = createAsyncThunk(
@@ -50,7 +49,7 @@ export const AskQuestionDCTAPI = createAsyncThunk(
     } catch (error) {
       return rejectWithValue(error.response?.data || error.message);
     }
-  }
+  },
 );
 
 export const distilledBenchmarkApi = createAsyncThunk(
@@ -59,11 +58,11 @@ export const distilledBenchmarkApi = createAsyncThunk(
     try {
       const response = await axiosInstance.post(
         distilledBenchmarkEndpoint,
-        payload
+        payload,
       );
       return response.data;
     } catch (error) {
       return rejectWithValue(error.response?.data?.message || error.message);
     }
-  }
+  },
 );

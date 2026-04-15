@@ -1,6 +1,5 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
 import axiosInstance from "../../../Admin/APIs/AxiosInstance";
-import { toast } from "react-toastify";
 import { calcEndpoint, itcalculatorEndpoint } from "../../../NWconfig";
 
 export const calcSubmitApi = createAsyncThunk(
@@ -8,7 +7,7 @@ export const calcSubmitApi = createAsyncThunk(
   async (data, { rejectWithValue }) => {
     try {
       const response = await axiosInstance.post(calcEndpoint, data);
-      toast.success(response.data?.message);
+
       return response.data;
     } catch (error) {
       const backendError =
@@ -19,7 +18,7 @@ export const calcSubmitApi = createAsyncThunk(
 
       return rejectWithValue(backendError);
     }
-  }
+  },
 );
 
 export const commissionSimpleApi = createAsyncThunk(
@@ -28,26 +27,23 @@ export const commissionSimpleApi = createAsyncThunk(
     try {
       const response = await axiosInstance.post(
         "/calc/commission_simple",
-        payload
+        payload,
       );
       return response.data;
     } catch (err) {
       return rejectWithValue(err.response?.data || err.message);
     }
-  }
+  },
 );
 
 export const itcalculatorApi = createAsyncThunk(
   "calculator/itcalculatorApi",
   async (payload, { rejectWithValue }) => {
     try {
-      const response = await axiosInstance.post(
-        itcalculatorEndpoint,
-        payload
-      );
+      const response = await axiosInstance.post(itcalculatorEndpoint, payload);
       return response.data;
     } catch (err) {
       return rejectWithValue(err.response?.data || err.message);
     }
-  }
+  },
 );

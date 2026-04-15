@@ -1,27 +1,22 @@
 import { useEffect, useState } from "react";
-import { BsPlusLg, BsChevronUp, BsChevronDown, BsTrash } from "react-icons/bs";
+import { BsPlusLg, BsTrash } from "react-icons/bs";
 import {
-  FaUserFriends,
   FaEnvelope,
   FaPhone,
   FaClipboardCheck,
   FaCalendarAlt,
 } from "react-icons/fa";
-import { useLocation } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { toast } from "react-toastify";
 
-import { AddSpaceModal } from "./addSpace";
 import { AddProspectModal } from "./AddProspectModal";
 import { ActivityModal } from "./ActivityModal";
-import { MilestoneModal } from "./milestoneModal";
 import { DeleteConfirmModal } from "./deleteModel";
+import { MilestoneModal } from "./milestoneModal";
 
 import {
-  getSpacesByBuilding,
   getProspectsBySpace,
   deleteProspect,
-  deleteSpace,
   addActivity,
   deleteActivity,
   addMilestone,
@@ -30,30 +25,20 @@ import {
 
 export const SpaceUp = () => {
   const dispatch = useDispatch();
-  const location = useLocation();
 
-  const buildingId = location.state?.office?.buildingId;
-  const address = location.state?.office?.address || "Space Up - Building";
-  const deletingSpaceId = useSelector((s) => s.spaceUpSlice.deletingSpaceId);
-
-  const [showSpaceModal, setShowSpaceModal] = useState(false);
   const [showProspectModal, setShowProspectModal] = useState(false);
-  const [selectedSpaceId, setSelectedSpaceId] = useState(null);
-  const [openSpaceId, setOpenSpaceId] = useState(null);
-
+  const [showNotesModal, setShowNotesModal] = useState(false);
+  const [activeNotesMilestone, setActiveNotesMilestone] = useState({
+    prospectId: null,
+    key: null,
+  });
+  const [savingNotes, setSavingNotes] = useState(false);
   const [showActivityModal, setShowActivityModal] = useState(false);
   const [activeProspectId, setActiveProspectId] = useState(null);
   const [activityType, setActivityType] = useState(null);
   const [addingActivity, setAddingActivity] = useState(false);
-
-  const [showMilestoneModal, setShowMilestoneModal] = useState(false);
-  const [activeProspectIdForMilestone, setActiveProspectIdForMilestone] =
-    useState(null);
-  const [activeMilestone, setActiveMilestone] = useState(null);
-  const [updatingMilestone, setUpdatingMilestone] = useState(false);
-
+  const [updatingMilestones, setUpdatingMilestones] = useState({});
   const [addingProspect, setAddingProspect] = useState(false);
-
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [deleteConfig, setDeleteConfig] = useState({
@@ -63,44 +48,55 @@ export const SpaceUp = () => {
     onConfirm: null,
   });
 
-  const { spaces, spacesLoading, prospectsBySpace, prospectsLoading } =
-    useSelector((state) => state.spaceUpSlice);
+  const { prospects, prospectsLoading } = useSelector(
+    (state) => state.spaceUpSlice,
+  );
 
   useEffect(() => {
-    if (buildingId) {
-      dispatch(getSpacesByBuilding(buildingId));
-    }
-  }, [buildingId, dispatch]);
+    dispatch(getProspectsBySpace());
+  }, []);
 
-  const toggleAccordion = (spaceId) => {
-    if (openSpaceId === spaceId) {
-      setOpenSpaceId(null);
-      return;
-    }
-    setOpenSpaceId(spaceId);
-    if (!prospectsBySpace?.[spaceId]) {
-      dispatch(getProspectsBySpace(spaceId));
-    }
+  const refreshProspects = () => dispatch(getProspectsBySpace());
+
+  const handleAddProspect = () => setShowProspectModal(true);
+
+  const handleOpenNotesModal = (prospectId, milestoneKey) => {
+    setActiveNotesMilestone({ prospectId, key: milestoneKey });
+    setShowNotesModal(true);
   };
 
-  const handleAddProspect = (spaceId) => {
-    setSelectedSpaceId(spaceId);
-    setShowProspectModal(true);
+  const handleSaveNotes = async (notes) => {
+    const { prospectId, key } = activeNotesMilestone;
+    if (!prospectId || !key) return;
+    setSavingNotes(true);
+    try {
+      await dispatch(
+        addMilestone({ prospectId, milestone: key, notes }),
+      ).unwrap();
+      setShowNotesModal(false);
+      refreshProspects();
+    } catch (err) {
+    } finally {
+      setSavingNotes(false);
+    }
   };
 
   const handleSaveProspect = async (formData) => {
-    if (!selectedSpaceId) return;
     setAddingProspect(true);
     try {
-      await dispatch(
-        addProspect({ spaceId: selectedSpaceId, payload: formData }),
-      ).unwrap();
-      toast.success("Prospect added");
-      setShowProspectModal(false);
+      const payload = {
+        broker_name: formData.broker_name,
+        broker_contact: formData.broker_contact,
+        tenant_name: formData.tenant_name
+          .split(",")
+          .map((name) => name.trim())
+          .filter(Boolean),
+      };
 
-      if (openSpaceId) dispatch(getProspectsBySpace(openSpaceId));
-    } catch (err) {
-      toast.error(err?.message || "Failed to add prospect");
+      dispatch(addProspect(payload));
+
+      setShowProspectModal(false);
+      refreshProspects();
     } finally {
       setAddingProspect(false);
     }
@@ -117,16 +113,9 @@ export const SpaceUp = () => {
     setAddingActivity(true);
     try {
       await dispatch(
-        addActivity({
-          prospectId: activeProspectId,
-          activityType,
-          notes,
-        }),
+        addActivity({ prospectId: activeProspectId, activityType, notes }),
       ).unwrap();
-      toast.success("Activity added");
-      if (openSpaceId) dispatch(getProspectsBySpace(openSpaceId));
-    } catch (err) {
-      toast.error(err?.message || "Failed to add activity");
+      refreshProspects();
     } finally {
       setAddingActivity(false);
       setShowActivityModal(false);
@@ -135,43 +124,29 @@ export const SpaceUp = () => {
     }
   };
 
-  const handleDeleteActivity = (activityId, prospectId) => {
-    openDeleteModal(activityId, "activity", "this activity", async () => {
-      await dispatch(deleteActivity(activityId)).unwrap();
-      if (openSpaceId) dispatch(getProspectsBySpace(openSpaceId));
-    });
-  };
-
-  const handleOpenMilestoneModal = (prospectId, milestone, currentValue) => {
+  const handleOpenMilestoneModal = async (
+    prospectId,
+    milestone,
+    currentValue,
+  ) => {
     if (currentValue) {
       toast.info("This milestone is already completed.");
       return;
     }
-    setActiveProspectIdForMilestone(prospectId);
-    setActiveMilestone(milestone);
-    setShowMilestoneModal(true);
-  };
 
-  const handleSaveMilestone = async (notes) => {
-    if (!activeProspectIdForMilestone || !activeMilestone) return;
-    setUpdatingMilestone(true);
+    const key = `${prospectId}-${milestone}`;
+    setUpdatingMilestones((prev) => ({ ...prev, [key]: true }));
     try {
       await dispatch(
-        addMilestone({
-          prospectId: activeProspectIdForMilestone,
-          milestone: activeMilestone,
-          notes,
-        }),
+        addMilestone({ prospectId, milestone, notes: null }),
       ).unwrap();
-      toast.success("Milestone updated");
-      if (openSpaceId) dispatch(getProspectsBySpace(openSpaceId));
-    } catch (err) {
-      toast.error(err?.message || "Failed to update milestone");
+      refreshProspects();
     } finally {
-      setUpdatingMilestone(false);
-      setShowMilestoneModal(false);
-      setActiveProspectIdForMilestone(null);
-      setActiveMilestone(null);
+      setUpdatingMilestones((prev) => {
+        const updated = { ...prev };
+        delete updated[key];
+        return updated;
+      });
     }
   };
 
@@ -183,24 +158,14 @@ export const SpaceUp = () => {
       onConfirm: async () => {
         try {
           setIsDeleting(true);
-
           await confirmFn();
-
           setShowDeleteModal(false);
-        } catch (err) {
-          console.error("Delete failed:", err);
         } finally {
           setIsDeleting(false);
         }
       },
     });
-
     setShowDeleteModal(true);
-  };
-  const handleDeleteSpace = (spaceId, suiteNumber) => {
-    openDeleteModal(spaceId, "space", `Suite ${suiteNumber}`, async () => {
-      await dispatch(deleteSpace(spaceId)).unwrap();
-    });
   };
 
   const handleDeleteProspect = (prospectId, brokerName) => {
@@ -210,9 +175,16 @@ export const SpaceUp = () => {
       brokerName || "this prospect",
       async () => {
         await dispatch(deleteProspect(prospectId)).unwrap();
-        if (openSpaceId) dispatch(getProspectsBySpace(openSpaceId));
+        refreshProspects();
       },
     );
+  };
+
+  const handleDeleteActivity = (activityId) => {
+    openDeleteModal(activityId, "activity", "this activity", async () => {
+      await dispatch(deleteActivity(activityId)).unwrap();
+      refreshProspects();
+    });
   };
 
   const formatDate = (dateString) => {
@@ -250,338 +222,210 @@ export const SpaceUp = () => {
   return (
     <>
       <div className="header-bg d-flex flex-wrap justify-content-between align-items-center px-3 py-2 sticky-header">
-        <h4 className="mb-2 mb-sm-0 text-light me-3">
-          {address || "Space Up"}
-        </h4>
-        <button
-          className="btn btn-secondary"
-          onClick={() => setShowSpaceModal(true)}
-        >
-          <BsPlusLg className="me-2" />
-          Add Space
-        </button>
+        <h4 className="mb-2 mb-sm-0 text-light me-3">Broker Index</h4>
       </div>
 
-      <div className="container-fluid py-4 px-2 px-md-3">
-        {spacesLoading ? (
-          <div className="row g-3">
-            {[...Array(3)].map((_, i) => (
-              <div key={i} className="col-12">
-                <div className="card shadow-sm p-4 placeholder-glow">
-                  <span className="placeholder col-5 mb-2 d-block" />
-                  <span className="placeholder col-3 mb-3 d-block" />
-                  <span className="placeholder col-8 d-block" />
-                </div>
-              </div>
-            ))}
+      <div className="card-body p-3 p-md-4">
+        <div className="d-flex flex-wrap justify-content-between align-items-center mb-4">
+          <h5 className="fw-semibold mb-2 mb-sm-0">Prospects</h5>
+          <button
+            className="btn btn-outline-primary btn-sm d-flex align-items-center gap-1"
+            onClick={(e) => {
+              e.stopPropagation();
+              handleAddProspect();
+            }}
+          >
+            <BsPlusLg size={14} />
+            Add Prospect
+          </button>
+        </div>
+
+        {prospectsLoading ? (
+          <div className="text-center py-5 text-muted">
+            Loading prospects...
           </div>
-        ) : !spaces?.length ? (
-          <div className="alert alert-info text-center py-3">
-            No vacant spaces found in this building.
+        ) : prospects.length === 0 ? (
+          <div className="text-center py-5 text-muted">
+            No prospects added for this space yet.
           </div>
         ) : (
-          spaces.map((space) => {
-            const prospects = prospectsBySpace?.[space.id] || [];
-            const loading = prospectsLoading?.[space.id];
+          prospects.map((p) => {
+            const activities = p.activities || [];
+            const emailActivities = activities.filter(
+              (a) => a.activity_type === "email_outreach",
+            );
+            const phoneActivities = activities.filter(
+              (a) => a.activity_type === "phone_call",
+            );
 
             return (
               <div
-                key={space.id}
-                className="card mb-4 shadow border-0 rounded-4"
+                key={p.id}
+                className="border rounded-4 p-3 p-md-4 mb-4 shadow-sm position-relative"
               >
-                <div
-                  className="card-header d-flex flex-wrap justify-content-between align-items-center p-3"
-                  style={{ cursor: "pointer" }}
-                  onClick={() => toggleAccordion(space.id)}
-                >
-                  <div className="mb-2 mb-sm-0">
-                    <h5 className="mb-1 fw-semibold">
-                      Suite {space.suite_number} • Floor {space.floor}
-                    </h5>
-                    <small className="text-muted text-break">{address}</small>
+                <div className="d-flex flex-wrap justify-content-between align-items-start mb-3">
+                  <div className="pe-3">
+                    <h6 className="fw-bold mb-1">{p.broker_name}</h6>
+                    <small className="text-muted d-block mb-1">
+                      {p.broker_contact}
+                    </small>
+                    <small>
+                      Tenant:{" "}
+                      <span className="text-primary fw-medium">
+                        {p.tenant_name || "Not specified"}
+                      </span>
+                    </small>
                   </div>
-                  <div className="d-flex align-items-center justify-content-between gap-md-3">
-                    <span className="badge border px-3 py-2 text-dark">
-                      <FaUserFriends size={14} className="me-1" />
-                      {prospects.length} prospects
-                    </span>
-                    <div>
-                      <BsTrash
-                        className={`fs-4 ${
-                          deletingSpaceId === space.id
-                            ? "text-secondary"
-                            : "text-danger"
-                        }`}
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          if (deletingSpaceId !== space.id) {
-                            handleDeleteSpace(space.id, space.suite_number);
-                          }
-                        }}
-                      />
+                  <BsTrash
+                    className="text-danger fs-5 mt-1"
+                    role="button"
+                    onClick={() => handleDeleteProspect(p.id, p.broker_name)}
+                    title="Delete this prospect"
+                  />
+                </div>
 
-                      {openSpaceId === space.id ? (
-                        <BsChevronUp className="fs-5" />
-                      ) : (
-                        <BsChevronDown className="fs-5" />
-                      )}
-                    </div>
+                <div className="mb-4">
+                  <h6 className="fw-semibold mb-2">Activity Log</h6>
+                  <div className="list-group list-group-flush border rounded">
+                    {[
+                      {
+                        type: "email_outreach",
+                        label: "Email Outreaches",
+                        icon: <FaEnvelope className="text-primary" />,
+                        list: emailActivities,
+                      },
+                      {
+                        type: "phone_call",
+                        label: "Phone Conversations",
+                        icon: <FaPhone className="text-success" />,
+                        list: phoneActivities,
+                      },
+                    ].map(({ type, label, icon, list }) => (
+                      <div key={type} className="list-group-item">
+                        <div className="d-flex flex-wrap justify-content-between align-items-center gap-2">
+                          <div className="d-flex align-items-center flex-wrap gap-2">
+                            {icon}
+                            <span>{label}</span>
+                            <span className="badge border ms-1">
+                              {list.length}
+                            </span>
+                          </div>
+                          <button
+                            className="btn btn-link btn-sm text-primary p-0"
+                            onClick={() => handleOpenActivityModal(p.id, type)}
+                            disabled={addingActivity}
+                          >
+                            + Add
+                          </button>
+                        </div>
+                        {list.length > 0 && (
+                          <ul className="mt-2 list-unstyled">
+                            {list.map((act) => (
+                              <li
+                                key={act.id}
+                                className="d-flex justify-content-between align-items-start mb-1"
+                              >
+                                <small className="text-break me-2">
+                                  {act.notes}{" "}
+                                  <span className="text-muted text-nowrap">
+                                    ({formatDate(act.created_at)})
+                                  </span>
+                                </small>
+                                <BsTrash
+                                  className="text-danger flex-shrink-0"
+                                  role="button"
+                                  size={12}
+                                  onClick={() => handleDeleteActivity(act.id)}
+                                />
+                              </li>
+                            ))}
+                          </ul>
+                        )}
+                      </div>
+                    ))}
                   </div>
                 </div>
 
-                {openSpaceId === space.id && (
-                  <div className="card-body p-3 p-md-4">
-                    <div className="d-flex flex-wrap justify-content-between align-items-center mb-4">
-                      <h5 className="fw-semibold mb-2 mb-sm-0">Prospects</h5>
-                      <button
-                        className="btn btn-outline-primary btn-sm d-flex align-items-center gap-1"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleAddProspect(space.id);
-                        }}
-                      >
-                        <BsPlusLg size={14} />
-                        Add Prospect
-                      </button>
-                    </div>
+                <div>
+                  <h6 className="fw-semibold mb-2">Milestones</h6>
+                  <div className="table-responsive">
+                    <table className="table table-borderless table-sm mb-0">
+                      <thead className="border-bottom">
+                        <tr>
+                          <th className="ps-0">Done</th>
+                          <th>Task</th>
+                          <th>Notes</th>
+                          <th className="text-end">Completed</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {milestoneConfig.map((item) => {
+                          const milestone = p.milestones?.[item.key] || {};
+                          const done = milestone.done || false;
+                          const doneAt = milestone.done_at;
+                          const notes = milestone.notes || "";
+                          const isUpdating =
+                            updatingMilestones[`${p.id}-${item.key}`];
 
-                    {loading ? (
-                      <div className="text-center py-5 text-muted">
-                        Loading prospects...
-                      </div>
-                    ) : prospects.length === 0 ? (
-                      <div className="text-center py-5 text-muted">
-                        No prospects added for this space yet.
-                      </div>
-                    ) : (
-                      prospects.map((p) => {
-                        const activities = p.activities || [];
-                        const emailActivities = activities.filter(
-                          (a) => a.activity_type === "email_outreach",
-                        );
-                        const phoneActivities = activities.filter(
-                          (a) => a.activity_type === "phone_call",
-                        );
-
-                        return (
-                          <div
-                            key={p.id}
-                            className="border rounded-4 p-3 p-md-4 mb-4 shadow-sm position-relative"
-                          >
-                            <div className="d-flex flex-wrap justify-content-between align-items-start mb-3">
-                              <div className="pe-3">
-                                <h6 className="fw-bold mb-1">
-                                  {p.broker_name}
-                                </h6>
-                                <small className="text-muted d-block mb-1">
-                                  {p.broker_contact}
-                                </small>
-                                <small>
-                                  Tenant:{" "}
-                                  <span className="text-primary fw-medium">
-                                    {p.tenant_name || "Not specified"}
-                                  </span>
-                                </small>
-                              </div>
-                              <BsTrash
-                                className="text-danger fs-5 mt-1"
-                                role="button"
-                                onClick={() =>
-                                  handleDeleteProspect(
-                                    p.id,
-                                    p.broker_name || "this prospect",
-                                  )
-                                }
-                                title="Delete this prospect"
-                              />
-                            </div>
-
-                            <div className="mb-4">
-                              <h6 className="fw-semibold mb-2">Activity Log</h6>
-                              <div className="list-group list-group-flush border rounded">
-                                <div className="list-group-item">
-                                  <div className="d-flex flex-wrap justify-content-between align-items-center gap-2">
-                                    <div className="d-flex align-items-center flex-wrap gap-2">
-                                      <FaEnvelope className="text-primary" />
-                                      <span>Email Outreaches</span>
-                                      <span className="badge border ms-1">
-                                        {emailActivities.length}
-                                      </span>
-                                    </div>
-                                    <button
-                                      className="btn btn-link btn-sm text-primary p-0"
-                                      onClick={() =>
-                                        handleOpenActivityModal(
-                                          p.id,
-                                          "email_outreach",
-                                        )
-                                      }
-                                      disabled={addingActivity}
-                                    >
-                                      + Add
-                                    </button>
-                                  </div>
-                                  {emailActivities.length > 0 && (
-                                    <ul className="mt-2 list-unstyled">
-                                      {emailActivities.map((act) => (
-                                        <li
-                                          key={act.id}
-                                          className="d-flex justify-content-between align-items-start mb-1"
-                                        >
-                                          <small className="text-break me-2">
-                                            {act.notes}{" "}
-                                            <span className="text-muted text-nowrap">
-                                              ({formatDate(act.created_at)})
-                                            </span>
-                                          </small>
-                                          <BsTrash
-                                            className="text-danger flex-shrink-0"
-                                            role="button"
-                                            size={12}
-                                            onClick={() =>
-                                              handleDeleteActivity(act.id, p.id)
-                                            }
-                                          />
-                                        </li>
-                                      ))}
-                                    </ul>
-                                  )}
-                                </div>
-
-                                <div className="list-group-item">
-                                  <div className="d-flex flex-wrap justify-content-between align-items-center gap-2">
-                                    <div className="d-flex align-items-center flex-wrap gap-2">
-                                      <FaPhone className="text-success" />
-                                      <span>Phone Conversations</span>
-                                      <span className="badge border ms-1">
-                                        {phoneActivities.length}
-                                      </span>
-                                    </div>
-                                    <button
-                                      className="btn btn-link btn-sm text-primary p-0"
-                                      onClick={() =>
-                                        handleOpenActivityModal(
-                                          p.id,
-                                          "phone_call",
-                                        )
-                                      }
-                                      disabled={addingActivity}
-                                    >
-                                      + Add
-                                    </button>
-                                  </div>
-                                  {phoneActivities.length > 0 && (
-                                    <ul className="mt-2 list-unstyled">
-                                      {phoneActivities.map((act) => (
-                                        <li
-                                          key={act.id}
-                                          className="d-flex justify-content-between align-items-start mb-1"
-                                        >
-                                          <small className="text-break me-2">
-                                            {act.notes}{" "}
-                                            <span className="text-muted text-nowrap">
-                                              ({formatDate(act.created_at)})
-                                            </span>
-                                          </small>
-                                          <BsTrash
-                                            className="text-danger flex-shrink-0"
-                                            role="button"
-                                            size={12}
-                                            onClick={() =>
-                                              handleDeleteActivity(act.id, p.id)
-                                            }
-                                          />
-                                        </li>
-                                      ))}
-                                    </ul>
-                                  )}
-                                </div>
-                              </div>
-                            </div>
-
-                            <div>
-                              <h6 className="fw-semibold mb-2">Milestones</h6>
-                              <div className="table-responsive">
-                                <table className="table table-borderless table-sm mb-0">
-                                  <thead className="border-bottom">
-                                    <tr>
-                                      <th className="ps-0">Done</th>
-                                      <th>Task</th>
-                                      <th>Notes</th>
-                                      <th className="text-end">Completed</th>
-                                    </tr>
-                                  </thead>
-                                  <tbody>
-                                    {milestoneConfig.map((item) => {
-                                      const milestone =
-                                        p.milestones?.[item.key] || {};
-                                      const done = milestone.done || false;
-                                      const doneAt = milestone.done_at;
-                                      const notes = milestone.notes || "";
-
-                                      return (
-                                        <tr key={item.key}>
-                                          <td className="ps-0 align-middle">
-                                            <input
-                                              type="checkbox"
-                                              className="form-check-input"
-                                              checked={done}
-                                              onChange={() =>
-                                                handleOpenMilestoneModal(
-                                                  p.id,
-                                                  item.key,
-                                                  done,
-                                                )
-                                              }
-                                              disabled={
-                                                done || updatingMilestone
-                                              }
-                                            />
-                                          </td>
-                                          <td className="align-middle text-nowrap">
-                                            {item.icon}
-                                            {item.label}
-                                          </td>
-                                          <td className="w-50">
-                                            <input
-                                              className="form-control form-control-sm"
-                                              placeholder="Add notes..."
-                                              value={notes}
-                                              disabled
-                                              readOnly
-                                            />
-                                          </td>
-                                          <td className="text-muted text-end align-middle text-nowrap">
-                                            {doneAt ? formatDate(doneAt) : "—"}
-                                          </td>
-                                        </tr>
-                                      );
-                                    })}
-                                  </tbody>
-                                </table>
-                              </div>
-                            </div>
-
-                            <small className="text-muted d-block mt-3">
-                              Added on {formatDate(p.created_at)}
-                            </small>
-                          </div>
-                        );
-                      })
-                    )}
+                          return (
+                            <tr key={item.key}>
+                              <td className="ps-0 align-middle">
+                                {isUpdating ? (
+                                  <span
+                                    className="spinner-border spinner-border-sm text-primary"
+                                    role="status"
+                                    aria-hidden="true"
+                                  />
+                                ) : (
+                                  <input
+                                    type="checkbox"
+                                    className="form-check-input"
+                                    checked={done}
+                                    onChange={() =>
+                                      handleOpenMilestoneModal(
+                                        p.id,
+                                        item.key,
+                                        done,
+                                      )
+                                    }
+                                    disabled={done || isUpdating}
+                                  />
+                                )}
+                              </td>
+                              <td className="align-middle text-nowrap">
+                                {item.icon}
+                                {item.label}
+                              </td>
+                              <td className="w-50">
+                                <input
+                                  className="form-control form-control-sm"
+                                  placeholder="Add notes..."
+                                  value={notes}
+                                  onClick={() =>
+                                    handleOpenNotesModal(p.id, item.key)
+                                  }
+                                  readOnly
+                                />
+                              </td>
+                              <td className="text-muted text-end align-middle text-nowrap">
+                                {doneAt ? formatDate(doneAt) : "—"}
+                              </td>
+                            </tr>
+                          );
+                        })}
+                      </tbody>
+                    </table>
                   </div>
-                )}
+                </div>
+
+                <small className="text-muted d-block mt-3">
+                  Added on {formatDate(p.created_at)}
+                </small>
               </div>
             );
           })
         )}
       </div>
-
-      <AddSpaceModal
-        show={showSpaceModal}
-        onClose={() => setShowSpaceModal(false)}
-        buildingId={buildingId}
-      />
 
       <AddProspectModal
         show={showProspectModal}
@@ -589,7 +433,6 @@ export const SpaceUp = () => {
         onSave={handleSaveProspect}
         loading={addingProspect}
       />
-
       <ActivityModal
         show={showActivityModal}
         onClose={() => setShowActivityModal(false)}
@@ -597,15 +440,6 @@ export const SpaceUp = () => {
         type={activityType}
         loading={addingActivity}
       />
-
-      <MilestoneModal
-        show={showMilestoneModal}
-        onClose={() => setShowMilestoneModal(false)}
-        onSave={handleSaveMilestone}
-        milestone={activeMilestone}
-        loading={updatingMilestone}
-      />
-
       <DeleteConfirmModal
         show={showDeleteModal}
         onClose={() => setShowDeleteModal(false)}
@@ -613,6 +447,14 @@ export const SpaceUp = () => {
         title={`Delete ${deleteConfig.type}`}
         message={`Are you sure you want to delete ${deleteConfig.name}?`}
         loading={isDeleting}
+      />
+      <MilestoneModal
+        show={showNotesModal}
+        onClose={() => setShowNotesModal(false)}
+        onSave={handleSaveNotes}
+        milestone={activeNotesMilestone.key}
+        title="Add Notes"
+        loading={savingNotes}
       />
     </>
   );

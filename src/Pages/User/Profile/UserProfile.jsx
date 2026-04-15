@@ -6,6 +6,8 @@ import {
 import { useDispatch, useSelector } from "react-redux";
 import { FaEdit, FaSave, FaTimes } from "react-icons/fa";
 import RAGLoader from "../../../Component/Loader";
+import Card from "../../../Component/Card/Card";
+import { capitalFunction } from "../../../Component/capitalLetter";
 
 export const UserProfile = () => {
   const { userdata } = useSelector((state) => state.ProfileSlice);
@@ -122,118 +124,118 @@ export const UserProfile = () => {
             <p className="mt-2 text-muted">Loading profile...</p>
           </div>
         ) : (
-          <div className="card shadow-sm overflow-hidden">
-            <div className="card-body">
-              <div className="d-flex justify-content-between align-items-center">
-                <h4> 👤 Profile Info</h4>
+          <Card
+            variant="elevated"
+            className="shadow-sm overflow-hidden"
+            title="👤 Profile Info"
+            headerAction={
+              !isEditing ? (
+                <button
+                  className="btn btn-outline"
+                  onClick={() => setIsEditing(true)}
+                >
+                  <FaEdit className="me-1" />
+                </button>
+              ) : (
+                <button
+                  className="btn btn-outline-secondary"
+                  onClick={cancelEditing}
+                >
+                  <FaTimes className="me-1" />
+                </button>
+              )
+            }
+          >
+            <form onSubmit={handleProfileUpdate}>
+              <div className="mb-2">
                 {!isEditing ? (
-                  <button
-                    className="btn btn-outline-dark"
-                    onClick={() => setIsEditing(true)}
-                  >
-                    <FaEdit className="me-1" /> Edit
-                  </button>
+                  <>
+                    <label className="form-label fw-bold">Full Name</label>
+                    <br />
+                    <label>{capitalFunction(name)}</label>
+                  </>
                 ) : (
-                  <button
-                    className="btn btn-outline-secondary"
-                    onClick={cancelEditing}
-                  >
-                    <FaTimes className="me-1" />
-                  </button>
+                  <>
+                    <label className="form-label">Name</label>
+                    <input
+                      value={name}
+                      onChange={(e) => {
+                        const value = e.target.value;
+
+                        if (value.length > 20) {
+                          setErrors({
+                            ...errors,
+                            name: "Name cannot exceed 20 characters",
+                          });
+                          return;
+                        }
+
+                        setName(value);
+                        setErrors({ ...errors, name: "" });
+                      }}
+                      className={`form-control ${errors.name ? "is-invalid" : ""}`}
+                    />
+                    {errors.name && (
+                      <div className="invalid-feedback">{errors.name}</div>
+                    )}
+                  </>
                 )}
               </div>
 
-              <form onSubmit={handleProfileUpdate}>
-                <div className="mb-2">
-                  {!isEditing ? (
-                    <>
-                      <label className="form-label fw-bold">Full Name</label>
-                      <br />
-                      <label>{name}</label>
-                    </>
-                  ) : (
-                    <>
-                      <label className="form-label">Name</label>
-                      <input
-                        value={name}
-                        onChange={(e) => {
-                          const value = e.target.value;
-
-                          if (value.length > 20) {
-                            setErrors({
-                              ...errors,
-                              name: "Name cannot exceed 20 characters",
-                            });
-                            return;
-                          }
-
-                          setName(value);
-                          setErrors({ ...errors, name: "" });
-                        }}
-                        className={`form-control ${errors.name ? "is-invalid" : ""}`}
-                      />
-                      {errors.name && (
-                        <div className="invalid-feedback">{errors.name}</div>
-                      )}
-                    </>
-                  )}
-                </div>
-
-                <div className="mb-3">
-                  {!isEditing ? (
-                    <>
-                      <label className="form-label fw-bold">Phone Number</label>
-                      <br />
-                      <label>{number}</label>
-                    </>
-                  ) : (
-                    <>
-                      <label className="form-label">Phone Number</label>
-                      <input
-                        value={number}
-                        onChange={(e) => {
-                          const value = e.target.value.replace(/\D/g, "");
-                          setNumber(value);
-                          setErrors({ ...errors, number: "" });
-                        }}
-                        className={`form-control ${errors.number ? "is-invalid" : ""}`}
-                        maxLength={15}
-                      />
-                      {errors.number && (
-                        <div className="invalid-feedback">{errors.number}</div>
-                      )}
-                    </>
-                  )}
-                </div>
-
-                {isEditing && (
-                  <div className="d-flex justify-content-end gap-2">
-                    <button
-                      type="button"
-                      className="btn btn-outline-danger"
-                      onClick={cancelEditing}
-                      disabled={loading}
-                    >
-                      Cancel
-                    </button>
-                    <button
-                      type="submit"
-                      className="btn btn-warning"
-                      disabled={loading}
-                    >
-                      {loading ? (
-                        "Saving..."
-                      ) : (
-                        <>
-                          <FaSave className="me-1" /> Save Changes
-                        </>
-                      )}
-                    </button>
-                  </div>
+              <div className="mb-3">
+                {!isEditing ? (
+                  <>
+                    <label className="form-label fw-bold">Phone Number</label>
+                    <br />
+                    <label>{number}</label>
+                  </>
+                ) : (
+                  <>
+                    <label className="form-label">Phone Number</label>
+                    <input
+                      value={number}
+                      onChange={(e) => {
+                        const value = e.target.value.replace(/\D/g, "");
+                        setNumber(value);
+                        setErrors({ ...errors, number: "" });
+                      }}
+                      className={`form-control ${errors.number ? "is-invalid" : ""}`}
+                      maxLength={15}
+                    />
+                    {errors.number && (
+                      <div className="invalid-feedback">{errors.number}</div>
+                    )}
+                  </>
                 )}
-              </form>
-            </div>
-          </div>
+              </div>
+
+              {isEditing && (
+                <div className="d-flex justify-content-end gap-2">
+                  <button
+                    type="button"
+                    className="btn btn-outline-danger"
+                    onClick={cancelEditing}
+                    disabled={loading}
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    className="btn btn-warning"
+                    disabled={loading}
+                  >
+                    {loading ? (
+                      "Saving..."
+                    ) : (
+                      <>
+                        <FaSave className="me-1" /> Save Changes
+                      </>
+                    )}
+                  </button>
+                </div>
+              )}
+            </form>
+          </Card>
         )}
       </div>
     </>

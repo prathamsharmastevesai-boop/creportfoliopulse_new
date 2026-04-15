@@ -1,7 +1,8 @@
 import React from "react";
-import { Card, Button, Container, Row, Col } from "react-bootstrap";
+import { Button, Container, Row, Col } from "react-bootstrap";
 import { useLocation, useNavigate } from "react-router-dom";
 import { FaArrowLeft } from "react-icons/fa";
+import Card from "../../../Component/Card/Card";
 
 export const UserLeaseList = () => {
   const location = useLocation();
@@ -48,46 +49,50 @@ export const UserLeaseList = () => {
       <Container className="pb-5">
         <Row className="justify-content-center g-4">
           <Col xs={12} sm={10} md={6} lg={5}>
-            <Card className="shadow-lg border-0 h-100">
-              <Card.Body className="d-flex flex-column justify-content-center align-items-center text-center p-4">
-                <Card.Title className="fs-4 mb-3">Lease Agreement</Card.Title>
-                <Card.Text className="fs-6 mb-4">
-                  Upload documents related to <strong>Lease Agreement</strong>{" "}
-                  here.
-                </Card.Text>
-                <Button
-                  variant="dark"
-                  size="lg"
-                  className="w-100"
-                  onClick={() =>
-                    handleLease(initialBuildings?.buildingId, "Lease")
-                  }
-                >
-                  Chat with Lease Agreement
-                </Button>
-              </Card.Body>
+            <Card
+              className="shadow-lg border-0 h-100 p-4 d-flex flex-column justify-content-center align-items-center text-center"
+              variant="elevated"
+              title="Lease Agreement"
+              noPadding
+            >
+              <p className="fs-6 mb-4 text-muted">
+                Upload documents related to <strong>Lease Agreement</strong>{" "}
+                here.
+              </p>
+              <Button
+                variant="dark"
+                size="lg"
+                className="w-100"
+                onClick={() =>
+                  handleLease(initialBuildings?.buildingId, "Lease")
+                }
+              >
+                Chat with Lease Agreement
+              </Button>
             </Card>
           </Col>
 
           <Col xs={12} sm={10} md={6} lg={5}>
-            <Card className="shadow-lg border-0 h-100">
-              <Card.Body className="d-flex flex-column justify-content-center align-items-center text-center p-4">
-                <Card.Title className="fs-4 mb-3">Letter of Intent</Card.Title>
-                <Card.Text className="fs-6 mb-4">
-                  Upload documents related to <strong>Letter of Intent</strong>{" "}
-                  here.
-                </Card.Text>
-                <Button
-                  variant="dark"
-                  size="lg"
-                  className="w-100"
-                  onClick={() =>
-                    handleLease(initialBuildings?.buildingId, "LOI")
-                  }
-                >
-                  Chat with Letter of Intent
-                </Button>
-              </Card.Body>
+            <Card
+              className="shadow-lg border-0 h-100 p-4 d-flex flex-column justify-content-center align-items-center text-center"
+              variant="elevated"
+              title="Letter of Intent"
+              noPadding
+            >
+              <p className="fs-6 mb-4 text-muted">
+                Upload documents related to <strong>Letter of Intent</strong>{" "}
+                here.
+              </p>
+              <Button
+                variant="dark"
+                size="lg"
+                className="w-100"
+                onClick={() =>
+                  handleLease(initialBuildings?.buildingId, "LOI")
+                }
+              >
+                Chat with Letter of Intent
+              </Button>
             </Card>
           </Col>
         </Row>

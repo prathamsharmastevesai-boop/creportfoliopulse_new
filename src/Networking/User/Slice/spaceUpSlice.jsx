@@ -23,8 +23,8 @@ const spaceUpSlice = createSlice({
     buildingList: [],
     buildingLoading: false,
 
-    prospectsBySpace: {},
-    prospectsLoading: {},
+    prospects: [],
+    prospectsLoading: false,
 
     prospectLoading: false,
     prospectSuccess: false,
@@ -71,50 +71,28 @@ const spaceUpSlice = createSlice({
         state.error = action.payload;
       })
 
-      .addCase(getSpacesByBuilding.pending, (state) => {
-        state.spacesLoading = true;
+      .addCase(getProspectsBySpace.pending, (state) => {
+        state.prospectsLoading = true;
       })
-      .addCase(getSpacesByBuilding.fulfilled, (state, action) => {
-        state.spacesLoading = false;
-        state.spaces = action.payload || [];
-      })
-      .addCase(getSpacesByBuilding.rejected, (state) => {
-        state.spacesLoading = false;
-      })
-
-      .addCase(getProspectsBySpace.pending, (state, action) => {
-        const spaceId = action.meta.arg;
-        state.prospectsLoading[spaceId] = true;
-      })
-
       .addCase(getProspectsBySpace.fulfilled, (state, action) => {
-        const { spaceId, data } = action.payload;
-
-        state.prospectsLoading[spaceId] = false;
-        state.prospectsBySpace[spaceId] = data || [];
+        state.prospectsLoading = false;
+        state.prospects = action.payload || [];
       })
-
-      .addCase(getProspectsBySpace.rejected, (state, action) => {
-        const spaceId = action.meta.arg;
-        state.prospectsLoading[spaceId] = false;
+      .addCase(getProspectsBySpace.rejected, (state) => {
+        state.prospectsLoading = false;
       })
 
       .addCase(addProspect.pending, (state) => {
         state.prospectLoading = true;
         state.prospectSuccess = false;
       })
-
       .addCase(addProspect.fulfilled, (state, action) => {
         state.prospectLoading = false;
         state.prospectSuccess = true;
-
-        const { spaceId, data } = action.payload || {};
-
-        if (spaceId && state.prospectsBySpace[spaceId]) {
-          state.prospectsBySpace[spaceId].push(data);
+        if (action.payload) {
+          state.prospects.push(action.payload);
         }
       })
-
       .addCase(addProspect.rejected, (state, action) => {
         state.prospectLoading = false;
         state.prospectError = action.payload;
@@ -123,15 +101,12 @@ const spaceUpSlice = createSlice({
       .addCase(deleteSpace.pending, (state, action) => {
         state.deletingSpaceId = action.meta.arg;
       })
-
       .addCase(deleteSpace.fulfilled, (state, action) => {
         state.deletingSpaceId = null;
-
         state.spaces = state.spaces.filter(
           (space) => space.id !== action.payload,
         );
       })
-
       .addCase(deleteSpace.rejected, (state, action) => {
         state.deletingSpaceId = null;
         state.error = action.payload;

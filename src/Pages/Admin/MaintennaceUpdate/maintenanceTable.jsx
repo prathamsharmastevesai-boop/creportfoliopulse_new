@@ -112,9 +112,9 @@ const MaintenanceTable = ({
                 </div>
 
                 <div>
-                  {item.photo_url ? (
+                  {item.photo_gcs_path ? (
                     <a
-                      href={item.photo_url}
+                      href={item.photo_gcs_path}
                       target="_blank"
                       rel="noreferrer"
                       className="mu2-link"

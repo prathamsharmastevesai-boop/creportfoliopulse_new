@@ -1,5 +1,5 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
-import { toast } from "react-toastify";
+
 import axiosInstance from "./AxiosInstance";
 import {
   AskQuestion,
@@ -76,7 +76,7 @@ export const DeleteDocSubmit = createAsyncThunk(
       const response = await axiosInstance.delete(`${DeleteDoc}`, {
         params: { building_id, category, file_id },
       });
-      toast.success(response.data.message);
+
       return response.data;
     } catch (error) {
       return rejectWithValue(error);

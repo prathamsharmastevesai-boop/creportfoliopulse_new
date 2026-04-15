@@ -3,6 +3,9 @@ import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import "bootstrap-icons/font/bootstrap-icons.css";
 import RAGLoader from "./Loader";
+import Card from "./Card/Card";
+import PageHeader from "./PageHeader/PageHeader";
+import { capitalFunction } from "./capitalLetter";
 
 export const AdminBuildingManager = ({
   category,
@@ -41,9 +44,19 @@ export const AdminBuildingManager = ({
 
   const saveEdit = async (id) => {
     if (!editFieldValue.trim()) return;
+
     setLoading(true);
-    await dispatch(updateAction({ building_id: id, address: editFieldValue }));
+
+    await dispatch(
+      updateAction({
+        building_id: id,
+        address: editFieldValue,
+        ...(category === "workletter" && { category }),
+      }),
+    );
+
     await dispatch(fetchAction(category));
+
     setEditBuildingId(null);
     setLoading(false);
   };
@@ -60,7 +73,15 @@ export const AdminBuildingManager = ({
     if (!address.trim()) return;
 
     setLoading(true);
-    await dispatch(createAction([{ category, address }]));
+    const payload = {
+      address,
+    };
+
+    if (category === "workletter") {
+      payload.category = category;
+    }
+
+    await dispatch(createAction(payload));
     await dispatch(fetchAction(category));
     setAddress("");
     setLoading(false);
@@ -81,24 +102,20 @@ export const AdminBuildingManager = ({
         </div>
       )}
 
-      <div
-        className="text-center rounded shadow-sm py-3 mb-4"
-        style={{
-          // position: "sticky",
-          top: 0,
-          zIndex: 10,
-        }}
-      >
-        <h4 className="fw-bold">{heading}</h4>
-        <input
-          type="search"
-          className="form-control mx-auto mt-2"
-          style={{ maxWidth: 420 }}
-          placeholder="Search by address"
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-        />
-      </div>
+      <PageHeader
+        title={heading}
+        subtitle="Search and manage building records below."
+        actions={
+          <input
+            type="search"
+            className="form-control"
+            style={{ maxWidth: 420 }}
+            placeholder="Search by address"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
+        }
+      />
 
       {loading ? (
         <div className="d-flex justify-content-center py-5">
@@ -106,28 +123,31 @@ export const AdminBuildingManager = ({
         </div>
       ) : (
         <>
-          <form onSubmit={handleAdd} className="row g-2 mb-4">
-            <div className="col-md-9">
-              <input
-                className="form-control"
-                placeholder="Enter building address"
-                value={address}
-                onChange={(e) => setAddress(e.target.value)}
-              />
-            </div>
-            <div className="col-md-3">
-              <button className="btn btn-success w-100">
-                <i className="bi bi-plus-circle me-2" />
-                Add Building
-              </button>
-            </div>
-          </form>
+          {category === "workletter" && (
+            <form onSubmit={handleAdd} className="row g-2 mb-4">
+              <div className="col-md-9">
+                <input
+                  className="form-control"
+                  placeholder="Enter building address"
+                  value={address}
+                  onChange={(e) => setAddress(e.target.value)}
+                />
+              </div>
+              <div className="col-md-3">
+                <button className="btn btn-success w-100">
+                  <i className="bi bi-plus-circle me-2" />
+                  Add Building
+                </button>
+              </div>
+            </form>
+          )}
 
           {[...filteredBuildings].reverse().map((building, i) => (
-            <div
+            <Card
               key={building.id}
               ref={(el) => (cardsRef.current[i] = el)}
-              className="card shadow-sm mb-3 p-3 rounded-4"
+              className="shadow-sm mb-3 p-3 rounded-4 border-0"
+              variant="elevated"
             >
               <div className="d-flex justify-content-between align-items-center">
                 {editBuildingId === building.id ? (
@@ -143,40 +163,41 @@ export const AdminBuildingManager = ({
                     onClick={() => handleNavigate(building)}
                   >
                     <i className="bi bi-geo-alt-fill text-primary me-2" />
-                    {building.address}
+                    {capitalFunction(building.address)}
                   </div>
                 )}
-
-                <div>
-                  {editBuildingId === building.id ? (
-                    <>
-                      <i
-                        className="bi bi-check-circle-fill text-success me-3"
-                        onClick={() => saveEdit(building.id)}
-                      />
-                      <i
-                        className="bi bi-x-circle-fill text-secondary"
-                        onClick={() => setEditBuildingId(null)}
-                      />
-                    </>
-                  ) : (
-                    <>
-                      <i
-                        className="bi bi-pencil-square text-primary me-3"
-                        onClick={() => {
-                          setEditBuildingId(building.id);
-                          setEditFieldValue(building.address);
-                        }}
-                      />
-                      <i
-                        className="bi bi-trash text-danger"
-                        onClick={() => handleDelete(building.id)}
-                      />
-                    </>
-                  )}
-                </div>
+                {category === "workletter" && (
+                  <div>
+                    {editBuildingId === building.id ? (
+                      <>
+                        <i
+                          className="bi bi-check-circle-fill text-success me-3"
+                          onClick={() => saveEdit(building.id)}
+                        />
+                        <i
+                          className="bi bi-x-circle-fill text-secondary"
+                          onClick={() => setEditBuildingId(null)}
+                        />
+                      </>
+                    ) : (
+                      <>
+                        <i
+                          className="bi bi-pencil-square text-primary me-3"
+                          onClick={() => {
+                            setEditBuildingId(building.id);
+                            setEditFieldValue(building.address);
+                          }}
+                        />
+                        <i
+                          className="bi bi-trash text-danger"
+                          onClick={() => handleDelete(building.id)}
+                        />
+                      </>
+                    )}
+                  </div>
+                )}
               </div>
-            </div>
+            </Card>
           ))}
         </>
       )}

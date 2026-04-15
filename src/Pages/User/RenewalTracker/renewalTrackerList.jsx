@@ -12,8 +12,9 @@ import {
   GetRenewalTrackerList,
   UpdateRenewalById,
 } from "../../../Networking/Admin/APIs/RenewalTrackeApi";
-import { BsChatDots } from "react-icons/bs";
 import { ChatBotModal } from "../../../Component/chatbotModel";
+import Card from "../../../Component/Card/Card";
+import PageHeader from "../../../Component/PageHeader/PageHeader";
 
 export const RenewalTrackerList = () => {
   const dispatch = useDispatch();
@@ -38,6 +39,7 @@ export const RenewalTrackerList = () => {
     key: null,
     direction: "asc",
   });
+  const [filterAddress, setFilterAddress] = useState("");
 
   const confirmDelete = (id, name) => {
     setDeleteModal({
@@ -64,10 +66,26 @@ export const RenewalTrackerList = () => {
     });
   };
 
+  const buildingAddresses = useMemo(() => {
+    if (!list) return [];
+    const unique = [
+      ...new Set(
+        list.map((item) => item?.data?.building_address).filter(Boolean),
+      ),
+    ];
+    return unique.sort();
+  }, [list]);
+
   const sortedList = useMemo(() => {
     if (!list) return [];
 
     let sortable = [...list];
+
+    if (filterAddress) {
+      sortable = sortable.filter(
+        (item) => item?.data?.building_address === filterAddress,
+      );
+    }
 
     if (!sortConfig.key) return sortable;
 
@@ -86,7 +104,7 @@ export const RenewalTrackerList = () => {
     });
 
     return sortable;
-  }, [list, sortConfig]);
+  }, [list, sortConfig, filterAddress]);
 
   const openDetailModal = async (id, edit = false) => {
     setShowModal(true);
@@ -102,48 +120,48 @@ export const RenewalTrackerList = () => {
         lease_expiration_date: data?.data?.lease_expiration_date || "",
         notice_of_renewal_date: data?.data?.notice_of_renewal_date || "",
         renewal_clause: data?.data?.renewal_clause || false,
+        tenant_contact_info: data?.data?.tenant_contact_info || "",
+        tenant_broker_contact_info:
+          data?.data?.tenant_broker_contact_info || "",
         notes: data?.data?.notes || "",
         q1: data?.data?.q1 || {
           check_in: false,
           headcount_confirmation: false,
           building_update_note_sent: false,
-          holiday_gift: true,
+          holiday_gift: false,
         },
         q2: data?.data?.q2 || {
           check_in: false,
           headcount_confirmation: false,
           building_update_note_sent: false,
-          holiday_gift: true,
+          holiday_gift: false,
         },
         q3: data?.data?.q3 || {
           check_in: false,
           headcount_confirmation: false,
           building_update_note_sent: false,
-          holiday_gift: true,
+          holiday_gift: false,
         },
         q4: data?.data?.q4 || {
           check_in: false,
           headcount_confirmation: false,
           building_update_note_sent: false,
-          holiday_gift: true,
+          holiday_gift: false,
         },
       };
 
       setDetail({ ...data, data: initializedData });
     } catch (error) {
       console.error("Error fetching details:", error);
-      toast.error("Failed to load renewal details");
     } finally {
       setDetailLoading(false);
     }
   };
 
   const handleNavigate = () => {
-    {
-      Role === "admin"
-        ? navigate("/renewal-tracker-form")
-        : navigate("/user-renewal-tracker-form");
-    }
+    Role === "admin"
+      ? navigate("/renewal-tracker-form")
+      : navigate("/user-renewal-tracker-form");
   };
 
   const handleDelete = async () => {
@@ -154,11 +172,10 @@ export const RenewalTrackerList = () => {
     try {
       await dispatch(DeleteRenewalById(deleteModal.id)).unwrap();
       dispatch(GetRenewalTrackerList());
-      toast.success("Renewal deleted successfully!");
+
       setDeleteModal({ show: false, id: null, name: "", loading: false });
     } catch (error) {
       console.error("Error deleting Renewal:", error);
-      toast.error("Failed to delete Renewal. Please try again.");
       setDeleteModal((prev) => ({ ...prev, loading: false }));
     }
   };
@@ -211,6 +228,7 @@ export const RenewalTrackerList = () => {
             tenant_current_rent: detail.data.tenant_current_rent,
             most_recent_building_comp: detail.data.most_recent_building_comp,
             tenant_contact_info: detail.data.tenant_contact_info,
+            tenant_broker_contact_info: detail.data.tenant_broker_contact_info,
             notes: detail.data.notes,
             q1: detail.data.q1,
             q2: detail.data.q2,
@@ -223,10 +241,6 @@ export const RenewalTrackerList = () => {
       dispatch(GetRenewalTrackerList());
       setShowModal(false);
       setIsEdit(false);
-      toast.success("Renewal updated successfully!");
-    } catch (error) {
-      console.error("Error updating Renewal:", error);
-      toast.error("Failed to update Renewal. Please try again.");
     } finally {
       setIsSaving(false);
     }
@@ -244,8 +258,7 @@ export const RenewalTrackerList = () => {
   };
 
   const renderQuarterSection = (quarter, quarterName) => (
-    <div className="border p-3 mb-3 rounded">
-      <h6 className="fw-bold mb-3">{quarterName.toUpperCase()}</h6>
+    <Card className="mb-3" variant="bordered" title={quarterName.toUpperCase()}>
       <div className="row">
         <div className="col-md-6">
           <div className="form-check mb-2">
@@ -360,25 +373,54 @@ export const RenewalTrackerList = () => {
           </div>
         </div>
       </div>
-    </div>
+    </Card>
   );
 
   return (
     <>
-      <div className="header-bg d-flex justify-content-between px-3 align-items-center sticky-header">
-        <h5 className="mb-0 text-light mx-4">Renewal Tracker List</h5>
-        <div className="d-flex">
-          <button
-            className="btn btn-secondary d-flex align-items-center me-2"
-            onClick={() => handleNavigate()}
-            style={{ fontWeight: "600", padding: "0.5rem 1rem" }}
-          >
-            <BsPlusLg className="me-1" /> Add Renewal
-          </button>
+      <PageHeader
+        className="p-2"
+        title="Renewal Tracker List"
+        subtitle="Monitor and manage lease renewals and occupancy status"
+        actions={
+          <div className="d-flex align-items-center justify-content-end gap-2 flex-wrap">
+            <select
+              className="form-select form-select-sm d-inline-block w-auto"
+              style={{ minWidth: "150px" }}
+              value={filterAddress}
+              onChange={(e) => setFilterAddress(e.target.value)}
+            >
+              <option value="">All Buildings</option>
+              {buildingAddresses.map((addr) => (
+                <option key={addr} value={addr}>
+                  {addr}
+                </option>
+              ))}
+            </select>
 
-          <ChatBotModal category={"renewal"} />
-        </div>
-      </div>
+            {filterAddress && (
+              <Button
+                variant="outline-secondary"
+                size="sm"
+                onClick={() => setFilterAddress("")}
+                title="Clear filter"
+              >
+                ✕
+              </Button>
+            )}
+
+            <button
+              className="btn btn-dark btn-sm d-flex align-items-center gap-2"
+              onClick={() => handleNavigate()}
+            >
+              <BsPlusLg size={12} /> Add Renewal
+            </button>
+
+            <ChatBotModal category={"renewal"} />
+          </div>
+        }
+      />
+
       <div className="container-fuild p-4">
         {loading && (
           <div
@@ -400,105 +442,130 @@ export const RenewalTrackerList = () => {
         )}
 
         {!loading && list?.length > 0 && (
-          <div className="table-responsive shadow-sm rounded">
-            <table className="table align-middle">
-              <thead>
-                <tr className="table-light text-uppercase small fw-bold">
-                  <th className="text-nowrap">Tenant Name</th>
-                  <th className="text-nowrap">Floor / Suite</th>
-                  <th className="text-nowrap">Commencement Date</th>
-
-                  <th
-                    className="text-nowrap"
-                    role="button"
-                    onClick={() => handleSort("lease_expiration_date")}
-                    style={{ cursor: "pointer" }}
-                  >
-                    Expiration Date{" "}
-                    {sortConfig.key === "lease_expiration_date" &&
-                      (sortConfig.direction === "asc" ? " ↑" : " ↓")}
-                  </th>
-
-                  <th
-                    className="text-nowrap"
-                    role="button"
-                    onClick={() => handleSort("tenant_headcount")}
-                    style={{ cursor: "pointer" }}
-                  >
-                    Headcount{" "}
-                    {sortConfig.key === "tenant_headcount" &&
-                      (sortConfig.direction === "asc" ? " ↑" : " ↓")}
-                  </th>
-
-                  <th className="text-nowrap">Building Address</th>
-                  <th className="text-nowrap">Last Edited By</th>
-                  <th className="text-nowrap text-center">Actions</th>
-                </tr>
-              </thead>
-
-              <tbody className="text-center">
-                {sortedList.map((item) => (
-                  <tr key={item.id} className="border-bottom">
-                    <td>{item?.data?.tenant_name || "N/A"}</td>
-                    <td>{item?.data?.floor_suite || "N/A"}</td>
-                    <td>
-                      {item?.data?.lease_commencement_date?.slice(0, 10) ||
-                        "N/A"}
-                    </td>
-                    <td>
-                      {item?.data?.lease_expiration_date?.slice(0, 10) || "N/A"}
-                    </td>
-                    <td>{item?.data?.tenant_headcount || 0}</td>
-                    <td
-                      style={{
-                        maxWidth: "200px",
-                        whiteSpace: "nowrap",
-                        overflow: "hidden",
-                        textOverflow: "ellipsis",
-                      }}
+          <Card noPadding variant="elevated">
+            <div className="table-responsive">
+              <table className="table align-middle mb-0">
+                <thead>
+                  <tr className="table-light text-uppercase small fw-bold">
+                    <th className="px-4 py-3 text-nowrap">Tenant Name</th>
+                    <th className="py-3 text-nowrap">Floor / Suite</th>
+                    <th className="py-3 text-nowrap">Commencement Date</th>
+                    <th
+                      className="py-3 text-nowrap"
+                      role="button"
+                      onClick={() => handleSort("lease_expiration_date")}
+                      style={{ cursor: "pointer" }}
                     >
-                      {item?.data?.building_address || "N/A"}
-                    </td>
-                    <td>
-                      <div
-                        className="text-truncate"
-                        style={{ maxWidth: "100px" }}
-                      >
-                        {item?.updated_by_email || "N/A"}
-                      </div>
-                    </td>
-
-                    <td className="text-center table-icons">
-                      <button
-                        className="btn btn-outline-primary btn-sm rounded-circle me-2"
-                        onClick={() => openDetailModal(item.id, false)}
-                        title="View Details"
-                      >
-                        <i className="bi bi-eye"></i>
-                      </button>
-                      <button
-                        className="btn btn-outline-warning btn-sm rounded-circle me-2"
-                        onClick={() => openDetailModal(item.id, true)}
-                        title="Edit"
-                      >
-                        <i className="bi bi-pencil-square"></i>
-                      </button>
-
-                      <button
-                        className="btn btn-outline-danger btn-sm rounded-circle"
-                        onClick={() =>
-                          confirmDelete(item.id, item?.data?.tenant_name)
-                        }
-                        title="Delete"
-                      >
-                        <i className="bi bi-trash3"></i>
-                      </button>
-                    </td>
+                      Expiration Date{" "}
+                      {sortConfig.key === "lease_expiration_date" &&
+                        (sortConfig.direction === "asc" ? " ↑" : " ↓")}
+                    </th>
+                    <th
+                      className="py-3 text-nowrap"
+                      role="button"
+                      onClick={() => handleSort("tenant_headcount")}
+                      style={{ cursor: "pointer" }}
+                    >
+                      Headcount{" "}
+                      {sortConfig.key === "tenant_headcount" &&
+                        (sortConfig.direction === "asc" ? " ↑" : " ↓")}
+                    </th>
+                    <th className="py-3 text-nowrap">Building Address</th>
+                    <th className="py-3 text-nowrap">Last Edited By</th>
+                    <th className="py-3 text-center text-nowrap">Actions</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                </thead>
+                <tbody>
+                  {sortedList.map((item) => (
+                    <tr key={item.id} className="border-bottom">
+                      <td className="px-4 py-3">
+                        {item?.data?.tenant_name || "N/A"}
+                      </td>
+                      <td className="py-3">
+                        {item?.data?.floor_suite || "N/A"}
+                      </td>
+                      <td className="py-3">
+                        {item?.data?.lease_commencement_date?.slice(0, 10) ||
+                          "N/A"}
+                      </td>
+                      <td className="py-3">
+                        {item?.data?.lease_expiration_date?.slice(0, 10) ||
+                          "N/A"}
+                      </td>
+                      <td className="py-3">
+                        {item?.data?.tenant_headcount || 0}
+                      </td>
+                      <td
+                        className="py-3"
+                        style={{
+                          maxWidth: "200px",
+                          whiteSpace: "nowrap",
+                          overflow: "hidden",
+                          textOverflow: "ellipsis",
+                        }}
+                      >
+                        {item?.data?.building_address || "N/A"}
+                      </td>
+                      <td className="py-3">
+                        <div
+                          className="text-truncate"
+                          style={{ maxWidth: "120px" }}
+                          title={item?.updated_by_name}
+                        >
+                          {item?.updated_by_name
+                            ? item.updated_by_name.includes("@")
+                              ? item.updated_by_name.split("@")[0]
+                              : item.updated_by_name
+                            : "N/A"}
+                        </div>
+                      </td>
+                      <td className="text-center py-3">
+                        <div className="d-flex justify-content-center gap-2">
+                          <button
+                            className="btn btn-outline-primary btn-sm rounded-circle"
+                            onClick={() => openDetailModal(item.id, false)}
+                            title="View Details"
+                          >
+                            <i className="bi bi-eye"></i>
+                          </button>
+                          <button
+                            className="btn btn-outline-warning btn-sm rounded-circle"
+                            onClick={() => openDetailModal(item.id, true)}
+                            title="Edit"
+                          >
+                            <i className="bi bi-pencil-square"></i>
+                          </button>
+                          <button
+                            className="btn btn-outline-danger btn-sm rounded-circle"
+                            onClick={() =>
+                              confirmDelete(item.id, item?.data?.tenant_name)
+                            }
+                            title="Delete"
+                          >
+                            <i className="bi bi-trash3"></i>
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+
+            {sortedList.length === 0 && (
+              <div className="text-center py-5">
+                <p className="text-muted mb-2">
+                  No renewals found for <strong>{filterAddress}</strong>.
+                </p>
+                <button
+                  className="btn btn-sm btn-outline-secondary"
+                  onClick={() => setFilterAddress("")}
+                >
+                  Clear Filter
+                </button>
+              </div>
+            )}
+          </Card>
         )}
 
         {deleteModal.show && (
@@ -600,282 +667,311 @@ export const RenewalTrackerList = () => {
                       <RAGLoader />
                     </div>
                   ) : (
-                    <div className="row g-3">
+                    <div className="row g-4">
                       <div className="col-12">
-                        <h5 className="fw-bold border-bottom pb-2 mb-3">
-                          Basic Information
-                        </h5>
+                        <Card variant="bordered" title="Basic Information">
+                          <div className="row g-3">
+                            <div className="col-md-6">
+                              <label className="form-label fw-bold">
+                                Tenant Name:
+                              </label>
+                              {isEdit ? (
+                                <input
+                                  type="text"
+                                  className="form-control"
+                                  name="tenant_name"
+                                  value={detail?.data?.tenant_name || ""}
+                                  onChange={handleChange}
+                                />
+                              ) : (
+                                <p className="mb-0">
+                                  {detail?.data?.tenant_name || "N/A"}
+                                </p>
+                              )}
+                            </div>
+                            <div className="col-md-6">
+                              <label className="form-label fw-bold">
+                                Floor / Suite:
+                              </label>
+                              {isEdit ? (
+                                <input
+                                  type="text"
+                                  className="form-control"
+                                  name="floor_suite"
+                                  value={detail?.data?.floor_suite || ""}
+                                  onChange={handleChange}
+                                />
+                              ) : (
+                                <p className="mb-0">
+                                  {detail?.data?.floor_suite || "N/A"}
+                                </p>
+                              )}
+                            </div>
+                            <div className="col-md-6">
+                              <label className="form-label fw-bold">
+                                Building Address:
+                              </label>
+                              {isEdit ? (
+                                <input
+                                  type="text"
+                                  className="form-control"
+                                  name="building_address"
+                                  value={detail?.data?.building_address || ""}
+                                  onChange={handleChange}
+                                />
+                              ) : (
+                                <p className="mb-0">
+                                  {detail?.data?.building_address || "N/A"}
+                                </p>
+                              )}
+                            </div>
+                            <div className="col-md-6">
+                              <label className="form-label fw-bold">
+                                Headcount:
+                              </label>
+                              {isEdit ? (
+                                <input
+                                  type="number"
+                                  className="form-control"
+                                  name="tenant_headcount"
+                                  value={detail?.data?.tenant_headcount || 0}
+                                  onChange={handleChange}
+                                />
+                              ) : (
+                                <p className="mb-0">
+                                  {detail?.data?.tenant_headcount || 0}
+                                </p>
+                              )}
+                            </div>
+                          </div>
+                        </Card>
                       </div>
 
-                      <div className="col-md-6">
-                        <label className="form-label fw-bold">
-                          Tenant Name:
-                        </label>
-                        {isEdit ? (
-                          <input
-                            type="text"
-                            className="form-control"
-                            name="tenant_name"
-                            value={detail?.data?.tenant_name || ""}
-                            onChange={handleChange}
-                          />
-                        ) : (
-                          <p className="mb-0">{detail?.data?.tenant_name}</p>
-                        )}
+                      <div className="col-12">
+                        <Card variant="bordered" title="Dates">
+                          <div className="row g-3">
+                            <div className="col-md-4">
+                              <label className="form-label fw-bold">
+                                Lease Commencement:
+                              </label>
+                              {isEdit ? (
+                                <input
+                                  type="date"
+                                  className="form-control"
+                                  name="lease_commencement_date"
+                                  value={formatDateForInput(
+                                    detail?.data?.lease_commencement_date,
+                                  )}
+                                  onChange={handleChange}
+                                />
+                              ) : (
+                                <p className="mb-0">
+                                  {detail?.data?.lease_commencement_date?.slice(
+                                    0,
+                                    10,
+                                  ) || "N/A"}
+                                </p>
+                              )}
+                            </div>
+                            <div className="col-md-4">
+                              <label className="form-label fw-bold">
+                                Lease Expiration:
+                              </label>
+                              {isEdit ? (
+                                <input
+                                  type="date"
+                                  className="form-control"
+                                  name="lease_expiration_date"
+                                  value={formatDateForInput(
+                                    detail?.data?.lease_expiration_date,
+                                  )}
+                                  onChange={handleChange}
+                                />
+                              ) : (
+                                <p className="mb-0">
+                                  {detail?.data?.lease_expiration_date?.slice(
+                                    0,
+                                    10,
+                                  ) || "N/A"}
+                                </p>
+                              )}
+                            </div>
+                            <div className="col-md-4">
+                              <label className="form-label fw-bold">
+                                Notice of Renewal:
+                              </label>
+                              {isEdit ? (
+                                <input
+                                  type="date"
+                                  className="form-control"
+                                  name="notice_of_renewal_date"
+                                  value={formatDateForInput(
+                                    detail?.data?.notice_of_renewal_date,
+                                  )}
+                                  onChange={handleChange}
+                                />
+                              ) : (
+                                <p className="mb-0">
+                                  {detail?.data?.notice_of_renewal_date?.slice(
+                                    0,
+                                    10,
+                                  ) || "N/A"}
+                                </p>
+                              )}
+                            </div>
+                          </div>
+                        </Card>
                       </div>
 
-                      <div className="col-md-6">
-                        <label className="form-label fw-bold">
-                          Floor / Suite:
-                        </label>
-                        {isEdit ? (
-                          <input
-                            type="text"
-                            className="form-control"
-                            name="floor_suite"
-                            value={detail?.data?.floor_suite || ""}
-                            onChange={handleChange}
-                          />
-                        ) : (
-                          <p className="mb-0">{detail?.data?.floor_suite}</p>
-                        )}
+                      <div className="col-12">
+                        <Card variant="bordered" title="Renewal Information">
+                          <div className="row g-3">
+                            <div className="col-md-6">
+                              <div className="form-check mt-2">
+                                {isEdit ? (
+                                  <input
+                                    type="checkbox"
+                                    className="form-check-input"
+                                    name="renewal_clause"
+                                    checked={
+                                      detail?.data?.renewal_clause || false
+                                    }
+                                    onChange={handleChange}
+                                    id="renewal-clause"
+                                  />
+                                ) : (
+                                  <input
+                                    type="checkbox"
+                                    className="form-check-input"
+                                    checked={
+                                      detail?.data?.renewal_clause || false
+                                    }
+                                    disabled
+                                  />
+                                )}
+                                <label
+                                  className="form-check-label"
+                                  htmlFor="renewal-clause"
+                                >
+                                  Renewal Clause
+                                </label>
+                              </div>
+                            </div>
+                            <div className="col-md-6">
+                              <label className="form-label fw-bold">
+                                Current Rent:
+                              </label>
+                              {isEdit ? (
+                                <input
+                                  type="text"
+                                  className="form-control"
+                                  name="tenant_current_rent"
+                                  value={
+                                    detail?.data?.tenant_current_rent || ""
+                                  }
+                                  onChange={handleChange}
+                                />
+                              ) : (
+                                <p className="mb-0">
+                                  {detail?.data?.tenant_current_rent || "N/A"}
+                                </p>
+                              )}
+                            </div>
+                            <div className="col-md-12">
+                              <label className="form-label fw-bold">
+                                Most Recent Building Comp:
+                              </label>
+                              {isEdit ? (
+                                <input
+                                  type="text"
+                                  className="form-control"
+                                  name="most_recent_building_comp"
+                                  value={
+                                    detail?.data?.most_recent_building_comp ||
+                                    ""
+                                  }
+                                  onChange={handleChange}
+                                />
+                              ) : (
+                                <p className="mb-0">
+                                  {detail?.data?.most_recent_building_comp ||
+                                    "N/A"}
+                                </p>
+                              )}
+                            </div>
+                          </div>
+                        </Card>
                       </div>
 
-                      <div className="col-md-6">
-                        <label className="form-label fw-bold">
-                          Building Address:
-                        </label>
-                        {isEdit ? (
-                          <input
-                            type="text"
-                            className="form-control"
-                            name="building_address"
-                            value={detail?.data?.building_address || ""}
-                            onChange={handleChange}
-                          />
-                        ) : (
-                          <p className="mb-0">
-                            {detail?.data?.building_address}
-                          </p>
-                        )}
+                      <div className="col-12">
+                        <Card variant="bordered" title="Contact Information">
+                          <div className="row g-3">
+                            <div className="col-12">
+                              <label className="form-label fw-bold">
+                                Tenant Contact Info:
+                              </label>
+                              {isEdit ? (
+                                <textarea
+                                  className="form-control"
+                                  name="tenant_contact_info"
+                                  value={
+                                    detail?.data?.tenant_contact_info || ""
+                                  }
+                                  onChange={handleChange}
+                                  rows="2"
+                                />
+                              ) : (
+                                <p className="mb-0">
+                                  {detail?.data?.tenant_contact_info || "N/A"}
+                                </p>
+                              )}
+                            </div>
+                            <div className="col-12">
+                              <label className="form-label fw-bold">
+                                Broker Contact Info:
+                              </label>
+                              {isEdit ? (
+                                <textarea
+                                  className="form-control"
+                                  name="tenant_broker_contact_info"
+                                  value={
+                                    detail?.data?.tenant_broker_contact_info ||
+                                    ""
+                                  }
+                                  onChange={handleChange}
+                                  rows="2"
+                                />
+                              ) : (
+                                <p className="mb-0">
+                                  {detail?.data?.tenant_broker_contact_info ||
+                                    "N/A"}
+                                </p>
+                              )}
+                            </div>
+                          </div>
+                        </Card>
                       </div>
 
-                      <div className="col-md-6">
-                        <label className="form-label fw-bold">Headcount:</label>
-                        {isEdit ? (
-                          <input
-                            type="number"
-                            className="form-control"
-                            name="tenant_headcount"
-                            value={detail?.data?.tenant_headcount || 0}
-                            onChange={handleChange}
-                          />
-                        ) : (
-                          <p className="mb-0">
-                            {detail?.data?.tenant_headcount}
-                          </p>
-                        )}
-                      </div>
-
-                      <div className="col-12 mt-4">
-                        <h5 className="fw-bold border-bottom pb-2 mb-3">
-                          Dates
-                        </h5>
-                      </div>
-
-                      <div className="col-md-4">
-                        <label className="form-label fw-bold">
-                          Lease Commencement Date:
-                        </label>
-                        {isEdit ? (
-                          <input
-                            type="date"
-                            className="form-control"
-                            name="lease_commencement_date"
-                            value={formatDateForInput(
-                              detail?.data?.lease_commencement_date,
-                            )}
-                            onChange={handleChange}
-                          />
-                        ) : (
-                          <p className="mb-0">
-                            {detail?.data?.lease_commencement_date?.slice(
-                              0,
-                              10,
-                            ) || "N/A"}
-                          </p>
-                        )}
-                      </div>
-
-                      <div className="col-md-4">
-                        <label className="form-label fw-bold">
-                          Lease Expiration Date:
-                        </label>
-                        {isEdit ? (
-                          <input
-                            type="date"
-                            className="form-control"
-                            name="lease_expiration_date"
-                            value={formatDateForInput(
-                              detail?.data?.lease_expiration_date,
-                            )}
-                            onChange={handleChange}
-                          />
-                        ) : (
-                          <p className="mb-0">
-                            {detail?.data?.lease_expiration_date?.slice(
-                              0,
-                              10,
-                            ) || "N/A"}
-                          </p>
-                        )}
-                      </div>
-
-                      <div className="col-md-4">
-                        <label className="form-label fw-bold">
-                          Notice of Renewal Date:
-                        </label>
-                        {isEdit ? (
-                          <input
-                            type="date"
-                            className="form-control"
-                            name="notice_of_renewal_date"
-                            value={formatDateForInput(
-                              detail?.data?.notice_of_renewal_date,
-                            )}
-                            onChange={handleChange}
-                          />
-                        ) : (
-                          <p className="mb-0">
-                            {detail?.data?.notice_of_renewal_date?.slice(
-                              0,
-                              10,
-                            ) || "N/A"}
-                          </p>
-                        )}
-                      </div>
-
-                      <div className="col-12 mt-4">
-                        <h5 className="fw-bold border-bottom pb-2 mb-3">
-                          Renewal Information
-                        </h5>
-                      </div>
-
-                      <div className="col-md-6">
-                        <div className="form-check">
+                      <div className="col-12">
+                        <Card variant="bordered" title="Notes">
                           {isEdit ? (
-                            <input
-                              type="checkbox"
-                              className="form-check-input"
-                              name="renewal_clause"
-                              checked={detail?.data?.renewal_clause || false}
+                            <textarea
+                              className="form-control"
+                              name="notes"
+                              value={detail?.data?.notes || ""}
                               onChange={handleChange}
-                              id="renewal-clause"
+                              rows="3"
                             />
                           ) : (
-                            <input
-                              type="checkbox"
-                              className="form-check-input"
-                              checked={detail?.data?.renewal_clause || false}
-                              disabled
-                            />
+                            <p className="mb-0">
+                              {detail?.data?.notes || "N/A"}
+                            </p>
                           )}
-                          <label
-                            className="form-check-label"
-                            htmlFor="renewal-clause"
-                          >
-                            Renewal Clause
-                          </label>
-                        </div>
+                        </Card>
                       </div>
 
-                      <div className="col-md-6">
-                        <label className="form-label fw-bold">
-                          Tenant Current Rent:
-                        </label>
-                        {isEdit ? (
-                          <input
-                            type="text"
-                            className="form-control"
-                            name="tenant_current_rent"
-                            value={detail?.data?.tenant_current_rent || ""}
-                            onChange={handleChange}
-                          />
-                        ) : (
-                          <p className="mb-0">
-                            {detail?.data?.tenant_current_rent || "N/A"}
-                          </p>
-                        )}
-                      </div>
-
-                      <div className="col-md-12 mt-2">
-                        <label className="form-label fw-bold">
-                          Most Recent Building Comp:
-                        </label>
-                        {isEdit ? (
-                          <input
-                            type="text"
-                            className="form-control"
-                            name="most_recent_building_comp"
-                            value={
-                              detail?.data?.most_recent_building_comp || ""
-                            }
-                            onChange={handleChange}
-                          />
-                        ) : (
-                          <p className="mb-0">
-                            {detail?.data?.most_recent_building_comp || "N/A"}
-                          </p>
-                        )}
-                      </div>
-
-                      <div className="col-12 mt-4">
-                        <h5 className="fw-bold border-bottom pb-2 mb-3">
-                          Contact Information
-                        </h5>
-                      </div>
-
-                      <div className="col-12">
-                        <label className="form-label fw-bold">
-                          Tenant Contact Info:
-                        </label>
-                        {isEdit ? (
-                          <textarea
-                            className="form-control"
-                            name="tenant_contact_info"
-                            value={detail?.data?.tenant_contact_info || ""}
-                            onChange={handleChange}
-                            rows="3"
-                          />
-                        ) : (
-                          <p className="mb-0">
-                            {detail?.data?.tenant_contact_info || "N/A"}
-                          </p>
-                        )}
-                      </div>
-                      <div className="col-12 mt-4">
-                        <h5 className="fw-bold border-bottom pb-2 mb-3">
-                          Notes
-                        </h5>
-                      </div>
-
-                      <div className="col-12">
-                        {isEdit ? (
-                          <textarea
-                            className="form-control"
-                            name="notes"
-                            value={detail?.data?.notes || ""}
-                            onChange={handleChange}
-                            rows="4"
-                            placeholder="Enter any notes related to this renewal..."
-                          />
-                        ) : (
-                          <p className="mb-0">{detail?.data?.notes || "N/A"}</p>
-                        )}
-                      </div>
-
-                      <div className="col-12 mt-4">
-                        <h5 className="fw-bold border-bottom pb-2 mb-3">
+                      <div className="col-12 mt-2">
+                        <h5 className="fw-bold px-1 mb-0 text-primary">
                           Quarterly Checks
                         </h5>
                       </div>

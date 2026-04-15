@@ -6,14 +6,14 @@ export const SpaceUpBuildinglist = () => {
     <div>
       {/* <ChatBotModal category="spaceup_space" /> */}
       <BuildingList
-        title="Space Up Building List"
+        title="Broker Index Building List"
         fetchAction={getSpaceUpAssginBuildings}
         selector={(state) => ({
           data: state.BuildingSlice.BuildingList,
           loading: state.BuildingSlice.loading,
         })}
         searchKey="address"
-        navigateTo="/space-up"
+        navigateTo="/broker-index"
         navigateStateMapper={(building) => ({
           office: {
             buildingId: building.id,

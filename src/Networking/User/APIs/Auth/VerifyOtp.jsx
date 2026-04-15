@@ -1,5 +1,4 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
-import { toast } from "react-toastify";
 import axiosInstance from "../../../Admin/APIs/AxiosInstance";
 import { ForgetPassword, ResetPasswod, VerifyOtp } from "../../../NWconfig";
 
@@ -8,14 +7,13 @@ export const Forget_passwordSubmit = createAsyncThunk(
   async (credentials, { rejectWithValue }) => {
     try {
       const response = await axiosInstance.post(ForgetPassword, credentials);
-      toast.success(response?.data?.message);
-   
+
       return response.data;
     } catch (error) {
       console.log(error, "response");
       return rejectWithValue(error.response?.data?.message || "OTP failed");
     }
-  }
+  },
 );
 
 export const VerifyOtpSubmit = createAsyncThunk(
@@ -27,10 +25,10 @@ export const VerifyOtpSubmit = createAsyncThunk(
       return response.data;
     } catch (error) {
       return rejectWithValue(
-        error.response?.data?.message || "OTP verification failed"
+        error.response?.data?.message || "OTP verification failed",
       );
     }
-  }
+  },
 );
 
 export const Reset_password_Submit = createAsyncThunk(
@@ -43,8 +41,8 @@ export const Reset_password_Submit = createAsyncThunk(
     } catch (error) {
       return rejectWithValue(
         error.response?.data?.message ||
-          "An error occurred while resetting password"
+          "An error occurred while resetting password",
       );
     }
-  }
+  },
 );

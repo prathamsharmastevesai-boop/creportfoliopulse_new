@@ -42,7 +42,7 @@ export const ResetPassword = () => {
       };
 
       const res = await dispatch(Reset_password_Submit(payload)).unwrap();
-      toast.success(res.message || "Password reset successfully!");
+
       navigate("/");
     } catch (error) {
     } finally {

@@ -10,9 +10,16 @@ import {
   ResponsiveContainer,
 } from "recharts";
 import { distilledBenchmarkApi } from "../../../Networking/Admin/APIs/distilledCompTrackerApi";
-import { Card, Form, Button, Spinner } from "react-bootstrap";
+import { Form, Button, Spinner } from "react-bootstrap";
+import Card from "../../../Component/Card/Card";
 
-const TENANT_ENTITY_OPTIONS = ["Public Company", "LLP", "LLC", "Startup < 3yr", "SPE"];
+const TENANT_ENTITY_OPTIONS = [
+  "Public Company",
+  "LLP",
+  "LLC",
+  "Startup < 3yr",
+  "SPE",
+];
 const FLOOR_SEGMENT_OPTIONS = ["Base", "Middies", "Tower"];
 const GUARANTEE_TYPE_OPTIONS = ["Personal", "Good Guy", "Corporate", "None"];
 const BUILDING_CLASS_OPTIONS = ["A", "B", "C"];
@@ -46,26 +53,48 @@ export const DistilledCompTracker = () => {
   const validate = () => {
     const err = {};
 
-  
-    if (!form.submarket.trim()) err.submarket = "Submarket is required";
+    if (!form.submarket || form.submarket.trim() === "") {
+      err.submarket = "Submarket is required";
+    } else if (form.submarket.trim().length < 3) {
+      err.submarket = "Submarket must be at least 3 characters";
+    }
+
     if (!form.building_class) err.building_class = "Building Class is required";
-    if (!form.guarantee_type) err.guarantee_type = "Guarantee Type is required";
     if (!form.floor_segment) err.floor_segment = "Floor Segment is required";
-    if (!form.tenant_entity) err.tenant_entity = "tenent Entity is required";
+    if (!form.tenant_entity) err.tenant_entity = "Tenant Entity is required";
+    if (!form.guarantee_type) err.guarantee_type = "Guarantee Type is required";
 
+    const parseNumber = (val, fieldName) => {
+      if (val === "" || val === null || val === undefined) return null;
 
-    const termMin = form.term_months_min ? Number(form.term_months_min) : 0;
-    const termMax = form.term_months_max ? Number(form.term_months_max) : 999;
-    const sfMin = form.sf_rounded_min ? Number(form.sf_rounded_min) : 0;
-    const sfMax = form.sf_rounded_max ? Number(form.sf_rounded_max) : 999999;
+      const num = Number(val);
 
-    if (termMin < 0) err.term_months_min = "Term Min cannot be negative";
-    if (termMax < 0) err.term_months_max = "Term Max cannot be negative";
-    if (termMin > termMax) err.term_months_max = "Term Max must be ≥ Term Min";
+      if (isNaN(num)) {
+        err[fieldName] = "Must be a valid number";
+        return null;
+      }
 
-    if (sfMin < 0) err.sf_rounded_min = "SF Min cannot be negative";
-    if (sfMax < 0) err.sf_rounded_max = "SF Max cannot be negative";
-    if (sfMin > sfMax) err.sf_rounded_max = "SF Max must be ≥ SF Min";
+      // ❌ Block negative numbers here
+      if (num < 0) {
+        err[fieldName] = "Negative values are not allowed";
+        return null;
+      }
+
+      return num;
+    };
+
+    const termMin = parseNumber(form.term_months_min, "term_months_min");
+    const termMax = parseNumber(form.term_months_max, "term_months_max");
+    const sfMin = parseNumber(form.sf_rounded_min, "sf_rounded_min");
+    const sfMax = parseNumber(form.sf_rounded_max, "sf_rounded_max");
+
+    if (termMin !== null && termMax !== null && termMin > termMax) {
+      err.term_months_max = "Must be greater or equal than Term Min";
+    }
+
+    if (sfMin !== null && sfMax !== null && sfMin > sfMax) {
+      err.sf_rounded_max = "Must be greater or equal than SF Min";
+    }
 
     setErrors(err);
     return Object.keys(err).length === 0;
@@ -87,10 +116,16 @@ export const DistilledCompTracker = () => {
         floor_segment: form.floor_segment || null,
         tenant_entity: form.tenant_entity || null,
         guarantee_type: form.guarantee_type || null,
-        term_months_min: form.term_months_min ? Number(form.term_months_min) : 0,
-        term_months_max: form.term_months_max ? Number(form.term_months_max) : 999,
+        term_months_min: form.term_months_min
+          ? Number(form.term_months_min)
+          : 0,
+        term_months_max: form.term_months_max
+          ? Number(form.term_months_max)
+          : 999,
         sf_rounded_min: form.sf_rounded_min ? Number(form.sf_rounded_min) : 0,
-        sf_rounded_max: form.sf_rounded_max ? Number(form.sf_rounded_max) : 999999,
+        sf_rounded_max: form.sf_rounded_max
+          ? Number(form.sf_rounded_max)
+          : 999999,
       };
 
       const data = await dispatch(distilledBenchmarkApi(payload)).unwrap();
@@ -137,7 +172,7 @@ export const DistilledCompTracker = () => {
     <div className="container-fluid py-5 px-2 px-md-4">
       <div className="row justify-content-center">
         <div className="col-md-12">
-          <Card className="p-4">
+          <Card variant="elevated" className="mb-4 shadow-sm" bodyClass="p-4">
             <Form onSubmit={handleSubmit}>
               <div className="row align-items-center g-3">
                 <div className="col-12 col-md-6">
@@ -159,7 +194,9 @@ export const DistilledCompTracker = () => {
 
                 <div className="col-12 col-md-6">
                   <Form.Group>
-                    <Form.Label className="fw-semibold">Building Class *</Form.Label>
+                    <Form.Label className="fw-semibold">
+                      Building Class *
+                    </Form.Label>
                     <Form.Select
                       name="building_class"
                       value={form.building_class}
@@ -179,10 +216,11 @@ export const DistilledCompTracker = () => {
                   </Form.Group>
                 </div>
 
-                
                 <div className="col-12 col-md-4">
                   <Form.Group>
-                    <Form.Label className="fw-semibold">Floor Segment</Form.Label>
+                    <Form.Label className="fw-semibold">
+                      Floor Segment
+                    </Form.Label>
                     <Form.Select
                       name="floor_segment"
                       value={form.floor_segment}
@@ -204,12 +242,14 @@ export const DistilledCompTracker = () => {
 
                 <div className="col-12 col-md-4">
                   <Form.Group>
-                    <Form.Label className="fw-semibold">Tenant Entity</Form.Label>
+                    <Form.Label className="fw-semibold">
+                      Tenant Entity
+                    </Form.Label>
                     <Form.Select
                       name="tenant_entity"
                       value={form.tenant_entity}
                       onChange={handleChange}
-                       isInvalid={!!errors.tenant_entity}
+                      isInvalid={!!errors.tenant_entity}
                     >
                       <option value="">Select Tenant Entity</option>
                       {TENANT_ENTITY_OPTIONS.map((opt) => (
@@ -226,12 +266,14 @@ export const DistilledCompTracker = () => {
 
                 <div className="col-12 col-md-4">
                   <Form.Group>
-                    <Form.Label className="fw-semibold">Guarantee Type</Form.Label>
+                    <Form.Label className="fw-semibold">
+                      Guarantee Type
+                    </Form.Label>
                     <Form.Select
                       name="guarantee_type"
                       value={form.guarantee_type}
                       onChange={handleChange}
-                       isInvalid={!!errors.guarantee_type}
+                      isInvalid={!!errors.guarantee_type}
                     >
                       <option value="">Select Guarantee Type</option>
                       {GUARANTEE_TYPE_OPTIONS.map((opt) => (
@@ -246,10 +288,17 @@ export const DistilledCompTracker = () => {
                   </Form.Group>
                 </div>
 
-               
                 {[
-                  ["term_months_min", "Term Min (months)", errors.term_months_min],
-                  ["term_months_max", "Term Max (months)", errors.term_months_max],
+                  [
+                    "term_months_min",
+                    "Term Min (months)",
+                    errors.term_months_min,
+                  ],
+                  [
+                    "term_months_max",
+                    "Term Max (months)",
+                    errors.term_months_max,
+                  ],
                   ["sf_rounded_min", "SF Min", errors.sf_rounded_min],
                   ["sf_rounded_max", "SF Max", errors.sf_rounded_max],
                 ].map(([name, label, err], idx) => (
@@ -264,7 +313,9 @@ export const DistilledCompTracker = () => {
                         onChange={handleChange}
                         isInvalid={!!err}
                       />
-                      <Form.Control.Feedback type="invalid">{err}</Form.Control.Feedback>
+                      <Form.Control.Feedback type="invalid">
+                        {err}
+                      </Form.Control.Feedback>
                     </Form.Group>
                   </div>
                 ))}
@@ -290,40 +341,94 @@ export const DistilledCompTracker = () => {
             </Form>
           </Card>
 
-        
           {hasSubmitted && (
             <div className="mt-3">
               {!result?.sufficient_data ? (
-                <div className="card border-0 shadow-lg rounded-4">
-                  <div className="card-body text-center py-5 bg-white">
-                    <h4 className="text-danger fw-bold">
-                      Insufficient Comp Data for Benchmark.
-                    </h4>
-                    <p className="lead text-muted mt-3">{result?.message || "Not enough comparable transactions match your criteria (requires at least 10 distinct clients)."}</p>
-                    <p className="text-muted">Try broadening your filters to include more comparable leases.</p>
-                  </div>
-                </div>
+                <Card
+                  variant="elevated"
+                  className="border-0 shadow-lg rounded-4"
+                  bodyClass="text-center py-5"
+                >
+                  <h4 className="text-danger fw-bold">
+                    Insufficient Comp Data for Benchmark.
+                  </h4>
+                  <p className="lead text-muted mt-3">
+                    {result?.message ||
+                      "Not enough comparable transactions match your criteria (requires at least 10 distinct clients)."}
+                  </p>
+                  <p className="text-muted">
+                    Try broadening your filters to include more comparable
+                    leases.
+                  </p>
+                </Card>
               ) : (
-                <div className="card border-0 shadow-lg rounded-4 overflow-hidden">
-                  <div className="card-header bg-white border-bottom py-4">
-                    <h4 className="mb-1 fw-bold text-dark">Your Deal vs Market Benchmark</h4>
+                <Card
+                  variant="elevated"
+                  className="border-0 shadow-lg rounded-4 overflow-hidden"
+                  noPadding
+                >
+                  <div className="card-header bg-white border-bottom py-4 px-4">
+                    <h4 className="mb-1 fw-bold text-dark">
+                      Your Deal vs Market Benchmark
+                    </h4>
                     <p className="text-muted mb-0">
-                      Based on <strong>{result.comp_count}</strong> comparable leases from <strong>{result.distinct_companies}</strong> distinct companies
+                      Based on <strong>{result.comp_count}</strong> comparable
+                      leases from <strong>{result.distinct_companies}</strong>{" "}
+                      distinct companies
                     </p>
                   </div>
-                  <div className="card-body p-4 bg-light">
+                  <div className="card-body p-4">
                     <ResponsiveContainer width="100%" height={450}>
-                      <BarChart data={chartData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
-                        <XAxis dataKey="name" tick={{ fill: "#4b5563", fontSize: 14, fontWeight: 600 }} axisLine={false} tickLine={false} />
-                        <YAxis tick={{ fill: "#6b7280" }} axisLine={false} tickLine={false} />
-                        <Tooltip cursor={{ fill: "rgba(0,0,0,0.05)" }} contentStyle={{ borderRadius: "12px", border: "none", boxShadow: "0 4px 20px rgba(0,0,0,0.1)" }} />
-                        <Legend wrapperStyle={{ paddingTop: "30px" }} iconType="rect" iconSize={16} />
-                        <Bar dataKey="your" name="Your Deal" fill="#3b82f6" radius={[8, 8, 0, 0]} barSize={50} />
-                        <Bar dataKey="benchmark" name="Market Average" fill="#10b981" radius={[8, 8, 0, 0]} barSize={50} />
+                      <BarChart
+                        data={chartData}
+                        margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
+                      >
+                        <XAxis
+                          dataKey="name"
+                          tick={{
+                            fill: "#4b5563",
+                            fontSize: 14,
+                            fontWeight: 600,
+                          }}
+                          axisLine={false}
+                          tickLine={false}
+                        />
+                        <YAxis
+                          tick={{ fill: "#6b7280" }}
+                          axisLine={false}
+                          tickLine={false}
+                        />
+                        <Tooltip
+                          cursor={{ fill: "rgba(0,0,0,0.05)" }}
+                          contentStyle={{
+                            borderRadius: "12px",
+                            border: "none",
+                            boxShadow: "0 4px 20px rgba(0,0,0,0.1)",
+                          }}
+                        />
+                        <Legend
+                          wrapperStyle={{ paddingTop: "30px" }}
+                          iconType="rect"
+                          iconSize={16}
+                        />
+                        <Bar
+                          dataKey="your"
+                          name="Your Deal"
+                          fill="#3b82f6"
+                          radius={[8, 8, 0, 0]}
+                          barSize={50}
+                        />
+                        <Bar
+                          dataKey="benchmark"
+                          name="Market Average"
+                          fill="#10b981"
+                          radius={[8, 8, 0, 0]}
+                          barSize={50}
+                        />
                       </BarChart>
                     </ResponsiveContainer>
                   </div>
-                </div>
+                </Card>
               )}
             </div>
           )}

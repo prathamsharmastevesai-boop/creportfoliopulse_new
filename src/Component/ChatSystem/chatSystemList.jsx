@@ -334,9 +334,10 @@ export const ChatList = () => {
                         getInitials(conversation.receiver_name)
                       )}
                     </div>
-                    {!conversation.is_group && conversation.is_online && (
-                      <div className="online-dot" />
-                    )}
+                    {!conversation.is_group &&
+                      conversation.is_online === true && (
+                        <div className="online-dot" />
+                      )}
                   </div>
 
                   <div className="chat-textBlock">
@@ -349,7 +350,7 @@ export const ChatList = () => {
                       >
                         {formatTime(
                           conversation.lastMessage?.created_at ||
-                          conversation.created_at,
+                            conversation.created_at,
                         )}
                       </span>
                     </div>
@@ -394,8 +395,7 @@ export const ChatList = () => {
             <div className="modal-text">
               Are you sure you want to delete {selectedConversations.size}{" "}
               conversation
-              {selectedConversations.size > 1 ? "s" : ""}? This action cannot be
-              undone.
+              {selectedConversations.size > 1 ? "s" : ""}
             </div>
             <div className="modal-buttons">
               <button
