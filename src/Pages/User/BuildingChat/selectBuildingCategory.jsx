@@ -35,7 +35,7 @@ export const SelectUserBuildingCategory = () => {
 
       <div className="px-3 mb-4 d-flex justify-content-center justify-content-md-start">
         <div
-          className="bg-dark text-white py-2 d-flex align-items-center justify-content-center gap-2"
+          className="py-2 d-flex align-items-center justify-content-center gap-2"
           onClick={() => navigate(-1)}
           style={{
             cursor: "pointer",

@@ -210,6 +210,18 @@ const DealForm = () => {
         <div className="d-flex justify-content-center align-items-center">
           <div className="d-flex align-items-center gap-3">
             <div className="d-flex flex-wrap align-items-center gap-2 text-center mx-4  justify-content-center py-2">
+              <div
+                className="py-2 d-flex activity-log align-items-center justify-content-center gap-2"
+                onClick={() => navigate(-1)}
+                style={{
+                  cursor: "pointer",
+                  width: "110px",
+                  borderRadius: 10,
+                }}
+              >
+                <FaArrowLeft size={16} />
+                <span>Back</span>
+              </div>
               <h4
                 className="fw-bold m-0 portfolio-title"
                 style={{ color: "#217ae6" }}
@@ -217,7 +229,7 @@ const DealForm = () => {
                 PORTFOLIO PULSE |
               </h4>
 
-              <h4 className="fw-bold text-light m-0">
+              <h4 className="fw-bold activity-log m-0">
                 New Lease Deal - Deal Tracker
               </h4>
             </div>
@@ -226,20 +238,7 @@ const DealForm = () => {
       </div>
 
       <div className="container-fluid">
-        <div className="my-4 d-flex justify-content-md-start">
-          <div
-            className="bg-dark text-white py-2 d-flex align-items-center justify-content-center gap-2"
-            onClick={() => navigate(-1)}
-            style={{
-              cursor: "pointer",
-              width: "110px",
-              borderRadius: 10,
-            }}
-          >
-            <FaArrowLeft size={16} />
-            <span>Back</span>
-          </div>
-        </div>
+        <div className="d-flex justify-content-md-start"></div>
         {loading && (
           <div className="position-fixed top-0 start-0 w-100 h-100 d-flex justify-content-center align-items-center bg-dark bg-opacity-25 z-3">
             <div className="spinner-border text-primary" role="status">

@@ -166,16 +166,19 @@ export const AdminBuildingManager = ({
                     {capitalFunction(building.address)}
                   </div>
                 )}
+
                 {category === "workletter" && (
                   <div>
                     {editBuildingId === building.id ? (
                       <>
                         <i
                           className="bi bi-check-circle-fill text-success me-3"
+                          style={{ cursor: "pointer" }}
                           onClick={() => saveEdit(building.id)}
                         />
                         <i
                           className="bi bi-x-circle-fill text-secondary"
+                          style={{ cursor: "pointer" }}
                           onClick={() => setEditBuildingId(null)}
                         />
                       </>
@@ -183,6 +186,7 @@ export const AdminBuildingManager = ({
                       <>
                         <i
                           className="bi bi-pencil-square text-primary me-3"
+                          style={{ cursor: "pointer" }}
                           onClick={() => {
                             setEditBuildingId(building.id);
                             setEditFieldValue(building.address);
@@ -190,6 +194,7 @@ export const AdminBuildingManager = ({
                         />
                         <i
                           className="bi bi-trash text-danger"
+                          style={{ cursor: "pointer" }}
                           onClick={() => handleDelete(building.id)}
                         />
                       </>
@@ -197,6 +202,50 @@ export const AdminBuildingManager = ({
                   </div>
                 )}
               </div>
+
+              {building.file_counts &&
+                Object.keys(building.file_counts).length > 0 && (
+                  <div
+                    className="d-flex flex-wrap gap-2 mt-2 pt-2"
+                    style={{ borderTop: "1px solid #f0f0f0" }}
+                  >
+                    {Object.entries(building.file_counts).map(
+                      ([cat, count]) => (
+                        <span
+                          key={cat}
+                          className="badge d-flex align-items-center gap-1"
+                          style={{
+                            background: "#eef2ff",
+                            color: "#3730a3",
+                            fontWeight: 500,
+                            fontSize: "12px",
+                            padding: "5px 10px",
+                            borderRadius: "20px",
+                            border: "1px solid #c7d2fe",
+                          }}
+                        >
+                          <i
+                            className="bi bi-file-earmark-text"
+                            style={{ fontSize: "11px" }}
+                          />
+                          {cat.replace(/([A-Z])/g, " $1").trim()}
+                          <span
+                            style={{
+                              background: "#3730a3",
+                              color: "#fff",
+                              borderRadius: "10px",
+                              padding: "1px 7px",
+                              fontSize: "11px",
+                              marginLeft: "2px",
+                            }}
+                          >
+                            {count}
+                          </span>
+                        </span>
+                      ),
+                    )}
+                  </div>
+                )}
             </Card>
           ))}
         </>

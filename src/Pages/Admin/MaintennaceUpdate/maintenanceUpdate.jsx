@@ -121,6 +121,8 @@ export const MaintenanceUpdate = () => {
   const dispatch = useDispatch();
   const location = useLocation();
   const BUILDING_ID = location.state?.buildingId;
+  console.log(BUILDING_ID, "BUILDING_ID");
+
   const Address = location.state?.address;
 
   const [activeTab, setActiveTab] = useState("maintenance");
@@ -272,6 +274,7 @@ export const MaintenanceUpdate = () => {
       const r = await dispatch(
         updatePulseReport({
           id: editReport.id,
+          building_id: BUILDING_ID,
           payload: { status: pulseForm.status, content },
         }),
       );
@@ -283,6 +286,7 @@ export const MaintenanceUpdate = () => {
     } else {
       const r = await dispatch(
         createPulseReport({
+          building_id: BUILDING_ID,
           date: pulseForm.date,
           status: pulseForm.status,
           content,
@@ -443,6 +447,7 @@ export const MaintenanceUpdate = () => {
           setPulseForm={setPulseForm}
           editReport={editReport}
           submitting={submittingPulse}
+          buildingId={BUILDING_ID}
           onSubmit={handlePulseSubmit}
           onClose={() => setShowPulseForm(false)}
         />

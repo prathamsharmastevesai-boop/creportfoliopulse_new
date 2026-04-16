@@ -4,16 +4,41 @@ import { useNavigate } from "react-router-dom";
 import { ListuserBuildingSubmit } from "../../../Networking/Admin/APIs/BuildingApi";
 import RAGLoader from "../../../Component/Loader";
 import { AppHeader } from "../../../Component/AppHeader/appHeader";
+import { toast } from "react-toastify";
 
 const BuildingCard = ({ building, cardRef, onGoToChat }) => {
   const imageUrl = building.photos?.find((p) => p?.url)?.url;
 
   const actions = [
-    { icon: "bi-fire", cat: "floor_plan", label: "Plans / Photos / Flyers" },
+    { icon: "bi-fire", cat: "fire_safety", label: "Fire & Safety" },
     { icon: "bi-stack", cat: "building_stack", label: "Building Stack" },
     { icon: "bi-info-circle", cat: "building_info", label: "Building Info" },
     { icon: "bi-person-lines-fill", cat: "tenant_info", label: "Tenant Info" },
   ];
+
+  const hasAccess = (cat) => {
+    const categories = building.categories || [];
+    if (categories.includes("building_info")) {
+      if (cat === "building_info" || cat === "building_stack") return true;
+    }
+    return categories.includes(cat);
+  };
+
+  const handleActionClick = (cat, label, allowed) => {
+    if (!allowed) {
+      toast.error(`Access Denied: ${label}`, {
+        position: "top-right",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        icon: "🔒",
+      });
+      return;
+    }
+    onGoToChat(building.id, cat);
+  };
 
   const sqft = building?.summary?.total_vacant_sf
     ? Number(building.summary.total_vacant_sf).toLocaleString()
@@ -54,7 +79,7 @@ const BuildingCard = ({ building, cardRef, onGoToChat }) => {
                 {building?.summary?.current_listings_count || "0"}
               </span>
             </div>
-            <div className="npo-stat-col ">
+            <div className="npo-stat-col">
               <span className="npo-stat-lbl">Total Occupied SF</span>
               <span className="npo-stat-val">
                 {building?.summary?.total_occupied_sf || "0"}
@@ -63,24 +88,26 @@ const BuildingCard = ({ building, cardRef, onGoToChat }) => {
           </div>
 
           <div className="npo-card__actions">
-            {actions.map(({ icon, cat, label }) => (
-              <button
-                key={cat}
-                className="npo-action-btn"
-                title={label}
-                onClick={() => onGoToChat(building.id, cat)}
-              >
-                <i className={`bi ${icon}`}></i>
-                <span className="npo-action-label">{label}</span>
-              </button>
-            ))}
+            {actions.map(({ icon, cat, label }) => {
+              const allowed = hasAccess(cat);
+              return (
+                <button
+                  key={cat}
+                  className={`npo-action-btn ${!allowed ? "disabled" : ""}`}
+                  title={allowed ? label : `Access Denied: ${label}`}
+                  onClick={() => handleActionClick(cat, label, allowed)}
+                >
+                  <i className={`bi ${!allowed ? "bi-lock-fill" : icon}`}></i>
+                  <span className="npo-action-label">{label}</span>
+                </button>
+              );
+            })}
           </div>
         </div>
       </div>
     </div>
   );
 };
-
 export const Dashboard = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -93,7 +120,32 @@ export const Dashboard = () => {
     dispatch(ListuserBuildingSubmit());
   }, [dispatch]);
 
-  const filteredBuildings = BuildingList.filter((b) =>
+  const uniqueBuildings = Object.values(
+    BuildingList.reduce((acc, curr) => {
+      if (!acc[curr.id]) {
+        acc[curr.id] = {
+          ...curr,
+          categories: [curr.category],
+        };
+      } else {
+        acc[curr.id].categories = [
+          ...new Set([...acc[curr.id].categories, curr.category]),
+        ];
+
+        if (!acc[curr.id].summary && curr.summary) {
+          acc[curr.id].summary = curr.summary;
+        }
+
+        if (!acc[curr.id].photos?.length && curr.photos?.length) {
+          acc[curr.id].photos = curr.photos;
+        }
+      }
+
+      return acc;
+    }, {}),
+  );
+
+  const filteredBuildings = uniqueBuildings.filter((b) =>
     b.address?.toLowerCase().includes(searchTerm.toLowerCase()),
   );
 
@@ -106,6 +158,7 @@ export const Dashboard = () => {
 
   const goToChat = (buildingId, category) => {
     const routes = {
+      fire_safety: "/user-fire-safety-building-mechanicals",
       tenant_info: "/tenant-information-chat",
       building_stack: "/user-building-stack-floor",
       default: "/building-chat",
@@ -121,7 +174,7 @@ export const Dashboard = () => {
 
   return (
     <div className="npo-root">
-      <AppHeader showHero={true} />
+      {/* <AppHeader showHero={true} /> */}
 
       <div className="npo-topbar">
         <div className="npo-topbar__left">
@@ -151,10 +204,7 @@ export const Dashboard = () => {
               <span className="npo-overview__stat-lbl">
                 PORTFOLIO OCCUPANCY
               </span>
-              <span className="npo-overview__stat-val">
-                {occupancy}
-                {occupancy.length == 0 ? "%" : null}
-              </span>
+              <span className="npo-overview__stat-val">{occupancy}%</span>
             </div>
             <div className="npo-overview__stat">
               <span className="npo-overview__stat-lbl">TOTAL VACANT SF</span>

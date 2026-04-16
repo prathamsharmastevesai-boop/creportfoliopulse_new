@@ -12,17 +12,17 @@ export const ToursPage = () => {
   return (
     <>
       <div className="header-bg d-flex justify-content-between px-3 align-items-center sticky-header">
-        <h5 className="text-white m-0 ms-4">{headerTitle}</h5>
+        <h5 className="activity-log m-0 ms-4">{headerTitle}</h5>
         <div className="d-flex gap-2">
           <Button
-            variant={activeTab === "form" ? "light" : "outline-light"}
+            variant={activeTab === "form" ? "light" : "dark"}
             onClick={() => setActiveTab("form")}
           >
             Add Tour
           </Button>
 
           <Button
-            variant={activeTab === "list" ? "light" : "outline-light"}
+            variant={activeTab === "list" ? "light" : "dark"}
             onClick={() => setActiveTab("list")}
           >
             View Tours

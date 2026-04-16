@@ -257,7 +257,9 @@ export const BuildingInfoList = () => {
 
   const goToChat = (buildingId, category) => {
     if (category === "tenant_info") {
-      navigate("/tenant-info-upload", { state: { buildingId, category } });
+      navigate("/tenant-info-upload", {
+        state: { office: { buildingId, category } },
+      });
     } else if (category === "building_stack") {
       navigate("/building-stack-floor", { state: { buildingId, category } });
     } else {

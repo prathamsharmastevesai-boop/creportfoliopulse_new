@@ -74,7 +74,6 @@ export const DistilledCompTracker = () => {
         return null;
       }
 
-      // ❌ Block negative numbers here
       if (num < 0) {
         err[fieldName] = "Negative values are not allowed";
         return null;

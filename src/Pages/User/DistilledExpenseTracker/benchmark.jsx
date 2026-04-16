@@ -144,7 +144,7 @@ export const Benchmark = () => {
         className="header-bg {
 -bg d-flex justify-content-start px-3 align-items-center sticky-header"
       >
-        <h5 className="mb-0 text-light mx-4">DET Benchmarking</h5>
+        <h5 className="mb-0 mx-4">DET Benchmarking</h5>
       </div>
       <div className="container-fuild p-3">
         <Card className="p-4 shadow-sm">

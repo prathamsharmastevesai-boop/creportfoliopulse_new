@@ -183,9 +183,11 @@ export const fetchCostAnalysisApi = createAsyncThunk(
 
 export const getWorkLetterSummaryApi = createAsyncThunk(
   "getWorkLetterSummaryApi",
-  async (_, { rejectWithValue }) => {
+  async (buildingId, { rejectWithValue }) => {
     try {
-      const res = await axiosInstance.get(projectManagemantGetSummaryEndpoint);
+      const res = await axiosInstance.get(
+        `${projectManagemantGetSummaryEndpoint}?building_id=${buildingId}`,
+      );
       return res.data;
     } catch (err) {
       return rejectWithValue(err.response?.data || err.message);

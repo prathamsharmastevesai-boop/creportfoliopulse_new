@@ -10,7 +10,6 @@ import { useNavigate } from "react-router-dom";
 import Card from "../../../Component/Card/Card";
 import PageHeader from "../../../Component/PageHeader/PageHeader";
 
-
 export const AdminDashboard = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -203,7 +202,11 @@ export const AdminDashboard = () => {
 
 const DashboardCard = ({ title, value, icon, color }) => (
   <div className="col-12 col-sm-6 col-lg-3">
-    <Card className="h-100" variant="elevated" bodyClass="d-flex align-items-center">
+    <Card
+      className="h-100"
+      variant="elevated"
+      bodyClass="d-flex align-items-center"
+    >
       <div
         className={`rounded-3 bg-${color} bg-opacity-10 text-${color} d-flex align-items-center justify-content-center me-3`}
         style={{ width: "42px", height: "42px" }}
@@ -229,7 +232,7 @@ const ComplianceTable = ({ users }) => {
           <tr className="table-light text-uppercase small fw-bold">
             <th>User Name</th>
             <th>Email</th>
-            <th>Organization</th>
+
             <th>AUP Version</th>
             <th>Status</th>
             <th>Date Signed</th>
@@ -243,7 +246,7 @@ const ComplianceTable = ({ users }) => {
               <tr key={user.user_id} className="border-bottom">
                 <td>{user.user_name || "N/A"}</td>
                 <td>{user.email || "N/A"}</td>
-                <td>{user.organization || "N/A"}</td>
+
                 <td>{user.aup_version_signed || "-"}</td>
                 <td>{user.status || "N/A"}</td>
                 <td>

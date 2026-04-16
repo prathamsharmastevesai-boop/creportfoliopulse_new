@@ -350,7 +350,7 @@ export const ChatWindow = ({
   };
 
   return (
-    <div className="container-fluid py-3" style={{ height: "100vh" }}>
+    <div className="container-fluid py-3" style={{ height: "90vh" }}>
       <div className="row h-100">
         <div className="col-md-12 d-flex flex-column">
           <div className="chat-header d-flex justify-content-between align-items-center mb-2 position-relative flex-wrap">
@@ -401,7 +401,7 @@ export const ChatWindow = ({
             </div>
           </div>
 
-          <div className="flex-grow-1 overflow-auto p-3 rounded mb-2 hide-scrollbar">
+          <div className="flex-grow-1 overflow-auto  rounded mb-2 hide-scrollbar">
             {isLoading ? (
               <div
                 className="d-flex justify-content-center align-items-center text-muted w-100"
@@ -630,7 +630,7 @@ export const ChatWindow = ({
                   src={previewPdf}
                   title="PDF Full View"
                   className="w-100 rounded"
-                  style={{ height: "85vh", border: "none" }}
+                  style={{ height: "90vh", border: "none" }}
                 />
               </div>
             </div>

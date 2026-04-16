@@ -2,13 +2,13 @@
 
 :root {
   --bg-primary: #ffffff;
-  --bg-secondary: #e4e4e4;
+  --bg-secondary: #fffafa;
   --text-primary: #000000;
-  --text-primary-opposite: #ffffff;
+  --text-primary-opposite: #000000;
   --chat-title: #000000;
   --text-secondary: #6c757d;
   --text-notification: #ffffff;
-  --border-color: #dee2e6;
+  --border-color: #949494;
   --border-box: 0 4px 18px rgba(0, 0, 0, 0.35);
   --font-primary: var(--font-display);
   --font-mono: var(--font-mono);
@@ -621,11 +621,11 @@ body {
   background-color: var(--bg-secondary) !important;
 }
 
-.header-bg {
+/* .header-bg {
   background-color: var(--accent-color);
-  color: white;
+  color: rgb(0, 0, 0);
   padding: 1rem;
-}
+} */
 
 .sticky-header {
   position: sticky;
@@ -1129,7 +1129,7 @@ body {
   transition: all 0.3s ease;
   background-color: var(--bg-primary);
   color: var(--text-primary);
-  min-height: 100vh;
+  min-height: 80vh;
 }
 
 .main-wrapper.open .sidebar-wrapper {
@@ -1394,8 +1394,8 @@ body {
     display: none;
     position: fixed;
     z-index: 1000;
-    top: 5px;
-    left: 5px;
+    top: 15px;
+    left: 10px;
     background-color: #000;
     padding: 0px !important;
     border-radius: 10px;
@@ -1535,8 +1535,9 @@ body {
 }
 
 .header-bg {
-  background-color: #212529;
+  /* background-color: #212529; */
   /* height: 62px; */
+  color: rgb(0, 0, 0);
   padding: 15px 0px;
 }
 
@@ -3973,7 +3974,7 @@ body {
 }
 
 .bs-unit-block:hover {
-  transform: translateY(-3px) translateX(4px) scale(1.02);
+  transform: translateY(-3px) translateX(4px) scale(1);
   z-index: 30;
 }
 
@@ -4066,7 +4067,7 @@ body {
   align-items: center;
   height: 50px;
   color: #fff;
-  overflow: hidden;
+  /*   */
   border: 1px solid rgba(255, 255, 255, 0.08);
   backdrop-filter: blur(4px);
 }
@@ -4433,10 +4434,10 @@ body {
   right: 8px;
   display: flex;
   gap: 4px;
-  background: rgba(0, 0, 0, 0.42);
+  background: black;
   border-radius: 8px;
   padding: 4px 6px;
-  opacity: 0;
+  opacity: 1;
   transition: opacity 0.15s ease;
   pointer-events: none;
   z-index: 50;
@@ -4490,6 +4491,7 @@ body {
   color: var(--text-primary);
   outline: none;
   transition: border-color 0.15s;
+  width: 100%;
 }
 .bs-input:focus {
   border-color: var(--bs-input-focus);
@@ -4584,7 +4586,7 @@ body {
   border-radius: 8px;
   padding: 1.25rem;
   overflow-y: auto;
-  height: calc(100vh - 160px);
+  height: calc(100vh - 223px);
   overflow-y: auto;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
 }
@@ -8052,6 +8054,10 @@ body {
   box-shadow: 0 2px 8px rgba(0, 162, 255, 0.28);
 }
 
+.npo-action-btn.disabled {
+  opacity: 1.5;
+}
+
 /* ════════════════════════════════════════════
    RESPONSIVE
    ════════════════════════════════════════════ */
@@ -8184,6 +8190,7 @@ body {
   .npo-action-btn i {
     font-size: 13px;
   }
+
   .npo-card__addr-text {
     font-size: 16px;
   }
@@ -8252,4 +8259,170 @@ body {
   .npo-stat-col:nth-child(2):before {
     display: none;
   }
+}
+
+/* forum  */
+
+.li-card {
+  background: var(--card-bg);
+  color: var(--card-text);
+  border-radius: 12px;
+  border: 1px solid var(--border-color);
+  padding: 16px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+}
+.li-action-btn {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex: 1;
+  justify-content: center;
+  background: transparent;
+  border: none;
+  border-radius: 6px;
+  padding: 8px 4px;
+  font-size: var(--fs-btn);
+  font-weight: 600;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition:
+    background 0.15s,
+    color 0.15s;
+}
+.li-action-btn:hover {
+  background: var(--hover-bg);
+  color: var(--text-primary);
+}
+.li-media-btn {
+  display: flex;
+  align-items: center;
+  background: transparent;
+  border: none;
+  border-radius: 6px;
+  padding: 6px 12px;
+  font-size: var(--fs-body-sm);
+  font-weight: 600;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.li-media-btn:hover {
+  background: var(--hover-bg);
+  color: var(--text-primary);
+}
+.li-search {
+  border-radius: 20px;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  color: var(--text-primary);
+  padding: 8px 16px;
+  font-size: var(--fs-body);
+}
+.li-search:focus {
+  box-shadow: 0 0 0 2px var(--accent-color);
+  background: var(--bg-primary);
+  outline: none;
+}
+.li-search::placeholder {
+  color: var(--text-secondary);
+  opacity: 0.7;
+}
+.li-comment-bubble {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  display: inline-block;
+  max-width: 100%;
+  width: 100%;
+}
+.li-comment-input-wrap {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  min-height: 38px;
+}
+.li-comment-input {
+  background: transparent;
+  color: var(--text-primary);
+  width: 100%;
+}
+.li-comment-input::placeholder {
+  color: var(--text-secondary);
+}
+.li-file-preview {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+}
+.li-send-btn {
+  background: var(--accent-color);
+  color: var(--text-primary-opposite);
+  border: none;
+  width: 36px;
+  height: 36px;
+}
+.li-reaction-popup {
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
+  z-index: 50;
+  white-space: nowrap;
+  animation: reactionPop 0.18s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.li-count-badge {
+  background: var(--accent-color);
+  font-size: var(--fs-badge);
+}
+.li-divider {
+  border-color: var(--border-color) !important;
+}
+.li-feed-layout {
+  max-width: 100%;
+  margin: 0 auto;
+}
+@keyframes reactionPop {
+  from {
+    opacity: 0;
+    transform: translateY(6px) scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+/* View More Button Styles */
+.li-view-more-btn {
+  background: none;
+  border: none;
+  color: var(--accent-color);
+  font-size: var(--fs-body-sm);
+  font-weight: 500;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.li-view-more-btn:hover {
+  background: var(--bg-primary);
+}
+
+/* Content transition for smooth expand/collapse */
+.li-post-content {
+  transition: all 0.3s ease;
+}
+
+/* Markdown content styles */
+.li-markdown-content {
+  line-height: 1.6;
+}
+
+.li-markdown-content p {
+  margin-bottom: 12px;
+}
+
+.li-markdown-content pre {
+  background: var(--bg-primary);
+  padding: 12px;
+  border-radius: 8px;
+  overflow-x: auto;
 }

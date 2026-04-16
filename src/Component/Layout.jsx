@@ -4,6 +4,7 @@ import { useState, useEffect, useMemo } from "react";
 import { EmailDraftingProvider } from "../Context/EmailDraftingContext";
 import { EmailDraftingModal } from "../Component/EmailDraftingModal";
 import { useEmailDrafting } from "../Context/EmailDraftingContext";
+import { AppHeader } from "../Component/AppHeader/appHeader";
 
 const GlobalEmailDraftingButton = () => {
   const { openEmailDraftingModal } = useEmailDrafting();
@@ -46,7 +47,6 @@ export const DashboardLayout = () => {
       "/tenant-info-upload",
       "/tenent-info-user-building-list",
       "/tenant-info-building-list",
-
       "/building-chat",
       "/user-building-info-list",
       "/comparative-building-chat",
@@ -54,13 +54,10 @@ export const DashboardLayout = () => {
       "/comparative-building-upload",
       "/building-info-list",
       "/building-info-upload",
-
       "/comps-chat",
       "/comps-upload",
-
       "/tenant-market",
       "/tenants-market-upload",
-
       "/contacts-hub-chat",
       "/contacts-hub-upload",
     ],
@@ -98,7 +95,6 @@ export const DashboardLayout = () => {
       "/dashboard",
       "/email-drafting",
       "/notes",
-      // "/admin-broker-index",
       "/ai-lease-abstract-upload",
       "/information-collaboration",
       "/benchmark",
@@ -140,7 +136,6 @@ export const DashboardLayout = () => {
       "/project-management",
       "/projects",
       "/work-letter",
-      //Admin Routes
       "/admin-dashboard",
       "/user-management",
       "/aianalytics",
@@ -154,7 +149,6 @@ export const DashboardLayout = () => {
       "/admin-loi-audit",
       "/space-inquiry",
       "/contacts-hub-upload",
-      // "/employee-contact-upload",
       "/comps-upload",
       "/fire-safety-building-mechanicals",
       "/comparative-building-list",
@@ -177,14 +171,18 @@ export const DashboardLayout = () => {
     );
     setIsChatPage(isChat);
   }, [location]);
-
+  const role = sessionStorage.getItem("role");
   return (
     <EmailDraftingProvider>
+      {role !== "superuser" && <AppHeader sidebarCollapsed={collapsed} />}
       <div
         className={`main-wrapper ${collapsed ? "" : "open"} ${
           isChatPage ? "chat-active" : ""
         }`}
-        style={{ height: "100dvh" }}
+        style={{
+          height: "100dvh",
+          paddingTop: "var(--header-height, 48px)",
+        }}
       >
         <Sidebar collapsed={collapsed} setCollapsed={setCollapsed} />
 

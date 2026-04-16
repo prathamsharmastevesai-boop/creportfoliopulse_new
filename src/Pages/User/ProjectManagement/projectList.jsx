@@ -13,7 +13,6 @@ import {
 import { BackButton } from "../../../Component/backButton";
 import Card from "../../../Component/Card/Card";
 
-
 export const ProjectList = () => {
   const location = useLocation();
   const office = location.state?.office;
@@ -105,7 +104,7 @@ export const ProjectList = () => {
 
   const fetchSummary = async () => {
     try {
-      const res = await dispatch(getWorkLetterSummaryApi()).unwrap();
+      const res = await dispatch(getWorkLetterSummaryApi(buildingId)).unwrap();
       setSummary(res);
     } catch (err) {
       console.error("Failed to load summary", err);

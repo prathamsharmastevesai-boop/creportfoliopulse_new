@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { NavLink, useNavigate } from "react-router-dom";
+import { NavLink } from "react-router-dom";
 import { useSelector } from "react-redux";
 import "./appHeader.css";
 
@@ -30,7 +30,7 @@ const NAV_TABS = [
   },
   {
     key: "lead-deal-tracker",
-    label: "Lead and Deal Tracker",
+    label: "Lead & Deal Tracker",
     path: "/deal-list",
     permissionKey: "deal_tracker_enabled",
   },
@@ -39,8 +39,8 @@ const NAV_TABS = [
 export const AppHeader = ({
   companyName: companyNameProp,
   showHero = true,
+  sidebarCollapsed = true,
 }) => {
-  const navigate = useNavigate();
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef(null);
 
@@ -49,15 +49,24 @@ export const AppHeader = ({
 
   const { userdata } = useSelector((state) => state.ProfileSlice);
 
+  const isAdmin = sessionStorage.getItem("role");
+
   const isTabVisible = (tab) => {
+    if (isAdmin == "admin") {
+      return tab.key === "the-pulse";
+    }
+
     if (tab.alwaysVisible) return true;
-    if (tab.permissionKey && userdata?.[tab.permissionKey]) return true;
+
+    if (tab.permissionKey) {
+      return Boolean(userdata?.[tab.permissionKey]);
+    }
+
     return false;
   };
 
   const visibleTabs = NAV_TABS.filter(isTabVisible);
 
-  // Close drawer on outside click
   useEffect(() => {
     if (!menuOpen) return;
     const handleClick = (e) => {
@@ -69,10 +78,6 @@ export const AppHeader = ({
     return () => document.removeEventListener("mousedown", handleClick);
   }, [menuOpen]);
 
-  // Close drawer on route change (NavLink handles this via re-render)
-  const handleNavClick = () => setMenuOpen(false);
-
-  // Lock body scroll when drawer is open
   useEffect(() => {
     document.body.style.overflow = menuOpen ? "hidden" : "";
     return () => {
@@ -80,9 +85,15 @@ export const AppHeader = ({
     };
   }, [menuOpen]);
 
+  const handleNavClick = () => setMenuOpen(false);
+
+  const headerLeft = sidebarCollapsed
+    ? "var(--sidebar-width, 60px)"
+    : "var(--sidebar-expanded-width, 240px)";
+
   return (
     <>
-      <header className="app-header" ref={menuRef}>
+      <header className="app-header" ref={menuRef} style={{ left: headerLeft }}>
         <div className="app-header__bar">
           {showHero && (
             <div className="app-header__welcome">

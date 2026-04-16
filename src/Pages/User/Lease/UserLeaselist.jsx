@@ -11,39 +11,26 @@ export const UserLeaseList = () => {
   const initialBuildings = location.state?.office;
 
   const handleLease = (initialBuildings, type) => {
-    navigate("/user-lease-loi-chat", { state: { Building_id: initialBuildings, type } });
+    navigate("/user-lease-loi-chat", {
+      state: { Building_id: initialBuildings, type },
+    });
   };
 
   return (
-    <>
-      <div
-        className="text-center agreement_header bg-dark animate__animated animate__fadeInDown"
-        style={{
-          position: "sticky",
-          top: 0,
-          zIndex: 10,
-          marginBottom: "30px",
-          borderBottom: "1px solid #dee2e6",
-        }}
-      >
-        <h5 className="heading_lease text-center text-light mb-0 px-3">
+    <div className="container-fluid px-4 pt-3">
+      <div className="custom-page-header text-center text-md-start">
+        <div className="custom-page-header-main d-flex align-items-center gap-3">
+          <div
+            className="d-flex align-items-center gap-2 btn btn-dark btn-sm"
+            onClick={() => navigate(-1)}
+          >
+            <FaArrowLeft size={16} />
+            <span>Back</span>
+          </div>
+        </div>
+        <h5 className="custom-page-header-content">
           Select Section to Chat with Lease Agreement or Letter of Intent
         </h5>
-      </div>
-
-      <div className="px-3 mb-4 d-flex justify-content-center justify-content-md-start">
-        <div
-          className="bg-dark text-white py-2 d-flex align-items-center justify-content-center gap-2"
-          onClick={() => navigate(-1)}
-          style={{
-            cursor: "pointer",
-            width: "110px",
-            borderRadius: 10,
-          }}
-        >
-          <FaArrowLeft size={16} />
-          <span>Back</span>
-        </div>
       </div>
 
       <Container className="pb-5">
@@ -87,9 +74,7 @@ export const UserLeaseList = () => {
                 variant="dark"
                 size="lg"
                 className="w-100"
-                onClick={() =>
-                  handleLease(initialBuildings?.buildingId, "LOI")
-                }
+                onClick={() => handleLease(initialBuildings?.buildingId, "LOI")}
               >
                 Chat with Letter of Intent
               </Button>
@@ -97,6 +82,6 @@ export const UserLeaseList = () => {
           </Col>
         </Row>
       </Container>
-    </>
+    </div>
   );
 };

@@ -222,7 +222,7 @@ export const SpaceUp = () => {
   return (
     <>
       <div className="header-bg d-flex flex-wrap justify-content-between align-items-center px-3 py-2 sticky-header">
-        <h4 className="mb-2 mb-sm-0 text-light me-3">Broker Index</h4>
+        <h4 className="mb-2 activity-log mb-sm-0 me-3">Broker Index</h4>
       </div>
 
       <div className="card-body p-3 p-md-4">

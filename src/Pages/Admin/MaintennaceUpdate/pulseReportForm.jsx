@@ -13,6 +13,7 @@ const PulseReportForm = ({
   pulseForm,
   setPulseForm,
   editReport,
+  buildingId,
   onSubmit,
   onClose,
 }) => {
@@ -83,16 +84,16 @@ const PulseReportForm = ({
     e.preventDefault();
 
     if (!validateForm()) return;
+    console.log(buildingId, "buildingId");
 
-    if (editReport && !isFormChanged()) {
-      console.log("No changes detected");
-      onClose();
-      return;
-    }
+    const payload = {
+      ...pulseForm,
+      building_id: buildingId,
+    };
 
     setSaving(true);
     try {
-      await onSubmit();
+      await onSubmit(payload);
     } finally {
       setSaving(false);
     }

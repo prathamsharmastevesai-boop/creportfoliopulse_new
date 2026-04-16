@@ -392,7 +392,7 @@ export const FloorList = () => {
 
   if (loading) {
     return (
-      <div className="d-flex flex-column min-vh-100">
+      <div className="d-flex flex-column">
         <header className="bs-topbar d-flex flex-wrap align-items-center justify-content-between gap-2 px-3 py-2">
           <div className="d-flex align-items-center">
             <BackButton />
@@ -405,7 +405,7 @@ export const FloorList = () => {
 
   if (error) {
     return (
-      <div className="d-flex flex-column min-vh-100">
+      <div className="d-flex flex-column">
         <header className="bs-topbar d-flex flex-wrap align-items-center justify-content-between gap-2 px-3 py-2">
           <BackButton />
         </header>
@@ -415,7 +415,7 @@ export const FloorList = () => {
   }
 
   return (
-    <div className="d-flex flex-column min-vh-100">
+    <div className="d-flex flex-column">
       <header className="bs-topbar d-flex flex-wrap align-items-center justify-content-between gap-2 px-3 py-2">
         <div className="d-flex align-items-center">
           <BackButton />

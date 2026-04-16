@@ -192,8 +192,8 @@ export const SessionList = ({ setShowSessionModal }) => {
 
   return (
     <>
-      <div className="header-bg -bg d-flex justify-content-start px-3 align-items-center sticky-header">
-        <h5 className="mb-0 text-light mx-4">Chat History</h5>
+      <div className="header-bg -bg d-flex justify-content-start align-items-center">
+        <h5 className="mb-0 activity-log mx-4">Chat History</h5>
       </div>
       <div
         className="p-3 position-relative"

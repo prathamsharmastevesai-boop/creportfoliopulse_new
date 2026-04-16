@@ -44,7 +44,6 @@ export const TICalculator = () => {
   const validate = () => {
     const newErrors = {};
 
-    // 👉 Square Footage validation
     if (sf === "" || sf === null) {
       newErrors.sf = "Square footage is required";
     } else if (isNaN(Number(sf))) {

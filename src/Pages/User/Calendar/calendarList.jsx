@@ -87,9 +87,6 @@ const DeleteConfirmModal = ({
             Are you sure you want to delete this tour?
           </p>
           <p className="mb-0 cal-delete-modal__tour-name">"{tourTitle}"</p>
-          <p className="mt-2 small cal-delete-modal__warning">
-            This action cannot be undone.
-          </p>
         </div>
 
         <div className="d-flex justify-content-end gap-2 px-4 py-3 cal-section-border-top">

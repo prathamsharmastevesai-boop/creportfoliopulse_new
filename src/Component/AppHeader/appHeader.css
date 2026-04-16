@@ -1,14 +1,16 @@
 :root {
+  --sidebar-width: 0px;
+  --sidebar-expanded-width: 240px;
+  --header-height: 62px;
   --header-bg: #0e1017;
   --header-border: rgba(255, 255, 255, 0.07);
-  --header-height: 48px;
 
   --tab-color: rgba(255, 255, 255, 0.52);
   --tab-hover: rgba(255, 255, 255, 0.88);
   --tab-active-color: #ffffff;
   --tab-active-underline: #c0392b;
 
-  --welcome-color: rgba(255, 255, 255, 0.55);
+  --welcome-color: rgb(255, 255, 255);
   --welcome-strong-color: #ffffff;
 
   --icon-color: rgba(255, 255, 255, 0.5);
@@ -21,81 +23,36 @@
   --drawer-accent: #c0392b;
 }
 
+/* ── Base header ── */
 .app-header {
-  width: 100%;
-  background: var(--header-bg);
-  border-bottom: 1px solid var(--header-border);
-  position: sticky;
+  position: fixed;
   top: 0;
-  z-index: 200;
+  left: var(--sidebar-width); /* starts after collapsed sidebar */
+  right: 0;
+  z-index: 1000;
+  height: var(--header-height);
+  background: var(--sidebar-bg);
+  border-bottom: 1px solid var(--header-border);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+  transition: left 0.25s ease;
 }
 
+/* When sidebar is expanded via JS inline style, CSS transition handles slide */
+
+/* ── Bar layout: everything pushed right ── */
 .app-header__bar {
   display: flex;
   align-items: center;
+  justify-content: flex-start;
   height: var(--header-height);
-  padding: 0 12px 0 8px;
-  gap: 0;
+  padding: 0 16px;
+  gap: 8px;
 }
 
-.app-header__logo {
-  flex-shrink: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 40px;
-  height: 40px;
-  cursor: pointer;
-  margin-right: 10px;
-}
-
-.app-header__logo-mark {
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.06);
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition:
-    background 0.2s ease,
-    border-color 0.2s ease;
-}
-
-.app-header__logo-mark:hover {
-  background: rgba(255, 255, 255, 0.1);
-  border-color: rgba(255, 255, 255, 0.3);
-}
-
-.app-header__logo-svg {
-  width: 30px;
-  height: 30px;
-}
-
-.app-header__welcome {
-  flex-shrink: 0;
-  margin-right: 20px;
-  white-space: nowrap;
-}
-
-.app-header__welcome-text {
-  font-family: var(--font-display);
-  font-size: 14px;
-  font-weight: 400;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: var(--welcome-color);
-}
-
-.app-header__welcome-text strong {
-  color: var(--welcome-strong-color);
-  font-weight: 600;
-}
-
+/* ── Nav ── */
 .app-header__nav {
-  flex: 1 1 auto;
-  overflow: hidden;
+  flex: 0 0 auto;
+  overflow: visible;
 }
 
 .app-header__tab-list {
@@ -103,15 +60,13 @@
   align-items: center;
   list-style: none;
   margin: 0;
-  padding: 0 6px;
+  padding: 0 4px;
   height: var(--header-height);
   gap: 4px;
-  width: 100%;
 }
 
 .app-header__tab-item {
-  flex: 1;
-  flex-shrink: 0;
+  flex: 0 0 auto;
   display: flex;
   align-items: center;
   height: 100%;
@@ -120,22 +75,17 @@
 .app-header__tab-link {
   display: flex;
   align-items: center;
-  width: 100%;
-
-  padding: 20px;
-  font-family: var(--font-display);
-  font-size: 14px;
+  padding: 6px 14px;
+  font-size: 13px;
   font-weight: 500;
   letter-spacing: 0.04em;
   color: var(--tab-color);
   text-decoration: none;
   white-space: nowrap;
   position: relative;
-
   border-radius: 5px;
-
   background: rgba(255, 255, 255, 0.04);
-
+  border: 1px solid transparent;
   transition:
     color 0.18s ease,
     background 0.18s ease,
@@ -170,11 +120,12 @@
   width: 5px;
   height: 5px;
   border-radius: 50%;
-  background: var(--tab-active-underline);
+  /* background: var(--tab-active-underline); */
   opacity: 0.9;
   box-shadow: 0 0 5px rgba(192, 57, 43, 0.7);
 }
 
+/* ── Hamburger (mobile only) ── */
 .app-header__hamburger {
   display: none;
   flex-direction: column;
@@ -188,7 +139,6 @@
   border: none;
   cursor: pointer;
   border-radius: 6px;
-  margin-left: auto;
   flex-shrink: 0;
   transition: background 0.18s ease;
 }
@@ -221,6 +171,22 @@
   transform: translateY(-6.5px) rotate(-45deg);
 }
 
+.app-header__welcome {
+  text-align: start;
+}
+
+.app-header__welcome-text {
+  font-size: 18px;
+  letter-spacing: 0.06em;
+  color: var(--welcome-color);
+  text-transform: uppercase;
+  text-align: start;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ── Mobile drawer (slides in from right) ── */
 .app-header__drawer {
   position: fixed;
   top: var(--header-height);
@@ -232,10 +198,9 @@
   border-left: 1px solid rgba(255, 255, 255, 0.07);
   transform: translateX(100%);
   transition: transform 0.28s cubic-bezier(0.4, 0, 0.2, 1);
-  z-index: 199;
+  z-index: 1039;
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
-
   visibility: hidden;
 }
 
@@ -255,7 +220,6 @@
   align-items: center;
   width: 100%;
   padding: 14px 24px;
-  font-family: var(--font-display);
   font-size: 0.85rem;
   font-weight: 500;
   letter-spacing: 0.04em;
@@ -280,12 +244,13 @@
   background: rgba(192, 57, 43, 0.08);
 }
 
+/* ── Backdrop ── */
 .app-header__backdrop {
   position: fixed;
   inset: 0;
   top: var(--header-height);
   background: rgba(0, 0, 0, 0.55);
-  z-index: 198;
+  z-index: 1038;
   animation: backdropFadeIn 0.22s ease forwards;
 }
 
@@ -298,33 +263,13 @@
   }
 }
 
+/* ── Controls (icons / avatar) ── */
 .app-header__controls {
   flex-shrink: 0;
   display: flex;
   align-items: center;
   gap: 4px;
-  margin-left: 12px;
-}
-
-.app-header__search {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 28px;
-  height: 28px;
-  color: var(--icon-color);
-  cursor: pointer;
-  border-radius: 4px;
-  transition: color 0.18s ease;
-}
-
-.app-header__search:hover {
-  color: var(--icon-hover);
-}
-
-.app-header__search-icon {
-  width: 14px;
-  height: 14px;
+  margin-left: 8px;
 }
 
 .app-header__icon-btn {
@@ -349,33 +294,12 @@
   background: rgba(255, 255, 255, 0.06);
 }
 
-.app-header__icon-btn svg {
-  width: 14px;
-  height: 14px;
-}
+/* ── Tablet: 768px–1023px ── */
+@media (min-width: 768px) and (max-width: 1023px) {
+  .app-header {
+    left: var(--sidebar-width); /* sidebar always collapsed on tablet */
+  }
 
-.app-header__avatar {
-  width: 30px;
-  height: 30px;
-  border-radius: 50%;
-  overflow: hidden;
-  cursor: pointer;
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  transition: border-color 0.18s ease;
-  margin-left: 4px;
-}
-
-.app-header__avatar:hover {
-  border-color: rgba(255, 255, 255, 0.4);
-}
-
-.app-header__avatar svg {
-  width: 100%;
-  height: 100%;
-  display: block;
-}
-
-@media (max-width: 1100px) {
   .app-header__nav {
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
@@ -385,79 +309,110 @@
   .app-header__nav::-webkit-scrollbar {
     display: none;
   }
-
-  .app-header__tab-list {
-    width: max-content;
-  }
-
-  .app-header__tab-item {
-    flex: 0 0 auto;
-  }
 }
 
-@media (min-width: 768px) and (max-width: 1023px) {
-  .app-header__bar {
-    position: relative;
+/* @media (max-width: 995px) {
+  .app-header__welcome {
+    display: none;
+  }
+} */
+
+/* ── Tablet: 768px–991px ── */
+@media (min-width: 768px) and (max-width: 991px) {
+  .app-header {
+    left: var(--sidebar-width);
   }
 
+  .app-header__bar {
+    justify-content: space-between;
+    gap: 12px;
+  }
+
+  /* Company name DIKHAO */
   .app-header__welcome {
-    position: absolute;
-    left: 50%;
-    transform: translateX(-50%);
-    margin-right: 0;
-    text-align: center;
-    pointer-events: none;
+    display: flex;
+    flex-shrink: 0;
+    align-items: center;
   }
 
   .app-header__welcome-text {
-    font-size: 0.65rem;
-    letter-spacing: 0.07em;
+    font-size: 13px;
+    letter-spacing: 0.05em;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 180px;
   }
 
+  /* Nav SCROLLABLE karo */
   .app-header__nav {
-    display: none;
+    flex: 1 1 auto;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none; /* Firefox */
   }
 
-  .app-header__hamburger {
-    display: flex;
-    margin-left: auto;
+  .app-header__nav::-webkit-scrollbar {
+    display: none; /* Chrome/Safari */
   }
 
-  .app-header__drawer {
-    display: block;
+  .app-header__tab-list {
+    flex-wrap: nowrap; /* tabs ek line mein rahen */
+    gap: 4px;
+  }
+
+  .app-header__tab-link {
+    font-size: 12px;
+    padding: 5px 10px;
+    white-space: nowrap;
   }
 }
 
+/* ── Mobile: ≤ 767px ── */
 @media (max-width: 767px) {
+  .app-header {
+    left: 0; /* full width — sidebar is hidden/overlay on mobile */
+  }
+
   .app-header__bar {
-    padding: 0 10px 0 8px;
-  }
-
-  .app-header__nav {
-    display: none;
-  }
-
-  .app-header__hamburger {
-    display: flex;
-    margin-left: auto;
+    justify-content: space-between;
+    padding: 0 12px;
   }
 
   .app-header__welcome {
-    flex: 1 1 auto;
-    margin-right: 0;
-    overflow: hidden;
-    text-overflow: ellipsis;
+    display: flex;
+    justify-content: center;
     align-items: center;
-    white-space: nowrap;
+    flex: 1 1 auto;
+    margin-left: 0;
     text-align: center;
   }
 
   .app-header__welcome-text {
     font-size: 0.65rem;
     letter-spacing: 0.06em;
+    color: var(--welcome-color);
+    text-transform: uppercase;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .app-header__welcome-text strong {
+    color: var(--welcome-strong-color);
+    font-weight: 600;
+  }
+
+  .app-header__nav {
+    display: none; /* tabs go into drawer on mobile */
+  }
+
+  .app-header__hamburger {
+    display: flex;
   }
 }
 
+/* ── Very small screens ── */
 @media (max-width: 479px) {
   .app-header__bar {
     padding: 0 8px;

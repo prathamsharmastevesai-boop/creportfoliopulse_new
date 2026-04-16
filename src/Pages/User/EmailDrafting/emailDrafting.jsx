@@ -216,7 +216,7 @@ export const EmailDrafting = () => {
   return (
     <>
       <div className="header-bg d-flex justify-content-start px-3 align-items-center sticky-header">
-        <h5 className="mb-0 text-light mx-4">Email Drafting</h5>
+        <h5 className="mb-0 mx-4">Email Drafting</h5>
       </div>
 
       <Card

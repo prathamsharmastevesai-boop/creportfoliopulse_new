@@ -119,10 +119,10 @@ const DealList = () => {
         <div className="header-bg sticky-header px-3 py-2">
           <div className="d-flex align-items-center justify-content-between gap-2 flex-grow-1 min-w-0">
             <div className="d-flex flex-column justify-content-center ms-4 text-truncate">
-              <h5 className="mb-0 text-light text-truncate">
+              <h5 className="mb-0 activity-log text-truncate">
                 Lead and Deal Tracker
               </h5>
-              <small className="text-light text-truncate">
+              <small className="activity-log text-truncate">
                 (Main List View)
               </small>
             </div>
@@ -168,8 +168,8 @@ const DealList = () => {
       >
         <div className="mb-4">
           <div className="text-start mb-3">
-            <h4 className="fw-bold mb-0">View Deal Tracker</h4>
-            <small className="text-muted d-block">(Main List View)</small>
+            <h4 className=" activity-logfw-bold mb-0">View Deal Tracker</h4>
+            <small className="activity-log d-block">(Main List View)</small>
           </div>
 
           <div className="text-start">
@@ -203,8 +203,12 @@ const DealList = () => {
       <div className="header-bg sticky-header px-3 py-2">
         <div className="d-flex align-items-center justify-content-between gap-2 flex-grow-1 min-w-0">
           <div className="d-flex flex-column justify-content-center ms-4 text-truncate">
-            <h5 className="mb-0 text-light text-truncate">View Deal Tracker</h5>
-            <small className="text-light text-truncate">(Main List View)</small>
+            <h5 className="mb-0 activity-log text-truncate">
+              View Deal Tracker
+            </h5>
+            <small className="text-truncate activity-log">
+              (Main List View)
+            </small>
           </div>
 
           <button

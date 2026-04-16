@@ -22,20 +22,16 @@ export const CalulatorPage = () => {
 
   return (
     <>
-    
-      <div
-        className="px-3 py-3 sticky-top"
-        style={{ backgroundColor: "#212529", zIndex: 10 }}
-      >
+      <div className="px-3 py-3 ">
         <div className="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-2">
-          <h5 className="text-white m-0 mx-4 text-center text-md-start">
+          <h5 className="m-0 mx-4 text-center text-md-start">
             {getHeaderTitle()}
           </h5>
 
           <div className="d-flex gap-2 flex-wrap justify-content-center justify-content-md-end mx-4">
             <Button
               size="sm"
-              variant={activeTab === "finance" ? "light" : "outline-light"}
+              variant={activeTab === "finance" ? "light" : "dark"}
               onClick={() => setActiveTab("finance")}
             >
               NET Effective Rent
@@ -43,7 +39,7 @@ export const CalulatorPage = () => {
 
             <Button
               size="sm"
-              variant={activeTab === "commission" ? "light" : "outline-light"}
+              variant={activeTab === "commission" ? "light" : "dark"}
               onClick={() => setActiveTab("commission")}
             >
               Commission Calculator
@@ -51,7 +47,7 @@ export const CalulatorPage = () => {
 
             <Button
               size="sm"
-              variant={activeTab === "ti" ? "light" : "outline-light"}
+              variant={activeTab === "ti" ? "light" : "dark"}
               onClick={() => setActiveTab("ti")}
             >
               TI Calculator
@@ -60,7 +56,6 @@ export const CalulatorPage = () => {
         </div>
       </div>
 
-     
       <Container fluid className="mt-3">
         <Row>
           <Col xs={12}>
