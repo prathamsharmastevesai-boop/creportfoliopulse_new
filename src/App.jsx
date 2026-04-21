@@ -104,6 +104,8 @@ import { LoiAudit } from "./Pages/User/LoiAudit/loiAudit";
 import FilesMedia from "./Pages/Admin/GeneralInfo/files&Media";
 import { Calendar } from "./Pages/User/Calendar/calendar";
 import AdminLoiAudit from "./Pages/Admin/LoiAudit/AdminLoiAudit";
+import { ThePulse } from "./Pages/Common/thePulse";
+import ThePulseUpload from "./Pages/Common/the_Pulse_Upload";
 
 function App() {
   return (
@@ -135,6 +137,11 @@ function App() {
                       path="/super-admin/admin-details"
                       element={<AdminDetails />}
                     />
+
+                    <Route
+                      path="/super-user-the-pulse"
+                      element={<ThePulse />}
+                    />
                   </Route>
                   <Route
                     element={
@@ -143,6 +150,11 @@ function App() {
                       </ProtectedRoute>
                     }
                   >
+                    <Route path="/admin-the-pulse" element={<ThePulse />} />
+                    <Route
+                      path="/the-pulse-upload"
+                      element={<ThePulseUpload />}
+                    />
                     <Route
                       path="/admin-dashboard"
                       element={<AdminDashboard />}
@@ -317,6 +329,8 @@ function App() {
                     }
                   >
                     <Route path="/dashboard" element={<Dashboard />} />
+
+                    <Route path="/user-the-pulse" element={<ThePulse />} />
 
                     <Route path="/calendar" element={<Calendar />} />
 

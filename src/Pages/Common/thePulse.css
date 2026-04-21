@@ -1,0 +1,914 @@
+/* ═══════════════════════════════════════════════════════
+   thePulse.css  —  uses your existing CSS design tokens
+   (var(--card-bg), var(--border-color), var(--accent-color), etc.)
+═══════════════════════════════════════════════════════ */
+
+/* ─────────────────────────────────────────
+   CONTAINER
+───────────────────────────────────────── */
+.tp-container {
+  font-family: var(--font-primary);
+  padding: 1rem;
+  background: var(--bg-primary);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* ─────────────────────────────────────────
+   HEADER CARD
+───────────────────────────────────────── */
+.tp-header {
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 12px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+@media (min-width: 768px) {
+  .tp-header {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+  }
+}
+
+/* Left block inside header */
+.tp-header-left {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.tp-header-title {
+  font-size: var(--fs-h4);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.tp-header-sub {
+  font-size: var(--fs-caption);
+  color: var(--text-secondary);
+  margin: 2px 0 0;
+}
+
+/* ─────────────────────────────────────────
+   MAIN TABS  (Market Intelligence / Contact Hub)
+   — rendered inside .tp-header-left
+───────────────────────────────────────── */
+.tp-main-tabs {
+  display: flex;
+  background: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+  padding: 3px;
+  gap: 3px;
+  margin-top: 10px;
+  width: fit-content;
+}
+
+.tp-main-tab {
+  padding: 7px 20px;
+  font-size: var(--fs-btn);
+  border-radius: 8px;
+  cursor: pointer;
+  border: none;
+  background: transparent;
+  color: var(--text-secondary);
+  transition: all 0.2s ease;
+  font-weight: 500;
+  white-space: nowrap;
+  font-family: var(--font-primary);
+}
+
+.tp-main-tab:hover {
+  background: var(--hover-bg);
+  color: var(--text-primary);
+}
+
+.tp-main-tab.active {
+  background: var(--accent-color);
+  color: #fff;
+  box-shadow: 0 4px 12px rgba(13, 110, 253, 0.25);
+  font-weight: 600;
+}
+
+@media (max-width: 768px) {
+  .tp-main-tabs {
+    width: 100%;
+  }
+
+  .tp-main-tab {
+    flex: 1;
+    padding: 7px 10px;
+    text-align: center;
+  }
+}
+
+/* ─────────────────────────────────────────
+   QUARTER SELECT
+───────────────────────────────────────── */
+.tp-quarter-select {
+  padding: 7px 12px;
+  font-size: var(--fs-body-sm);
+  border-radius: 8px;
+  border: 1px solid var(--border-color);
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  cursor: pointer;
+  outline: none;
+  width: 100%;
+  font-family: var(--font-primary);
+}
+
+@media (min-width: 768px) {
+  .tp-quarter-select {
+    width: auto;
+    margin-left: auto;
+  }
+}
+
+/* ─────────────────────────────────────────
+   SUB-TAB BAR WRAPPER
+   (wraps the existing <TabBar /> component)
+───────────────────────────────────────── */
+.tp-tab-bar-wrapper {
+  /* no extra card — TabBar already has .tp-tab-bar styles */
+}
+
+/* ─────────────────────────────────────────
+   SUB-TAB BAR  (Overview / Submarkets / …)
+───────────────────────────────────────── */
+.tp-tab-bar {
+  display: flex;
+  flex-wrap: wrap;
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 4px;
+  width: 100%;
+  gap: 4px;
+}
+
+@media (min-width: 768px) {
+  .tp-tab-bar {
+    width: fit-content;
+  }
+}
+
+.tp-tab {
+  padding: 6px 12px;
+  font-size: var(--fs-body-xs);
+  border-radius: 8px;
+  cursor: pointer;
+  border: none;
+  background: transparent;
+  color: var(--text-secondary);
+  transition: all 0.2s;
+  font-weight: 500;
+  flex: 1;
+  text-align: center;
+  white-space: nowrap;
+  font-family: var(--font-primary);
+}
+
+@media (min-width: 768px) {
+  .tp-tab {
+    padding: 6px 16px;
+    font-size: var(--fs-btn);
+    flex: none;
+  }
+}
+
+.tp-tab.active {
+  background: var(--hover-bg);
+  color: var(--text-primary);
+}
+
+/* ─────────────────────────────────────────
+   STATUS BANNER
+───────────────────────────────────────── */
+.tp-status-banner {
+  font-size: var(--fs-body-xs);
+  color: var(--text-secondary);
+  padding: 8px 12px;
+  background: var(--bg-secondary);
+  border-radius: 8px;
+  border: 1px solid var(--border-color);
+}
+
+/* ─────────────────────────────────────────
+   KPI GRID
+───────────────────────────────────────── */
+.tp-kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
+}
+
+@media (min-width: 992px) {
+  .tp-kpi-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+@media (max-width: 480px) {
+  .tp-kpi-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.tp-kpi-card {
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 12px;
+}
+
+.tp-kpi-label {
+  font-size: var(--fs-eyebrow);
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-weight: 700;
+  margin: 0;
+}
+
+.tp-kpi-value {
+  font-size: var(--fs-h2);
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 2px 0;
+  letter-spacing: -0.03em;
+  font-family: var(--font-display);
+}
+
+.tp-kpi-sub {
+  font-size: var(--fs-eyebrow);
+  margin: 0;
+  margin-bottom: 6px;
+}
+
+.tp-kpi-rows {
+  border-top: 1px solid var(--border-color);
+  padding-top: 8px;
+  margin-top: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.tp-kpi-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: var(--fs-body-xs);
+}
+
+.tp-firm-name {
+  color: var(--text-secondary);
+}
+
+.tp-firm-val {
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+/* ─────────────────────────────────────────
+   CHART GRID
+───────────────────────────────────────── */
+.tp-chart-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+}
+
+@media (min-width: 1200px) {
+  .tp-chart-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* ─────────────────────────────────────────
+   SECTION CARD
+───────────────────────────────────────── */
+.tp-section-card {
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 16px;
+}
+
+.tp-section-title {
+  font-size: var(--fs-h4);
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0 0 4px;
+}
+
+.tp-section-sub {
+  font-size: var(--fs-caption);
+  color: var(--text-secondary);
+  margin: 0 0 12px;
+}
+
+/* ─────────────────────────────────────────
+   LEGEND
+───────────────────────────────────────── */
+.tp-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.tp-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: var(--fs-eyebrow);
+  color: var(--text-secondary);
+}
+
+/* ─────────────────────────────────────────
+   TABLE
+───────────────────────────────────────── */
+.tp-table-wrap {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.tp-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--fs-body-sm);
+}
+
+.tp-th {
+  text-align: left;
+  padding: 8px;
+  font-size: var(--fs-eyebrow);
+  font-weight: 700;
+  color: var(--text-secondary);
+  border-bottom: 1px solid var(--border-color);
+  text-transform: uppercase;
+}
+
+.tp-tr {
+  border-bottom: 1px solid var(--border-color);
+  transition: background 0.15s;
+}
+
+.tp-tr:hover {
+  background: var(--hover-bg);
+}
+
+.tp-td {
+  padding: 10px 8px;
+  color: var(--text-primary);
+}
+
+/* ─────────────────────────────────────────
+   MISC
+───────────────────────────────────────── */
+.tp-insight-row {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--border-color);
+  font-size: var(--fs-body-sm);
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+
+.tp-insight-row strong {
+  color: var(--text-primary);
+}
+
+.tp-empty {
+  font-size: var(--fs-body-sm);
+  color: var(--text-secondary);
+  margin-top: 12px;
+}
+
+.tp-source-pill {
+  font-size: var(--fs-eyebrow);
+  color: var(--text-secondary);
+}
+
+.tp-firm-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+
+/* ─────────────────────────────────────────
+   BADGES
+───────────────────────────────────────── */
+.tp-badge {
+  font-size: var(--fs-eyebrow);
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.tp-badge.new {
+  background: rgba(16, 185, 129, 0.1);
+  color: #10b981;
+  border: 1px solid rgba(16, 185, 129, 0.2);
+}
+
+.tp-badge.renewal {
+  background: rgba(59, 130, 246, 0.1);
+  color: #3b82f6;
+  border: 1px solid rgba(59, 130, 246, 0.2);
+}
+
+.tp-badge.expansion {
+  background: rgba(245, 158, 11, 0.1);
+  color: #f59e0b;
+  border: 1px solid rgba(245, 158, 11, 0.2);
+}
+
+.tp-badge.sublease {
+  background: rgba(139, 92, 246, 0.1);
+  color: #8b5cf6;
+  border: 1px solid rgba(139, 92, 246, 0.2);
+}
+
+.tp-badge.default {
+  background: var(--hover-bg);
+  color: var(--text-secondary);
+  border: 1px solid var(--border-color);
+}
+
+/* ─────────────────────────────────────────
+   RESPONSIVE OVERRIDES
+───────────────────────────────────────── */
+@media (max-width: 768px) {
+  .tp-container {
+    padding: 0.5rem;
+  }
+
+  .tp-section-card {
+    padding: 12px;
+  }
+
+  .tp-header-title {
+    font-size: var(--fs-h3);
+  }
+
+  .tp-kpi-value {
+    font-size: var(--fs-h1);
+  }
+}
+
+/* ═══════════════════════════════════════════════════════
+   ThePulseUpload — tpu-* classes
+   These use the same design token variables so both
+   components stay in sync with your global theme.
+═══════════════════════════════════════════════════════ */
+
+/* ── Upload app shell ── */
+.tpu-app {
+  font-family: var(--font-primary);
+  background: var(--bg-primary);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+/* ── Upload header ── */
+.tpu-header {
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 12px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+@media (min-width: 768px) {
+  .tpu-header {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+  }
+}
+
+/* Left block */
+.tpu-header-left {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+/* Title row */
+.tpu-header-titles {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.tpu-logo-main {
+  font-size: var(--fs-h4);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.tpu-logo-divider {
+  color: var(--border-color);
+  font-size: var(--fs-body-sm);
+}
+
+.tpu-logo-sub {
+  font-size: var(--fs-caption);
+  font-weight: 400;
+  color: var(--text-secondary);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  margin: 0;
+}
+
+/* Main tabs reuse .tp-main-tabs + .tp-main-tab — no extra rules needed */
+/* Small override: remove margin-top inside upload header since layout differs */
+.tpu-main-tabs {
+  margin-top: 8px;
+}
+
+/* ── Sub-tab pill group (right side of upload header) ── */
+.tpu-tab-group {
+  display: flex;
+  flex-wrap: wrap;
+  background: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+  padding: 3px;
+  gap: 3px;
+  flex-shrink: 0;
+}
+
+/* Sub-tabs reuse .tp-tab — no extra rules needed */
+
+/* ── Upload body ── */
+.tpu-main {
+  padding: 0;
+
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* ─────────────────────────────────────────
+   INGEST TAB SPECIFIC (Premium Design)
+───────────────────────────────────────── */
+.tpu-card {
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 16px;
+  padding: 15px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
+}
+
+.tpu-card-title {
+  font-size: var(--fs-h4);
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0 0 24px;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.tpu-superuser-tag {
+  font-size: 10px;
+  text-transform: uppercase;
+  background: rgba(220, 38, 38, 0.08);
+  color: #dc2626;
+  padding: 3px 10px;
+  border-radius: 6px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+}
+
+.tpu-ingest-step {
+  margin-bottom: 32px;
+  padding-bottom: 32px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.tpu-ingest-step:last-of-type {
+  border-bottom: none;
+  margin-bottom: 16px;
+  padding-bottom: 0;
+}
+
+.tpu-ingest-step-label {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+}
+
+/* Category Tabs (Pills) */
+.tpu-stab-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.tpu-stab {
+  padding: 8px 18px;
+  font-size: var(--fs-body-sm);
+  font-weight: 600;
+  border-radius: 10px;
+  border: 1px solid var(--border-color);
+  background: var(--bg-primary);
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  position: relative;
+  font-family: var(--font-primary);
+}
+
+.tpu-stab:hover {
+  border-color: var(--accent-color);
+  color: var(--text-primary);
+  background: var(--hover-bg);
+}
+
+.tpu-stab-active {
+  background: var(--accent-color) !important;
+  color: #fff !important;
+  border-color: var(--accent-color) !important;
+  box-shadow: 0 6px 16px rgba(37, 99, 235, 0.25);
+}
+
+.tpu-stab-indicator {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.tpu-stab-indicator-success {
+  background: #10b981;
+}
+
+.tpu-stab-indicator-error {
+  background: #ef4444;
+}
+
+.tpu-stab-indicator-active {
+  background: #fff;
+}
+
+/* Entry Cards */
+.tpu-entries-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.tpu-entry-card {
+  border: 1px solid var(--border-color);
+  border-radius: 14px;
+  overflow: hidden;
+  background: var(--bg-primary);
+  transition: all 0.2s ease;
+}
+
+.tpu-entry-card:hover {
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+  border-color: var(--accent-color);
+}
+
+.tpu-entry-card-header {
+  padding: 14px 20px;
+  background: var(--card-bg);
+  border-bottom: 1px solid var(--border-color);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.tpu-entry-card-label {
+  font-size: var(--fs-body-sm);
+  font-weight: 700;
+  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+}
+
+.tpu-entry-remove-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  color: #dc2626;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.tpu-entry-remove-btn:hover {
+  background: #fef2f2;
+  border-color: #fee2e2;
+  transform: scale(1.05);
+}
+
+.tpu-entry-fields {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 20px;
+  padding: 24px;
+}
+
+.tpu-field-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.tpu-field-label {
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-bottom: 2px;
+  display: block;
+}
+
+.tpu-field-error-icon {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #ef4444;
+  pointer-events: none;
+}
+
+.tpu-error-text {
+  font-size: 11px;
+  color: #ef4444;
+  font-weight: 600;
+  margin-top: 4px;
+}
+
+/* Controls */
+.tpu-ingest-toggle {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 20px;
+  background: var(--bg-secondary);
+  border-radius: 12px;
+  border: 1px solid var(--border-color);
+  font-size: var(--fs-body-sm);
+  color: var(--text-primary);
+  width: fit-content;
+}
+
+.tpu-add-entry-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 12px;
+  padding: 10px 20px;
+  border-radius: 10px;
+  border: 2px dashed var(--border-color);
+  background: transparent;
+  color: var(--text-secondary);
+  font-size: var(--fs-body-sm);
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.tpu-add-entry-btn:hover {
+  border-color: var(--accent-color);
+  color: var(--accent-color);
+  background: var(--hover-bg);
+}
+
+.tpu-input {
+  width: 100%;
+  padding: 10px 14px;
+  border-radius: 10px;
+  border: 1.5px solid var(--border-color);
+  font-size: var(--fs-body-sm);
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  outline: none;
+  transition: all 0.2s;
+  font-family: var(--font-primary);
+}
+
+.tpu-input:focus {
+  border-color: var(--accent-color);
+  box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1);
+}
+
+.tpu-select {
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%236b7280'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 14px center;
+  background-size: 16px;
+  padding-right: 40px !important;
+}
+
+.tpu-firm-color-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.tpu-section-disabled-notice {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 24px;
+  border-radius: 14px;
+  background: var(--bg-secondary);
+  color: var(--text-secondary);
+  font-size: var(--fs-body-sm);
+  border: 1px dashed var(--border-color);
+}
+
+.tpu-btn-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  padding-top: 24px;
+  border-top: 1px solid var(--border-color);
+}
+
+.tpu-weight-600 {
+  font-weight: 600;
+}
+
+.tpu-select-quarter-wrap {
+  max-width: 500px;
+}
+
+.tpu-select-inner-wrap {
+  min-width: 250px;
+}
+
+.tpu-delete-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  color: #dc2626;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.tpu-delete-btn:hover {
+  background: #fef2f2;
+  border-color: #fee2e2;
+  color: #b91c1c;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(220, 38, 38, 0.1);
+}

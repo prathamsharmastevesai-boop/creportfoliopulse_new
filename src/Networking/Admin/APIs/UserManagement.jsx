@@ -84,9 +84,6 @@ export const updateBuildingPermissionApi = createAsyncThunk(
         permissions,
       };
 
-      console.log("PATCH URL:", `/users/${encodedEmail}/building-permissions`);
-      console.log("PATCH Payload:", payload);
-
       const response = await axiosInstance.patch(
         `/users/${encodedEmail}/building-permissions`,
         payload,

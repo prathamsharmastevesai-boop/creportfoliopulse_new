@@ -142,7 +142,6 @@ export const EditInformationCollaboration = ({ data, onClose, onSuccess }) => {
       if (onClose) onClose();
     } catch (err) {
       console.error(err);
-      toast.error("Update failed");
     } finally {
       setLoading(false);
     }

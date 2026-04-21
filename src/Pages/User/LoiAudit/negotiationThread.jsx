@@ -16,8 +16,6 @@ import {
 } from "../../../Networking/User/APIs/LoiAudit/loiAuditApi";
 
 export const NegotiationThread = ({ dealId, currentVersion }) => {
-  console.log(currentVersion, "currentVersion");
-
   const dispatch = useDispatch();
   const [reply, setReply] = useState("");
   const [messages, setMessages] = useState([]);
@@ -31,7 +29,6 @@ export const NegotiationThread = ({ dealId, currentVersion }) => {
     filename: null,
     message: null,
   });
-  console.log(docInfo, "docInfo");
 
   const [loadingDoc, setLoadingDoc] = useState(true);
   const msgBoxRef = useRef(null);
@@ -57,16 +54,12 @@ export const NegotiationThread = ({ dealId, currentVersion }) => {
         downloadDocV2Api({ dealId, currentVersion }),
       ).unwrap();
 
-      console.log(blob, "blob response");
-
       let data = blob;
 
       if (blob instanceof Blob && blob.type === "application/json") {
         data = await blob.text();
         data = JSON.parse(data);
       }
-
-      console.log(data, "parsed data");
 
       setDocInfo({
         available: data.available ?? false,

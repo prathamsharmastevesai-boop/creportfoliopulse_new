@@ -13,7 +13,7 @@ import {
 export const MaintenanceBuildinglist = () => {
   const dispatch = useDispatch();
   const role = sessionStorage.getItem("role");
-  console.log(role, "role");
+  // console.log(role, "role");
 
   const [subscriptions, setSubscriptions] = useState([]);
 

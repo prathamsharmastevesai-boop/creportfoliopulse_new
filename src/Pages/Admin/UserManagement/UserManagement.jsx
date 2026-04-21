@@ -28,7 +28,6 @@ export const UserManagement = () => {
   const dispatch = useDispatch();
 
   const owner = sessionStorage.getItem("is_owner") === "true";
-  console.log(owner, "owner");
 
   const [email, setEmail] = useState("");
   const [role, setRole] = useState("");
@@ -57,6 +56,9 @@ export const UserManagement = () => {
     featureLabel: "",
   });
 
+  const [is_owner_admin, setOwneradmin] = useState("");
+  console.log(is_owner_admin, "is_owner_admin");
+
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
   const roleIcon = (role) => {
@@ -67,6 +69,13 @@ export const UserManagement = () => {
     };
     return icons[(role ?? "").toLowerCase()] ?? "bi-person-badge";
   };
+
+  useEffect(() => {
+    const storedRole = sessionStorage.getItem("role");
+    setRole(storedRole);
+    const is_owner_admin = sessionStorage.getItem("is_owner_admin");
+    setOwneradmin(is_owner_admin);
+  }, []);
 
   useEffect(() => {
     fetchUsers();
@@ -240,7 +249,7 @@ export const UserManagement = () => {
                 <th>Status</th>
                 <th>Role</th>
                 <th>Created</th>
-                <th>Features</th>
+                {!is_owner_admin && <th>Features</th>}
                 {owner == true && <th className="pe-4 text-end">Delete</th>}
               </tr>
             </thead>
@@ -287,26 +296,29 @@ export const UserManagement = () => {
                         ? new Date(user.created).toLocaleDateString()
                         : "--"}
                     </td>
-                    <td>
-                      <Button
-                        size="sm"
-                        variant="outline-primary"
-                        onClick={() => openFeatureModal(user)}
-                        disabled={
-                          manageLoading === user.email || user.role === "admin"
-                        }
-                      >
-                        {manageLoading === user.email &&
-                        user.role === "user" ? (
-                          <>
-                            <Spinner size="sm" className="me-1" />
-                            Loading...
-                          </>
-                        ) : (
-                          "Manage"
-                        )}
-                      </Button>
-                    </td>
+                    {!is_owner_admin && (
+                      <td>
+                        <Button
+                          size="sm"
+                          variant="outline-primary"
+                          onClick={() => openFeatureModal(user)}
+                          disabled={
+                            manageLoading === user.email ||
+                            user.role === "admin"
+                          }
+                        >
+                          {manageLoading === user.email &&
+                          user.role === "user" ? (
+                            <>
+                              <Spinner size="sm" className="me-1" />
+                              Loading...
+                            </>
+                          ) : (
+                            "Manage"
+                          )}
+                        </Button>
+                      </td>
+                    )}
                     {owner == true && (
                       <td className="pe-4 text-end">
                         <Button

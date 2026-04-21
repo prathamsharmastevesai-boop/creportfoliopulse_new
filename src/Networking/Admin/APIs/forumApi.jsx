@@ -299,7 +299,7 @@ export const updateThreadApi = createAsyncThunk(
       }
 
       const response = await axiosInstance.patch(
-        `${thread}${thread_id}/`,
+        `${thread}${thread_id}`,
         formData,
         {
           headers: {

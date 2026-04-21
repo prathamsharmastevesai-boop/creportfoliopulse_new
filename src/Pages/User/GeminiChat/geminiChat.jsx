@@ -463,8 +463,7 @@ export const GeminiChat = () => {
   const isActionDisabled = isLoadingHistory || !initialLoadComplete;
 
   return (
-    <div className="container-fluid py-3" style={{ height: "100vh" }}>
-      <BackButton />
+    <div className="container-fluid py-3" style={{ height: "90vh" }}>
       <AnimatePresence mode="wait">
         {!isChatStarted && messages.length === 0 ? (
           <motion.div
@@ -614,6 +613,7 @@ export const GeminiChat = () => {
               <div className="col-md-12 d-flex flex-column">
                 <div className="chat-header d-flex justify-content-between align-items-center mb-2">
                   <h5 className="chat-title text-muted mb-0 d-flex align-items-center">
+                    <BackButton />
                     <i
                       className="bi bi-stars me-2"
                       style={{ fontSize: "1.3rem" }}

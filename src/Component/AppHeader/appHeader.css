@@ -27,7 +27,8 @@
 .app-header {
   position: fixed;
   top: 0;
-  left: var(--sidebar-width); /* starts after collapsed sidebar */
+  left: var(--sidebar-width);
+  /* starts after collapsed sidebar */
   right: 0;
   z-index: 1000;
   height: var(--header-height);
@@ -163,10 +164,12 @@
 .app-header__hamburger--open span:nth-child(1) {
   transform: translateY(6.5px) rotate(45deg);
 }
+
 .app-header__hamburger--open span:nth-child(2) {
   opacity: 0;
   width: 0;
 }
+
 .app-header__hamburger--open span:nth-child(3) {
   transform: translateY(-6.5px) rotate(-45deg);
 }
@@ -250,7 +253,7 @@
   inset: 0;
   top: var(--header-height);
   background: rgba(0, 0, 0, 0.55);
-  z-index: 1038;
+  /* z-index: 1038; */
   animation: backdropFadeIn 0.22s ease forwards;
 }
 
@@ -258,6 +261,7 @@
   from {
     opacity: 0;
   }
+
   to {
     opacity: 1;
   }
@@ -297,7 +301,8 @@
 /* ── Tablet: 768px–1023px ── */
 @media (min-width: 768px) and (max-width: 1023px) {
   .app-header {
-    left: var(--sidebar-width); /* sidebar always collapsed on tablet */
+    left: var(--sidebar-width);
+    /* sidebar always collapsed on tablet */
   }
 
   .app-header__nav {
@@ -349,15 +354,18 @@
     flex: 1 1 auto;
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
-    scrollbar-width: none; /* Firefox */
+    scrollbar-width: none;
+    /* Firefox */
   }
 
   .app-header__nav::-webkit-scrollbar {
-    display: none; /* Chrome/Safari */
+    display: none;
+    /* Chrome/Safari */
   }
 
   .app-header__tab-list {
-    flex-wrap: nowrap; /* tabs ek line mein rahen */
+    flex-wrap: nowrap;
+    /* tabs ek line mein rahen */
     gap: 4px;
   }
 
@@ -371,7 +379,8 @@
 /* ── Mobile: ≤ 767px ── */
 @media (max-width: 767px) {
   .app-header {
-    left: 0; /* full width — sidebar is hidden/overlay on mobile */
+    left: 0;
+    /* full width — sidebar is hidden/overlay on mobile */
   }
 
   .app-header__bar {
@@ -404,7 +413,8 @@
   }
 
   .app-header__nav {
-    display: none; /* tabs go into drawer on mobile */
+    display: none;
+    /* tabs go into drawer on mobile */
   }
 
   .app-header__hamburger {

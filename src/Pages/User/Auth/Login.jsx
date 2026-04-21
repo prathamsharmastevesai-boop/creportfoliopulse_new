@@ -282,6 +282,7 @@ export const Login = () => {
   useEffect(() => {
     const token = sessionStorage.getItem("access_token");
     const role = sessionStorage.getItem("role");
+    const is_owner_admin = sessionStorage.getItem("is_owner_admin");
 
     if (token && role) {
       if (role === "user") navigate("/cre-news", { replace: true });
@@ -309,6 +310,14 @@ export const Login = () => {
   };
 
   const navigateBasedOnRole = (role) => {
+    const isOwnerAdmin = JSON.parse(
+      sessionStorage.getItem("is_owner_admin") || "false",
+    );
+
+    if (isOwnerAdmin) {
+      navigate("/the-pulse-upload");
+      return;
+    }
     if (role === "user") navigate("/cre-news");
     else if (role === "admin") navigate("/admin-dashboard");
     else if (role === "superuser") navigate("/admin-management");
@@ -369,8 +378,11 @@ export const Login = () => {
       ).unwrap();
 
       const { role } = res;
+
       sessionStorage.setItem("company_name", portfolio.company_name);
       sessionStorage.setItem("is_owner", res.is_owner);
+      sessionStorage.setItem("is_owner_admin", res.is_owner_admin);
+
       navigateBasedOnRole(role);
     } catch (error) {
     } finally {

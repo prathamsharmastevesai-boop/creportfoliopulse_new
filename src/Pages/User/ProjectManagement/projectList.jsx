@@ -41,10 +41,69 @@ export const ProjectList = () => {
   const [pageLoading, setPageLoading] = useState(false);
   const [creating, setCreating] = useState(false);
   const [updating, setUpdating] = useState(false);
+  const [errors, setErrors] = useState({
+    projectName: "",
+    startDate: "",
+    targetDate: "",
+  });
 
   const handleCreateChange = (e) => {
     const { name, value } = e.target;
-    setCreateForm((prev) => ({ ...prev, [name]: value }));
+
+    setCreateForm((prev) => {
+      const newForm = { ...prev, [name]: value };
+
+      validateDates(newForm);
+
+      return newForm;
+    });
+
+    if (name === "projectName") {
+      if (value.trim().length < 3) {
+        setErrors((prev) => ({
+          ...prev,
+          projectName: "Project name must be at least 3 characters",
+        }));
+      } else {
+        setErrors((prev) => ({ ...prev, projectName: "" }));
+      }
+    }
+  };
+
+  const validateDates = (formData) => {
+    const today = new Date().toISOString().split("T")[0];
+    const newErrors = { ...errors };
+
+    if (!formData.startDate) {
+      newErrors.startDate = "Start date is required";
+    } else if (formData.startDate < today) {
+      newErrors.startDate = "Start date cannot be in the past";
+    } else {
+      newErrors.startDate = "";
+    }
+
+    if (!formData.targetDate) {
+      newErrors.targetDate = "Target date is required";
+    } else if (formData.startDate && formData.targetDate < formData.startDate) {
+      newErrors.targetDate = "Target date must be after start date";
+    } else {
+      newErrors.targetDate = "";
+    }
+
+    setErrors(newErrors);
+  };
+
+  const isCreateFormValid = () => {
+    const hasProjectNameError =
+      !createForm.projectName || createForm.projectName.trim().length < 3;
+    const hasStartDateError =
+      !createForm.startDate ||
+      createForm.startDate < new Date().toISOString().split("T")[0];
+    const hasTargetDateError =
+      !createForm.targetDate ||
+      (createForm.startDate && createForm.targetDate < createForm.startDate);
+
+    return !hasProjectNameError && !hasStartDateError && !hasTargetDateError;
   };
 
   const handleEditChange = (e) => {
@@ -116,6 +175,39 @@ export const ProjectList = () => {
   }, [dispatch]);
 
   const handleCreateProject = async () => {
+    let hasError = false;
+    const newErrors = { projectName: "", startDate: "", targetDate: "" };
+
+    if (!createForm.projectName || createForm.projectName.trim().length < 3) {
+      newErrors.projectName = "Project name must be at least 3 characters";
+      hasError = true;
+    }
+
+    const today = new Date().toISOString().split("T")[0];
+    if (!createForm.startDate) {
+      newErrors.startDate = "Start date is required";
+      hasError = true;
+    } else if (createForm.startDate < today) {
+      newErrors.startDate = "Start date cannot be in the past";
+      hasError = true;
+    }
+
+    if (!createForm.targetDate) {
+      newErrors.targetDate = "Target date is required";
+      hasError = true;
+    } else if (
+      createForm.startDate &&
+      createForm.targetDate < createForm.startDate
+    ) {
+      newErrors.targetDate = "Target date must be after start date";
+      hasError = true;
+    }
+
+    if (hasError) {
+      setErrors(newErrors);
+      return;
+    }
+
     setCreating(true);
     try {
       const res = await dispatch(
@@ -124,7 +216,9 @@ export const ProjectList = () => {
           buildingId,
         }),
       ).unwrap();
+
       fetchSummary();
+
       setProjects((prev) => [
         {
           id: res.id,
@@ -141,8 +235,10 @@ export const ProjectList = () => {
         },
         ...prev,
       ]);
+
       setShowCreateModal(false);
       setCreateForm(initialFormState);
+      setErrors({ projectName: "", startDate: "", targetDate: "" });
     } finally {
       setCreating(false);
     }
@@ -408,12 +504,16 @@ export const ProjectList = () => {
                   </label>
                   <input
                     type="text"
-                    className="form-control"
+                    className={`form-control ${errors.projectName ? "is-invalid" : ""}`}
                     name="projectName"
                     value={createForm.projectName}
                     onChange={handleCreateChange}
                     placeholder="Enter project name"
                   />
+
+                  {errors.projectName && (
+                    <div className="invalid-feedback">{errors.projectName}</div>
+                  )}
                 </div>
 
                 <div className="mb-3">
@@ -430,27 +530,39 @@ export const ProjectList = () => {
 
                 <div className="row g-3">
                   <div className="col">
-                    <label className="form-label fw-semibold">Start Date</label>
+                    <label className="form-label fw-semibold">
+                      Start Date *
+                    </label>
                     <input
                       type="date"
-                      className="form-control"
+                      className={`form-control ${errors.startDate ? "is-invalid" : ""}`}
                       name="startDate"
                       value={createForm.startDate}
                       onChange={handleCreateChange}
+                      min={new Date().toISOString().split("T")[0]}
                     />
+                    {errors.startDate && (
+                      <div className="invalid-feedback">{errors.startDate}</div>
+                    )}
                   </div>
 
                   <div className="col">
                     <label className="form-label fw-semibold">
-                      Target Completion
+                      Target Completion *
                     </label>
                     <input
                       type="date"
-                      className="form-control"
+                      className={`form-control ${errors.targetDate ? "is-invalid" : ""}`}
                       name="targetDate"
                       value={createForm.targetDate}
                       onChange={handleCreateChange}
+                      min={new Date().toISOString().split("T")[0]}
                     />
+                    {errors.targetDate && (
+                      <div className="invalid-feedback">
+                        {errors.targetDate}
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>
@@ -466,9 +578,19 @@ export const ProjectList = () => {
                 <button
                   className="btn btn-secondary"
                   onClick={handleCreateProject}
-                  disabled={!createForm.projectName || creating}
+                  disabled={
+                    !createForm.projectName ||
+                    createForm.projectName.trim().length < 3 ||
+                    !createForm.startDate ||
+                    !createForm.targetDate ||
+                    createForm.startDate <
+                      new Date().toISOString().split("T")[0] ||
+                    (createForm.startDate &&
+                      createForm.targetDate < createForm.startDate) ||
+                    creating
+                  }
                 >
-                  {creating ? <>Submiting...</> : "Submit"}
+                  {creating ? <>Submitting...</> : "Submit"}
                 </button>
               </div>
             </div>

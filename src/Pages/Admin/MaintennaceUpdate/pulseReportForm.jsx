@@ -84,7 +84,6 @@ const PulseReportForm = ({
     e.preventDefault();
 
     if (!validateForm()) return;
-    console.log(buildingId, "buildingId");
 
     const payload = {
       ...pulseForm,

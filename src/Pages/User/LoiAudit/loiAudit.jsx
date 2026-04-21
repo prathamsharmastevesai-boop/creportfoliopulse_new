@@ -77,7 +77,6 @@ const DEAL_TABS = [
 export const LoiAudit = () => {
   const [active, setActive] = useState("submit");
   const [selectedDeal, setSelectedDeal] = useState(null);
-  console.log(selectedDeal, "selectedDeal");
 
   const handleDealClick = (deal) => {
     setSelectedDeal({

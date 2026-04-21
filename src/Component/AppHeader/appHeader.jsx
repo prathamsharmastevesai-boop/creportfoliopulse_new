@@ -1,40 +1,8 @@
 import { useState, useEffect, useRef } from "react";
 import { NavLink } from "react-router-dom";
-import { useSelector } from "react-redux";
 import "./appHeader.css";
 
-const NAV_TABS = [
-  {
-    key: "the-pulse",
-    label: "The Pulse",
-    path: "/the-pulse",
-    alwaysVisible: true,
-  },
-  {
-    key: "ask-gemini",
-    label: "Ask Gemini",
-    path: "/gemini-chat",
-    permissionKey: "gemini_chat_enabled",
-  },
-  {
-    key: "ai-abstract",
-    label: "AI Abstract",
-    path: "/ai-lease-abstract-upload",
-    permissionKey: "ai_lease_abstract_enabled",
-  },
-  {
-    key: "cre-news",
-    label: "CRE News",
-    path: "/cre-news",
-    alwaysVisible: true,
-  },
-  {
-    key: "lead-deal-tracker",
-    label: "Lead & Deal Tracker",
-    path: "/deal-list",
-    permissionKey: "deal_tracker_enabled",
-  },
-];
+const role = sessionStorage.getItem("role");
 
 export const AppHeader = ({
   companyName: companyNameProp,
@@ -42,38 +10,63 @@ export const AppHeader = ({
   sidebarCollapsed = true,
 }) => {
   const [menuOpen, setMenuOpen] = useState(false);
+  const [role, setRole] = useState("");
+  const [is_owner_admin, setOwneradmin] = useState("");
+
   const menuRef = useRef(null);
+
+  useEffect(() => {
+    const storedRole = sessionStorage.getItem("role");
+    setRole(storedRole);
+    const is_owner_admin = sessionStorage.getItem("is_owner_admin");
+    setOwneradmin(is_owner_admin);
+  }, []);
+
+  const getPulsePath = () => {
+    const isOwnerAdmin = JSON.parse(
+      sessionStorage.getItem("is_owner_admin") || "false",
+    );
+
+    if (role === "admin") {
+      return isOwnerAdmin ? "/the-pulse-upload" : "/admin-the-pulse";
+    }
+
+    if (role === "superuser") return "/super-user-the-pulse";
+
+    return "/user-the-pulse";
+  };
+
+  const NAV_TABS =
+    role === "admin" || role === "superuser"
+      ? [{ key: "the-pulse", label: "The Pulse", path: getPulsePath() }]
+      : [
+          { key: "the-pulse", label: "The Pulse", path: getPulsePath() },
+          { key: "ask-gemini", label: "Ask Gemini", path: "/gemini-chat" },
+          {
+            key: "ai-abstract",
+            label: "AI Abstract",
+            path: "/ai-lease-abstract-upload",
+          },
+          { key: "cre-news", label: "CRE News", path: "/cre-news" },
+          {
+            key: "lead-deal-tracker",
+            label: "Lead & Deal Tracker",
+            path: "/deal-list",
+          },
+        ];
 
   const companyName =
     companyNameProp || sessionStorage.getItem("company_name") || "Miles";
 
-  const { userdata } = useSelector((state) => state.ProfileSlice);
-
-  const isAdmin = sessionStorage.getItem("role");
-
-  const isTabVisible = (tab) => {
-    if (isAdmin == "admin") {
-      return tab.key === "the-pulse";
-    }
-
-    if (tab.alwaysVisible) return true;
-
-    if (tab.permissionKey) {
-      return Boolean(userdata?.[tab.permissionKey]);
-    }
-
-    return false;
-  };
-
-  const visibleTabs = NAV_TABS.filter(isTabVisible);
-
   useEffect(() => {
     if (!menuOpen) return;
+
     const handleClick = (e) => {
       if (menuRef.current && !menuRef.current.contains(e.target)) {
         setMenuOpen(false);
       }
     };
+
     document.addEventListener("mousedown", handleClick);
     return () => document.removeEventListener("mousedown", handleClick);
   }, [menuOpen]);
@@ -84,8 +77,6 @@ export const AppHeader = ({
       document.body.style.overflow = "";
     };
   }, [menuOpen]);
-
-  const handleNavClick = () => setMenuOpen(false);
 
   const headerLeft = sidebarCollapsed
     ? "var(--sidebar-width, 60px)"
@@ -103,14 +94,16 @@ export const AppHeader = ({
             </div>
           )}
 
-          <nav className="app-header__nav" aria-label="Main navigation">
+          <nav className="app-header__nav">
             <ul className="app-header__tab-list">
-              {visibleTabs.map((tab) => (
+              {NAV_TABS.map((tab) => (
                 <li key={tab.key} className="app-header__tab-item">
                   <NavLink
                     to={tab.path}
                     className={({ isActive }) =>
-                      `app-header__tab-link${isActive ? " app-header__tab-link--active" : ""}`
+                      `app-header__tab-link${
+                        isActive ? " app-header__tab-link--active" : ""
+                      }`
                     }
                   >
                     {tab.label}
@@ -121,10 +114,10 @@ export const AppHeader = ({
           </nav>
 
           <button
-            className={`app-header__hamburger${menuOpen ? " app-header__hamburger--open" : ""}`}
-            aria-label={menuOpen ? "Close menu" : "Open menu"}
-            aria-expanded={menuOpen}
-            onClick={() => setMenuOpen((o) => !o)}
+            className={`app-header__hamburger${
+              menuOpen ? " app-header__hamburger--open" : ""
+            }`}
+            onClick={() => setMenuOpen(!menuOpen)}
           >
             <span />
             <span />
@@ -133,26 +126,27 @@ export const AppHeader = ({
         </div>
 
         <div
-          className={`app-header__drawer${menuOpen ? " app-header__drawer--open" : ""}`}
-          aria-hidden={!menuOpen}
+          className={`app-header__drawer${
+            menuOpen ? " app-header__drawer--open" : ""
+          }`}
         >
-          <nav aria-label="Mobile navigation">
-            <ul className="app-header__drawer-list">
-              {visibleTabs.map((tab) => (
-                <li key={tab.key}>
-                  <NavLink
-                    to={tab.path}
-                    className={({ isActive }) =>
-                      `app-header__drawer-link${isActive ? " app-header__drawer-link--active" : ""}`
-                    }
-                    onClick={handleNavClick}
-                  >
-                    {tab.label}
-                  </NavLink>
-                </li>
-              ))}
-            </ul>
-          </nav>
+          <ul className="app-header__drawer-list">
+            {NAV_TABS.map((tab) => (
+              <li key={tab.key}>
+                <NavLink
+                  to={tab.path}
+                  className={({ isActive }) =>
+                    `app-header__drawer-link${
+                      isActive ? " app-header__drawer-link--active" : ""
+                    }`
+                  }
+                  onClick={() => setMenuOpen(false)}
+                >
+                  {tab.label}
+                </NavLink>
+              </li>
+            ))}
+          </ul>
         </div>
       </header>
 
@@ -160,7 +154,6 @@ export const AppHeader = ({
         <div
           className="app-header__backdrop"
           onClick={() => setMenuOpen(false)}
-          aria-hidden="true"
         />
       )}
     </>

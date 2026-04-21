@@ -199,7 +199,6 @@ const DeleteModal = ({ file, onClose, onConfirm, loading }) => (
 export const FilesMedia = () => {
   const dispatch = useDispatch();
   const { BuildingList } = useSelector((state) => state.BuildingSlice);
-  console.log(BuildingList, "BuildingList");
 
   const [docs, setDocs] = useState([]);
   const [listLoading, setListLoading] = useState(false);

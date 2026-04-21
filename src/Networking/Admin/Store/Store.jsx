@@ -19,6 +19,8 @@ import buildingStackReducer from "../Slice/buildingStackSlice";
 import maintenaceReducer from "../../User/Slice/maintenanceSlice";
 import calendarReducer from "../../User/Slice/calendarslice";
 import adminLoiAuditReducer from "../../Admin/Slice/AdminLoiAuditSlice";
+import marketReducer from "../../CommonApi/thePulseSlice";
+import pulseUploadReducer from "../../CommonApi/thePulseUploadSlice";
 
 const store = configureStore({
   reducer: {
@@ -42,6 +44,8 @@ const store = configureStore({
     maintenaceSlice: maintenaceReducer,
     calendarSlice: calendarReducer,
     adminLoiAudit: adminLoiAuditReducer,
+    marketSlice: marketReducer,
+    pulseUploadSlice: pulseUploadReducer,
   },
 });
 

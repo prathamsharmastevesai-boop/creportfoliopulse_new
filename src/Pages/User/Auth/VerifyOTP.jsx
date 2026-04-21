@@ -47,10 +47,8 @@ export const VerifyOtp = () => {
       const result = await dispatch(VerifyOtpSubmit(payload)).unwrap();
       {
         data.screen == "SignUp"
-          ? toast.success(result.message || "OTP verified successfully!") &&
-            navigate("/")
-          : toast.success(result.message || "OTP verified successfully!") &&
-            navigate("/reset-password", { state: { email: data.email } });
+          ? navigate("/")
+          : navigate("/reset-password", { state: { email: data.email } });
       }
     } catch (error) {
     } finally {

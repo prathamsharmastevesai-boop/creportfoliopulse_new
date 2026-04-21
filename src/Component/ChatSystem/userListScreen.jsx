@@ -45,8 +45,6 @@ export const UserListScreen = () => {
   }, []);
 
   const handleUserClick = (user) => {
-    console.log(user, "user");
-
     if (user.conversation_id == null) {
       navigate(`/chat/new`, {
         state: {

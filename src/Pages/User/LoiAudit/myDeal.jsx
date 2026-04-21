@@ -12,7 +12,6 @@ import { capitalFunction } from "../../../Component/capitalLetter";
 
 export const MyDeals = ({ onDealClick }) => {
   const [deals, setDeals] = useState([]);
-  console.log(deals, "deals");
 
   const [loading, setLoading] = useState(false);
   const dispatch = useDispatch();

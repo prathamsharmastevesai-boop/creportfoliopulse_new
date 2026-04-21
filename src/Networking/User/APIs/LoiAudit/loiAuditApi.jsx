@@ -4,7 +4,7 @@ import axiosInstance from "../../../Admin/APIs/AxiosInstance";
 export const submitProposalApi = createAsyncThunk(
   "loi/submitProposal",
   async ({ formData }, { rejectWithValue }) => {
-    console.log(formData, "formData");
+    // console.log(formData, "formData");
 
     try {
       const response = await axiosInstance.post("/loi/deals/submit", formData, {

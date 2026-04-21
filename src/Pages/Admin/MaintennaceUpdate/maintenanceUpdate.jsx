@@ -121,7 +121,7 @@ export const MaintenanceUpdate = () => {
   const dispatch = useDispatch();
   const location = useLocation();
   const BUILDING_ID = location.state?.buildingId;
-  console.log(BUILDING_ID, "BUILDING_ID");
+  // console.log(BUILDING_ID, "BUILDING_ID");
 
   const Address = location.state?.address;
 

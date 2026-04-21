@@ -32,6 +32,7 @@ export const PortfolioForum = () => {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [threadToDelete, setThreadToDelete] = useState(null);
   const [deletingId, setDeletingId] = useState(null);
+  const [editingThread, setEditingThread] = useState(null);
 
   useEffect(() => {
     dispatch(getProfileDetail());
@@ -60,7 +61,6 @@ export const PortfolioForum = () => {
       await dispatch(get_Threads_Api(activeType)).unwrap();
     } catch (error) {
       console.error("Error fetching threads:", error);
-      toast.error("Failed to load forum posts");
     } finally {
       setLoadingThreads(false);
     }
@@ -73,7 +73,6 @@ export const PortfolioForum = () => {
       .unwrap()
       .catch((error) => {
         console.error("Error filtering threads:", error);
-        toast.error("Failed to filter posts");
       })
       .finally(() => setLoadingThreads(false));
   };
@@ -94,15 +93,18 @@ export const PortfolioForum = () => {
     setShowDeleteModal(true);
   };
 
+  const handleEditThread = (thread) => {
+    setEditingThread(thread);
+    setShowCreateModal(true);
+  };
+
   const confirmDeleteThread = async () => {
     try {
       setDeletingId(threadToDelete);
       await dispatch(deleteThreadsApi({ thread_id: threadToDelete })).unwrap();
       await fetchThreads();
-      toast.success("Post deleted successfully");
     } catch (error) {
       console.error("Error deleting thread:", error);
-      toast.error("Failed to delete post");
     } finally {
       setDeletingId(null);
       setShowDeleteModal(false);
@@ -112,6 +114,7 @@ export const PortfolioForum = () => {
 
   const handlePostCreated = () => {
     setShowCreateModal(false);
+    setEditingThread(null);
     fetchThreads();
   };
 
@@ -157,6 +160,7 @@ export const PortfolioForum = () => {
                 thread={t}
                 userdata={userdata}
                 onDelete={handleDeleteThread}
+                onEdit={handleEditThread}
                 deletingId={deletingId}
                 onThreadUpdate={refreshThread}
               />
@@ -185,14 +189,19 @@ export const PortfolioForum = () => {
             <Avatar name={userdata?.name || "Me"} size={44} />
             <div>
               <div className="fw-semibold li-modal-title-custom">
-                {capitalFunction(userdata?.name || "Create Post")}
+                {editingThread
+                  ? "Edit Post"
+                  : capitalFunction(userdata?.name || "Create Post")}
               </div>
               <div className="text-muted small">Share with your network</div>
             </div>
           </div>
         </Modal.Header>
         <Modal.Body className="p-4 li-modal-body-custom">
-          <CreateThread onClose={handlePostCreated} />
+          <CreateThread
+            onClose={handlePostCreated}
+            initialData={editingThread}
+          />
         </Modal.Body>
       </Modal>
     </>

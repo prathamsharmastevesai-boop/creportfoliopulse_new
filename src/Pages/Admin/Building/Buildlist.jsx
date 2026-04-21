@@ -21,7 +21,6 @@ const getCategoryFromPath = (pathname) => {
 export const ListBuilding = () => {
   const location = useLocation();
   const category = getCategoryFromPath(location.pathname);
-  console.log(category, "category");
 
   const navigateTo =
     category === "Lease&Loi" ? "/admin-select-lease-loi" : "/projects";

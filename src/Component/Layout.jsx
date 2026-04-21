@@ -80,6 +80,7 @@ export const DashboardLayout = () => {
       "/employee-info-chat",
       "/building-chat",
       "/comps-chat",
+      "/user-the-pulse",
       "/user-fire-safety-building-mechanicals",
       "/user-fire-safety-building-mechanicals-list",
       "/upload-fire-safety-building-mechanicals",
@@ -94,6 +95,7 @@ export const DashboardLayout = () => {
       "/portfolio-forum",
       "/dashboard",
       "/email-drafting",
+      "/admin-the-pulse",
       "/notes",
       "/ai-lease-abstract-upload",
       "/information-collaboration",
@@ -147,9 +149,11 @@ export const DashboardLayout = () => {
       "/distilled-expense-tracker",
       "/admin-distilled-comp-tracker",
       "/admin-loi-audit",
+      "/super-admin/admin-details",
       "/space-inquiry",
       "/contacts-hub-upload",
       "/comps-upload",
+      "/the-pulse-upload",
       "/fire-safety-building-mechanicals",
       "/comparative-building-list",
       "/tenant-info-building-list",
@@ -174,15 +178,19 @@ export const DashboardLayout = () => {
   const role = sessionStorage.getItem("role");
   return (
     <EmailDraftingProvider>
-      {role !== "superuser" && <AppHeader sidebarCollapsed={collapsed} />}
+      <AppHeader sidebarCollapsed={collapsed} />
       <div
         className={`main-wrapper ${collapsed ? "" : "open"} ${
           isChatPage ? "chat-active" : ""
         }`}
-        style={{
-          height: "100dvh",
-          paddingTop: "var(--header-height, 48px)",
-        }}
+        style={
+          role !== "superuser"
+            ? {
+                height: "100dvh",
+                paddingTop: "var(--header-height, 48px)",
+              }
+            : {}
+        }
       >
         <Sidebar collapsed={collapsed} setCollapsed={setCollapsed} />
 

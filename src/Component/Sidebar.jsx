@@ -17,15 +17,16 @@ export const Sidebar = ({ collapsed, setCollapsed }) => {
   const [showSessionModal, setShowSessionModal] = useState(false);
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 767);
   const [profileData, setProfileData] = useState({
-    gemini_chat_enabled: false,
-    forum_enabled: false,
+    // gemini_chat_enabled: false,
+    files_media_enabled: false,
+    // forum_enabled: false,
     portfolio_insights_enabled: false,
-    email_drafting_enabled: false,
-    notes_enabled: false,
-    ai_lease_abstract_enabled: false,
+    // email_drafting_enabled: false,
+    // notes_enabled: false,
+    // ai_lease_abstract_enabled: false,
     det_enabled: false,
     dct_enabled: false,
-    calculator_enabled: false,
+    // calculator_enabled: false,
     yardi_enabled: false,
     third_party_enabled: false,
     employee_contact_enabled: false,
@@ -38,11 +39,11 @@ export const Sidebar = ({ collapsed, setCollapsed }) => {
     sublease_tracker_enabled: false,
     renewal_tracker_enabled: false,
     leases_agreement_data_enabled: false,
-    deal_tracker_enabled: false,
+    // deal_tracker_enabled: false,
     tour_enabled: false,
     chat_history: false,
     information_collaboration_enabled: false,
-    project_management_enabled: false,
+    // project_management_enabled: false,
     Conversation: false,
     space_up_enabled: false,
   });
@@ -71,17 +72,18 @@ export const Sidebar = ({ collapsed, setCollapsed }) => {
     const fetchProfile = async () => {
       try {
         setProfileData({
-          gemini_chat_enabled: userdata?.gemini_chat_enabled || false,
-          forum_enabled: userdata?.forum_enabled || false,
+          // gemini_chat_enabled: userdata?.gemini_chat_enabled || false,
+          files_media_enabled: userdata?.files_media_enabled || false,
+          // forum_enabled: userdata?.forum_enabled || false,
           portfolio_insights_enabled:
             userdata?.portfolio_insights_enabled || false,
-          email_drafting_enabled: userdata?.email_drafting_enabled || false,
-          notes_enabled: userdata?.notes_enabled || false,
-          ai_lease_abstract_enabled:
-            userdata?.ai_lease_abstract_enabled || false,
+          // email_drafting_enabled: userdata?.email_drafting_enabled || false,
+          // notes_enabled: userdata?.notes_enabled || false,
+          // ai_lease_abstract_enabled:
+          //   userdata?.ai_lease_abstract_enabled || false,
           det_enabled: userdata?.det_enabled || false,
           dct_enabled: userdata?.dct_enabled || false,
-          calculator_enabled: userdata?.calculator_enabled || false,
+          // calculator_enabled: userdata?.calculator_enabled || false,
           yardi_enabled: userdata?.yardi_enabled || false,
           third_party_enabled: userdata?.third_party_enabled || false,
           employee_contact_enabled: userdata?.employee_contact_enabled || false,
@@ -100,13 +102,13 @@ export const Sidebar = ({ collapsed, setCollapsed }) => {
           renewal_tracker_enabled: userdata?.renewal_tracker_enabled || false,
           leases_agreement_data_enabled:
             userdata?.leases_agreement_data_enabled || false,
-          deal_tracker_enabled: userdata?.deal_tracker_enabled || false,
+          // deal_tracker_enabled: userdata?.deal_tracker_enabled || false,
           tour_enabled: userdata?.tour_enabled || false,
           chat_history: userdata?.chat_history || false,
           information_collaboration_enabled:
             userdata?.information_collaboration_enabled || false,
-          project_management_enabled:
-            userdata?.project_management_enabled || false,
+          // project_management_enabled:
+          //   userdata?.project_management_enabled || false,
           Conversation: userdata?.Conversation || false,
           space_up_enabled: userdata?.space_up_enabled || false,
         });
@@ -436,7 +438,7 @@ export const Sidebar = ({ collapsed, setCollapsed }) => {
       "leases_agreement_data_enabled",
       "tour_enabled",
       "chat_history",
-      "deal_tracker_enabled",
+      // "deal_tracker_enabled",
     ]);
 
     const settingsEnabled = true;
@@ -463,6 +465,7 @@ export const Sidebar = ({ collapsed, setCollapsed }) => {
           icon="bi-building"
           label="Files and Media"
           isActivePath={isActive("/user-files-media")}
+          enabled={profileData.files_media_enabled}
         />
         <NavItem
           path="/calendar"
@@ -496,7 +499,7 @@ export const Sidebar = ({ collapsed, setCollapsed }) => {
           icon="bi-envelope-open"
           label="Email Drafting"
           isActivePath={isActive("/email-drafting")}
-          enabled={profileData.email_drafting_enabled}
+          // enabled={profileData.email_drafting_enabled}
         />
 
         {/* {profileData.gemini_chat_enabled && (
@@ -514,18 +517,18 @@ export const Sidebar = ({ collapsed, setCollapsed }) => {
           icon="bi-journal"
           label="Notes"
           isActivePath={isActive("/notes")}
-          enabled={profileData.notes_enabled}
+          // enabled={profileData.notes_enabled}
         />
 
-        {profileData.forum_enabled && (
-          <NavItem
-            path="/portfolio-forum"
-            icon="bi-chat-square-dots"
-            label="Portfolio Forum"
-            isActivePath={isActive("/portfolio-forum")}
-            enabled={profileData.forum_enabled}
-          />
-        )}
+        {/* {profileData.forum_enabled && ( */}
+        <NavItem
+          path="/portfolio-forum"
+          icon="bi-chat-square-dots"
+          label="Portfolio Forum"
+          isActivePath={isActive("/portfolio-forum")}
+          // enabled={profileData.forum_enabled}
+        />
+        {/* )} */}
 
         {/* <NavItem
           path="/ai-lease-abstract-upload"
@@ -560,7 +563,7 @@ export const Sidebar = ({ collapsed, setCollapsed }) => {
           icon="bi-calculator"
           label="Calculator"
           isActivePath={isActive("/calculator")}
-          enabled={profileData.calculator_enabled}
+          // enabled={profileData.calculator_enabled}
         />
         <NavItem
           path="/yardi"
@@ -582,7 +585,7 @@ export const Sidebar = ({ collapsed, setCollapsed }) => {
           icon="bi-diagram-3"
           label="Project Management"
           isActivePath={isActive("/project-management")}
-          enabled={profileData.project_management_enabled}
+          // enabled={profileData.project_management_enabled}
         />
 
         <NavItem

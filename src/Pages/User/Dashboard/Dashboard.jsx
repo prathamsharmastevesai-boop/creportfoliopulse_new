@@ -168,9 +168,14 @@ export const Dashboard = () => {
     });
   };
 
-  const first = filteredBuildings[0];
-  const occupancy = first?.total_occupancy_pct_all ?? "N/A";
-  const vacantSF = first?.total_vacant_sf_all ?? "N/A";
+  const portfolioData = BuildingList.find(
+    (item) =>
+      item.total_occupancy_pct_all !== undefined ||
+      item.total_vacant_sf_all !== undefined,
+  );
+
+  const occupancy = portfolioData?.total_occupancy_pct_all ?? "N/A";
+  const vacantSF = portfolioData?.total_vacant_sf_all ?? "N/A";
 
   return (
     <div className="npo-root">

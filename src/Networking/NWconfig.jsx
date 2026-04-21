@@ -149,6 +149,7 @@ export const threadData = "/forum/threads";
 export const createThreadEndpoint = "/forum/threads";
 export const createThoughtEndpoint = "/forum/threads/";
 export const ThreadhistoryEndpoint = "/forum/threads/";
+export const updateThreadEndpoint = "/forum/threads/";
 export const ToggleForum = "/forum/forum-toggle";
 export const benchmarkEndpoint = "/det_expense/benchmark";
 
@@ -220,3 +221,10 @@ export const buildingStackConflictEndpoint = "/building-stack/conflicts/";
 
 //renewal Tracker
 export const renewal = "/renewal/";
+
+//MARKET INTELLIGENCE (THE PULSE)
+export const firmsEndpoint = "/market_intelligence/firms";
+export const quartersEndpoint = "/market_intelligence/quarters";
+export const ingestEndpoint = (id) => `/market_intelligence/quarters/${id}/ingest`;
+export const publishQuarterEndpoint = (id) => `/market_intelligence/quarters/${id}/publish`;
+export const deleteFirmEndpoint = (id) => `/market_intelligence/firms/${id}`;

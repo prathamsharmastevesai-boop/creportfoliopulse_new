@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { ThumbsUp } from "lucide-react";
 import { REACTIONS } from "./ForumAtoms";
-import { toast } from "react-toastify";
 
 export const ReactionButton = ({
   postId,
@@ -60,7 +59,6 @@ export const ReactionButton = ({
     } catch (error) {
       setSelectedReaction(selectedReaction);
       setLocalCounts(reactionCounts);
-      toast.error("Failed to add reaction");
     } finally {
       setLoading(false);
     }
@@ -129,9 +127,7 @@ export const ReactionButton = ({
               key={r.apiKey}
               title={`${r.label}: ${localCounts[r.apiKey]}`}
               className="cursor-default"
-            >
-              <r.icon size={13} color={r.color} />
-            </span>
+            ></span>
           ))}
         </span>
       )}

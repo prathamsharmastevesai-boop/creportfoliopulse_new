@@ -9,7 +9,6 @@ import { toast } from "react-toastify";
 import { BackButton } from "../../../Component/backButton";
 import Card from "../../../Component/Card/Card";
 
-
 const DealDetailView = () => {
   const { dealId } = useParams();
   const dispatch = useDispatch();
@@ -188,7 +187,6 @@ const DealDetailView = () => {
       });
     } catch (error) {
       console.error("Error updating deal:", error);
-      toast.error("Failed to update deal");
     } finally {
       setSaving(false);
     }
@@ -449,7 +447,6 @@ const DealDetailView = () => {
 
         <Card className="p-4" variant="elevated">
           <div className="d-flex justify-content-between align-items-center mb-4">
-
             <h5 className="fw-bold mb-0">Deal Process Tracking</h5>
             {isEditMode && (
               <div className="text-muted">
@@ -556,7 +553,6 @@ const DealDetailView = () => {
           )}
         </Card>
       </div>
-
     </div>
   );
 };

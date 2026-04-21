@@ -165,11 +165,8 @@ const DealForm = () => {
           space_inquiry_notes: "",
         });
         setStages(baseStages.map(initializeStage));
-      } else if (DealFormApi.rejected.match(resultAction)) {
-        toast.error(resultAction.error?.message || "Failed to save deal");
       }
     } catch (error) {
-      toast.error("An unexpected error occurred");
       console.error("Error:", error);
     } finally {
       setSaving(false);

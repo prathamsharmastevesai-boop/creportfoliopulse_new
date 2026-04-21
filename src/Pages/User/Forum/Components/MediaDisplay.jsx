@@ -1,7 +1,7 @@
 import React from "react";
 import "../forum.css";
 
-export const MediaDisplay = ({ post }) => {
+export const MediaDisplay = ({ post, isComment = false }) => {
   const mediaUrl = post.media_url || post.file_url;
   const mediaName = post.media_name || post.file_name;
 
@@ -17,7 +17,7 @@ export const MediaDisplay = ({ post }) => {
         <img
           src={mediaUrl}
           alt={mediaName || "Post image"}
-          className="li-post-image-preview"
+          className={isComment ? "li-comment-image-preview" : "li-post-image-preview"}
           onClick={() => window.open(mediaUrl, "_blank")}
           onError={(e) => {
             e.target.style.display = "none";

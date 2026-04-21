@@ -149,7 +149,7 @@ export const EmailDraftingModal = () => {
     setDeleteLoading(true);
     try {
       await dispatch(Deletetemplate({ template_id })).unwrap();
-      toast.success("Template deleted successfully!");
+
       await fetchData();
 
       if (String(selectedTemplateId) === String(template_id)) {

@@ -4,17 +4,20 @@ import { useDispatch } from "react-redux";
 import {
   createThread,
   get_Threads_Api,
+  updateThreadApi,
 } from "../../../Networking/Admin/APIs/forumApi";
 import { toast } from "react-toastify";
 
-export const CreateThread = ({ onClose }) => {
+export const CreateThread = ({ onClose, initialData = null }) => {
   const dispatch = useDispatch();
+  const isEdit = !!initialData;
 
-  const [title, setTitle] = useState("");
-  const [content, setContent] = useState("");
-  const [postType, setPostType] = useState("update");
+  const [title, setTitle] = useState(initialData?.title === "undefined" ? "" : (initialData?.title || ""));
+  const [content, setContent] = useState(initialData?.content === "undefined" ? "" : (initialData?.content || ""));
+  const [postType, setPostType] = useState(initialData?.post_type || "update");
   const [file, setFile] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [removeFile, setRemoveFile] = useState(false);
 
   const handleSubmit = async () => {
     if (!title.trim()) {
@@ -24,24 +27,48 @@ export const CreateThread = ({ onClose }) => {
 
     setLoading(true);
     try {
-      await dispatch(
-        createThread({
-          title,
-          content,
+      if (isEdit) {
+        const payload = {
+          title: title.trim(),
+          content: content.trim(),
           post_type: postType,
-          file,
-        })
-      ).unwrap();
+        };
+
+        const formData = new FormData();
+        formData.append("title", payload.title);
+        formData.append("content", payload.content);
+        formData.append("post_type", payload.post_type);
+        if (file) {
+          formData.append("file", file);
+        } else if (removeFile) {
+          formData.append("remove_file", "true");
+        } else {
+          formData.append("keep_existing_file", "true");
+        }
+
+        await dispatch(
+          updateThreadApi({
+            thread_id: initialData.id,
+            data: formData,
+          }),
+        ).unwrap();
+
+      } else {
+        await dispatch(
+          createThread({
+            title,
+            content,
+            post_type: postType,
+            file,
+          }),
+        ).unwrap();
+
+      }
 
       await dispatch(get_Threads_Api()).unwrap();
-
-      setTitle("");
-      setContent("");
-      setFile(null);
-
       if (onClose) onClose();
     } catch (err) {
-      toast.error(err);
+
     } finally {
       setLoading(false);
     }
@@ -76,17 +103,37 @@ export const CreateThread = ({ onClose }) => {
           onChange={(e) => setPostType(e.target.value)}
         >
           <option value="update">Update</option>
-          <option value="discussion">Discussion</option>
-          <option value="announcement">Announcement</option>
+          <option value="offmarket">OFF Market</option>
+          <option value="question">Questions</option>
+          <option value="event">Event</option>
         </Form.Select>
       </Form.Group>
 
       <Form.Group className="mb-3">
         <Form.Label>Upload File</Form.Label>
-        <Form.Control
-          type="file"
-          onChange={(e) => setFile(e.target.files[0])}
-        />
+        {isEdit && initialData?.media_url && !removeFile && (
+          <div className="d-flex align-items-center gap-2 mb-2 p-2 border rounded">
+            <span className="text-truncate small flex-grow-1">
+              {initialData.media_name || "Existing File"}
+            </span>
+            <Button
+              variant="outline-danger"
+              size="sm"
+              onClick={() => setRemoveFile(true)}
+            >
+              Remove
+            </Button>
+          </div>
+        )}
+        {(!isEdit || !initialData?.media_url || removeFile) && (
+          <Form.Control
+            type="file"
+            onChange={(e) => {
+              setFile(e.target.files[0]);
+              setRemoveFile(false);
+            }}
+          />
+        )}
       </Form.Group>
 
       <Button
@@ -95,7 +142,7 @@ export const CreateThread = ({ onClose }) => {
         onClick={handleSubmit}
         disabled={loading}
       >
-        {loading ? "Creating..." : "+ Create Thread"}
+        {loading ? (isEdit ? "Updating..." : "Creating...") : (isEdit ? "Update Post" : "+ Create Thread")}
       </Button>
     </div>
   );

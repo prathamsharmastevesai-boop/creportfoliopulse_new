@@ -225,7 +225,7 @@ const IngestionAuditSection = ({
     });
 
     if (!Object.keys(updates).length) {
-      console.log("No changes to save");
+      // console.log("No changes to save");
       return;
     }
 
@@ -237,7 +237,7 @@ const IngestionAuditSection = ({
         }),
       ).unwrap();
 
-      console.log("All changed fields updated successfully");
+      // console.log("All changed fields updated successfully");
     } catch (error) {
       console.error("Bulk update failed:", error);
     }
@@ -261,7 +261,7 @@ const IngestionAuditSection = ({
 
   const pdfUrl =
     typeof dealPdfUrl === "string" ? dealPdfUrl : dealPdfUrl?.url || "";
-  console.log(dealPdfUrl, "dealPdfUrl");
+  // console.log(dealPdfUrl, "dealPdfUrl");
 
   return (
     <div className="loi-section-grid a1-grid">

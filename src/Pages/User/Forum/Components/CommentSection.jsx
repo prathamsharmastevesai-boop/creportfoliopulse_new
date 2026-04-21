@@ -138,31 +138,31 @@ export const CommentItem = ({
           <p className="mb-0 li-comment-bubble-text">
             {msg.content}
           </p>
-          <MediaDisplay post={msg} />
+          <MediaDisplay post={msg} isComment={true} />
         </div>
 
         <div className="d-flex align-items-center gap-3 mt-1 ps-1">
           <TimeStamp dateString={msg.created_at} />
-          {canAct == "admin" && (
-            <>
-              <button
-                className="btn btn-link p-0 text-muted li-comment-action-links"
-                onClick={() => onEdit(msg.id, msg.content, msg)}
-              >
-                Edit
-              </button>
-              <button
-                className="btn btn-link p-0 text-danger li-comment-action-links"
-                onClick={() => onDelete(selectedThread.id, msg.id)}
-                disabled={loadingId === msg.id}
-              >
-                {loadingId === msg.id ? (
-                  <Spinner size="sm" animation="border" />
-                ) : (
-                  "Delete"
-                )}
-              </button>
-            </>
+          {msg.can_edit && (
+            <button
+              className="btn btn-link p-0 text-muted li-comment-action-links"
+              onClick={() => onEdit(msg.id, msg.content, msg)}
+            >
+              Edit
+            </button>
+          )}
+          {msg.can_delete && (
+            <button
+              className="btn btn-link p-0 text-danger li-comment-action-links"
+              onClick={() => onDelete(selectedThread.id, msg.id)}
+              disabled={loadingId === msg.id}
+            >
+              {loadingId === msg.id ? (
+                <Spinner size="sm" animation="border" />
+              ) : (
+                "Delete"
+              )}
+            </button>
           )}
         </div>
       </div>

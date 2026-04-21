@@ -1,7 +1,7 @@
 import React, { useState, useRef, useCallback } from "react";
 import { useDispatch } from "react-redux";
 import { Spinner } from "react-bootstrap";
-import { MoreHorizontal, MessageSquare } from "lucide-react";
+import { MoreHorizontal, MessageSquare, Pencil, Trash2 } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { toast } from "react-toastify";
@@ -30,6 +30,7 @@ export const PostCard = ({
   thread,
   userdata,
   onDelete,
+  onEdit,
   deletingId,
   onThreadUpdate,
 }) => {
@@ -48,6 +49,8 @@ export const PostCard = ({
   const [isExistingFile, setIsExistingFile] = useState(false);
   const [showDeleteThoughtModal, setShowDeleteThoughtModal] = useState(false);
   const [thoughtToDelete, setThoughtToDelete] = useState(null);
+  const [isContentExpanded, setIsContentExpanded] = useState(false);
+  const CONTENT_LIMIT = 300;
 
   const [localReaction, setLocalReaction] = useState(
     thread.user_reaction || null,
@@ -69,7 +72,6 @@ export const PostCard = ({
       setComments(response.thoughts || []);
     } catch (error) {
       console.error("Error fetching comments:", error);
-      toast.error("Failed to load comments");
     } finally {
       setLoadingComments(false);
     }
@@ -109,9 +111,7 @@ export const PostCard = ({
           }
           return newCounts;
         });
-      } catch (error) {
-        toast.error("Failed to add reaction");
-      }
+      } catch (error) {}
     },
     [dispatch, thread.id, localReaction, onThreadUpdate],
   );
@@ -155,9 +155,7 @@ export const PostCard = ({
         setSelectedFilePreview(null);
         setIsExistingFile(false);
       }
-      toast.success("Comment deleted");
     } catch (error) {
-      toast.error("Failed to delete comment");
     } finally {
       setLoadingId(null);
       setThoughtToDelete(null);
@@ -211,12 +209,10 @@ export const PostCard = ({
             data: formData,
           }),
         ).unwrap();
-        toast.success("Comment updated");
       } else {
         await dispatch(
           createThoughtApi({ thread_id: thread.id, data: formData }),
         ).unwrap();
-        toast.success("Comment added");
       }
 
       setCommentText("");
@@ -227,9 +223,6 @@ export const PostCard = ({
       await fetchComments();
       setShowComments(true);
     } catch (error) {
-      toast.error(
-        editingId ? "Failed to update comment" : "Failed to add comment",
-      );
     } finally {
       setSending(false);
     }
@@ -271,20 +264,30 @@ export const PostCard = ({
             <TimeStamp dateString={thread.created_at} />
           </div>
 
-          {(userdata?.role === "admin" ||
-            Number(thread.author_uid) === userdata?.id) && (
-            <button
-              className="btn btn-sm d-flex align-items-center justify-content-center rounded-circle li-card-delete-btn"
-              onClick={() => onDelete(thread.id)}
-              title="Delete post"
-            >
-              {deletingId === thread.id ? (
-                <Spinner animation="border" size="sm" />
-              ) : (
-                <MoreHorizontal size={18} />
-              )}
-            </button>
-          )}
+          <div className="d-flex gap-1">
+            {thread.can_edit && (
+              <button
+                className="btn btn-sm d-flex align-items-center justify-content-center rounded-circle li-card-action-btn"
+                onClick={() => onEdit(thread)}
+                title="Edit post"
+              >
+                <Pencil size={18} />
+              </button>
+            )}
+            {thread.can_delete && (
+              <button
+                className="btn btn-sm d-flex align-items-center justify-content-center rounded-circle li-card-action-btn delete"
+                onClick={() => onDelete(thread.id)}
+                title="Delete post"
+              >
+                {deletingId === thread.id ? (
+                  <Spinner animation="border" size="sm" />
+                ) : (
+                  <Trash2 size={18} />
+                )}
+              </button>
+            )}
+          </div>
         </div>
 
         <div className="mb-3">
@@ -292,11 +295,15 @@ export const PostCard = ({
             <strong>{displayTitle}</strong>
 
             {displayContent && (
-              <div className="li-card-content-wrap li-markdown-content">
+              <div className="li-card-content-wrap li-markdown-content text-break">
                 <ReactMarkdown
                   remarkPlugins={[remarkGfm]}
                   components={{
-                    p: ({ children, ...props }) => <p {...props}>{children}</p>,
+                    p: ({ children, ...props }) => (
+                      <p {...props} className="mb-2">
+                        {children}
+                      </p>
+                    ),
                     strong: ({ children, ...props }) => (
                       <strong {...props}>{children}</strong>
                     ),
@@ -356,8 +363,18 @@ export const PostCard = ({
                     ),
                   }}
                 >
-                  {displayContent}
+                  {displayContent.length > CONTENT_LIMIT && !isContentExpanded
+                    ? `${displayContent.substring(0, CONTENT_LIMIT)}...`
+                    : displayContent}
                 </ReactMarkdown>
+                {displayContent.length > CONTENT_LIMIT && (
+                  <span
+                    className="btn btn-link p-0 li-view-more-btn mt-1"
+                    onClick={() => setIsContentExpanded(!isContentExpanded)}
+                  >
+                    {isContentExpanded ? "View less" : "View more"}
+                  </span>
+                )}
               </div>
             )}
           </div>

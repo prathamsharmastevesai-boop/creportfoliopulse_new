@@ -109,7 +109,7 @@ export const AdminManagement = () => {
   };
 
   return (
-    <div className="container-fluid p-3">
+    <div className="container-fluid p-3 mt-5">
       <h4 className="fw-bold">Admin Management</h4>
       <p className="text-muted">
         Control Admin access to Portfolio Pulse documents and features

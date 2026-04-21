@@ -90,13 +90,6 @@ export const AdminDetails = () => {
       setTransferLoading(true);
       setShowDropdown(false);
 
-      console.log("Transferring ownership to:", {
-        company_id: admin.company_id,
-        new_owner_email: member.email,
-        member_id: member.id,
-        member_name: member.display_name || member.name,
-      });
-
       await dispatch(
         transferOwnershipApi({
           company_id: admin.company_id,
