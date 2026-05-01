@@ -74,6 +74,7 @@ export const DashboardLayout = () => {
 
   useEffect(() => {
     const chatRoutes = [
+      "/admin-management",
       "/user-lease-loi-chat",
       "/portfolio-chat",
       "/contacts-hub-chat",
@@ -91,8 +92,9 @@ export const DashboardLayout = () => {
       "/floor-plan-upload",
       "/tenant-market",
       "/documents/LOI",
+      "/documents-lease",
       "/gemini-chat",
-      "/portfolio-forum",
+      "/pulse-forum",
       "/dashboard",
       "/email-drafting",
       "/admin-the-pulse",
@@ -133,12 +135,14 @@ export const DashboardLayout = () => {
       "/deals/new",
       "/user-select-lease-loi",
       "/cre-news",
+      "/rss-tenant",
       "/messages-center",
       "/yardi",
       "/project-management",
       "/projects",
       "/work-letter",
       "/admin-dashboard",
+      "/owner-dashboard",
       "/user-management",
       "/aianalytics",
       "/rag-system",
@@ -168,6 +172,7 @@ export const DashboardLayout = () => {
       "/admin-select-lease-loi",
       "/admin-lease-loi-upload",
       "/building-info-upload",
+      "/admin-profile",
     ];
 
     const isChat = chatRoutes.some((path) =>
@@ -180,24 +185,22 @@ export const DashboardLayout = () => {
     <EmailDraftingProvider>
       <AppHeader sidebarCollapsed={collapsed} />
       <div
-        className={`main-wrapper ${collapsed ? "" : "open"} ${
-          isChatPage ? "chat-active" : ""
-        }`}
+        className={`main-wrapper ${collapsed ? "" : "open"} ${isChatPage ? "chat-active" : ""
+          }`}
         style={
           role !== "superuser"
             ? {
-                height: "100dvh",
-                paddingTop: "var(--header-height, 48px)",
-              }
+              height: "100dvh",
+              paddingTop: "var(--header-height, 48px)",
+            }
             : {}
         }
       >
         <Sidebar collapsed={collapsed} setCollapsed={setCollapsed} />
 
         <div
-          className={`flex-grow-1 content-wrapper ${
-            isChatPage ? "chat-body" : ""
-          }`}
+          className={`flex-grow-1 content-wrapper ${isChatPage ? "chat-body" : ""
+            }`}
         >
           <Outlet />
         </div>

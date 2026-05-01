@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {
   LineChart,
   Line,
@@ -119,17 +119,32 @@ export function AvailabilityTrendChart({ data, firms }) {
 }
 
 export function IndustryChart({ data }) {
+  const [yWidth, setYWidth] = useState(130);
+
+  useEffect(() => {
+    const update = () => {
+      if (window.innerWidth < 480) setYWidth(90);      
+      else if (window.innerWidth < 768) setYWidth(110); 
+      else setYWidth(150);                              
+    };
+    update();
+    window.addEventListener("resize", update);
+    return () => window.removeEventListener("resize", update);
+  }, []);
+
   const chartData = data.map((d) => ({
     sector: d.industry_name,
     pct: d.percentage,
   }));
 
+  const chartHeight = Math.max(220, chartData.length * 36);
+
   return (
-    <ResponsiveContainer width="100%" height={220}>
+    <ResponsiveContainer width="100%" height={chartHeight}>
       <BarChart
         data={chartData}
         layout="vertical"
-        margin={{ top: 4, right: 24, left: 160, bottom: 0 }}
+        margin={{ top: 4, right: 24, left: 8, bottom: 0 }}
       >
         <CartesianGrid
           strokeDasharray="3 3"
@@ -140,12 +155,13 @@ export function IndustryChart({ data }) {
           type="number"
           tickFormatter={(v) => `${v}%`}
           tick={chartAxisStyle}
+          tickCount={5}
         />
         <YAxis
           type="category"
           dataKey="sector"
-          tick={{ ...chartAxisStyle, width: 160 }}
-          width={160}
+          width={yWidth}
+          tick={{ ...chartAxisStyle, width: yWidth }}
         />
         <Tooltip
           formatter={(v) => [`${v}%`]}

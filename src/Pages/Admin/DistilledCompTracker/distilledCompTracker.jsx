@@ -1,15 +1,22 @@
 "use client";
 
-import React, { useState } from "react";
-import { Trash2, Plus } from "lucide-react";
+import React, { useState, useEffect } from "react";
+import { useParams } from "react-router-dom";
 import { useDispatch } from "react-redux";
-import { distilledCompTracker } from "../../../Networking/Admin/APIs/distilledCompTrackerApi";
+import { Trash2, Plus } from "lucide-react";
+import {
+  distilledCompTracker,
+  getDCTComp,
+  updateDCTComp,
+} from "../../../Networking/Admin/APIs/distilledCompTrackerApi";
 import Card from "../../../Component/Card/Card";
 import PageHeader from "../../../Component/PageHeader/PageHeader";
 import { toast } from "react-toastify";
+import { BackButton } from "../../../Component/backButton";
 
 export const DestilledCompTracker = () => {
   const dispatch = useDispatch();
+  const { compId } = useParams();
 
   const [addressAnon, setAddressAnon] = useState("");
   const [buildingAddress, setBuildingAddress] = useState("");
@@ -29,9 +36,52 @@ export const DestilledCompTracker = () => {
   const [escalationValue, setEscalationValue] = useState("");
   const [freeRentMonths, setFreeRentMonths] = useState("");
   const [tiAllowanceRange, setTiAllowanceRange] = useState("");
+  const [tiAllowancePsf, setTiAllowancePsf] = useState("");
   const [securityDepMonths, setSecurityDepMonths] = useState("");
   const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isFetching, setIsFetching] = useState(false);
+
+  useEffect(() => {
+    if (compId) {
+      fetchCompDetails();
+    }
+  }, [compId]);
+
+  const fetchCompDetails = async () => {
+    try {
+      setIsFetching(true);
+      const data = await dispatch(getDCTComp(compId)).unwrap();
+      if (data) {
+        setAddressAnon(data.address_anon || "");
+        setBuildingAddress(data.building_address || "");
+        setSfRounded(data.sf_rounded || "");
+        setSubmarket(data.submarket || "");
+        setBuildingClass(data.building_class || "A");
+        setFloorSegment(data.floor_segment || "Base");
+        setTenantEntity(data.tenant_entity || "");
+        setDealType(data.deal_type || "New Deal");
+        setGuaranteeType(data.guarantee_type || "Corporate");
+        setTermMonths(data.term_months || "");
+        setLightAndViews(data.light_and_views || "");
+        setRentSchedule(
+          data.base_rent_schedule && data.base_rent_schedule.length > 0
+            ? data.base_rent_schedule
+            : [{ rent: 0, start_y: 1, end_y: 1 }],
+        );
+        setEscalationType(data.escalation_type || "Fixed");
+        setEscalationValue(data.escalation_value || "");
+        setFreeRentMonths(data.free_rent_months || "");
+        setTiAllowanceRange(data.ti_allowance_range || "");
+        setTiAllowancePsf(data.ti_allowance_psf || "");
+        setSecurityDepMonths(data.security_dep_months || "");
+      }
+    } catch (err) {
+      toast.error("Failed to fetch comp details");
+    } finally {
+      setIsFetching(false);
+    }
+  };
 
   const LIGHT_AND_VIEWS_OPTIONS = [1, 2, 3, 4, 5];
 
@@ -167,6 +217,7 @@ export const DestilledCompTracker = () => {
     setEscalationValue("");
     setFreeRentMonths("");
     setTiAllowanceRange("");
+    setTiAllowancePsf("");
     setSecurityDepMonths("");
     setErrors({});
   };
@@ -200,18 +251,24 @@ export const DestilledCompTracker = () => {
       escalation_type: escalationType,
       escalation_value: Number(escalationValue),
       free_rent_months: Number(freeRentMonths) || 0,
-      ti_allowance_psf: 0,
+      ti_allowance_psf: Number(tiAllowancePsf) || 0,
       ti_allowance_range: tiAllowanceRange || null,
       light_and_views: lightAndViews ? Number(lightAndViews) : null,
       security_dep_months: Number(securityDepMonths) || 0,
     };
 
     try {
-      await dispatch(distilledCompTracker(payload)).unwrap();
+      if (compId) {
+        await dispatch(updateDCTComp({ compId, payload })).unwrap();
+        resetForm();
+      } else {
+        await dispatch(distilledCompTracker(payload)).unwrap();
 
-      resetForm();
+        resetForm();
+      }
     } catch (err) {
       console.error("Submission error:", err);
+      toast.error(err || "Submission failed");
     } finally {
       setIsSubmitting(false);
     }
@@ -219,467 +276,496 @@ export const DestilledCompTracker = () => {
 
   return (
     <div className="container-fluid p-3">
-      <PageHeader
-        title="Distilled Comp Tracker (DCT) Submission"
-        subtitle="Submit and manage office comp details for analysis"
-      />
+      <div className="d-flex gap-3 ">
+        <BackButton />
+        <PageHeader
+          title={compId ? "Edit Distilled Comp" : "Distilled Comp Tracker (DCT) Submission"}
+          subtitle={compId ? "Update office comp details" : "Submit and manage office comp details for analysis"}
+        />
+      </div>
 
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <Card
-          title="Building & Tenant Information"
-          headerClass="bg-primary text-white text-center text-md-start"
-          className="mb-4 border-0"
-        >
-          <div className="row g-3">
-            <div className="col-12 col-md-6">
-              <label className="form-label">
-                Anonymous Address <span className="mu2-error">*</span>
-              </label>
-              <input
-                type="text"
-                value={addressAnon}
-                onChange={(e) => {
-                  setAddressAnon(e.target.value);
-                  if (errors.address_anon)
-                    setErrors({ ...errors, address_anon: "" });
-                }}
-                className={`form-control ${errors.address_anon ? "is-invalid" : ""}`}
-                placeholder="e.g., Midtown Office Tower"
-              />
-              {errors.address_anon && (
-                <div className="mu2-error small mt-1">
-                  {errors.address_anon}
-                </div>
-              )}
-            </div>
-
-            <div className="col-12 col-md-6">
-              <label className="form-label">Building Address</label>
-              <input
-                type="text"
-                value={buildingAddress}
-                onChange={(e) => setBuildingAddress(e.target.value)}
-                className="form-control"
-                placeholder="e.g., 123 Main Street, New York"
-              />
-            </div>
-
-            <div className="col-12 col-md-6">
-              <label className="form-label">
-                SF Rounded (multiple of 1000){" "}
-                <span className="mu2-error">*</span>
-              </label>
-              <input
-                type="number"
-                value={sfRounded}
-                onChange={(e) => {
-                  setSfRounded(e.target.value ? Number(e.target.value) : "");
-                  if (errors.sf_rounded)
-                    setErrors({ ...errors, sf_rounded: "" });
-                }}
-                min="0"
-                step="1000"
-                className={`form-control ${errors.sf_rounded ? "is-invalid" : ""}`}
-              />
-              {errors.sf_rounded && (
-                <div className="mu2-error small mt-1">{errors.sf_rounded}</div>
-              )}
-            </div>
-
-            <div className="col-12 col-md-6">
-              <label className="form-label">
-                Submarket <span className="mu2-error">*</span>
-              </label>
-              <input
-                type="text"
-                value={submarket}
-                onChange={(e) => {
-                  setSubmarket(e.target.value);
-                  if (errors.submarket) setErrors({ ...errors, submarket: "" });
-                }}
-                className={`form-control ${errors.submarket ? "is-invalid" : ""}`}
-              />
-              {errors.submarket && (
-                <div className="mu2-error small mt-1">{errors.submarket}</div>
-              )}
-            </div>
-
-            <div className="col-12 col-md-6">
-              <label className="form-label">Building Class</label>
-              <select
-                value={buildingClass}
-                onChange={(e) => setBuildingClass(e.target.value)}
-                className="form-select"
-              >
-                {BUILDING_CLASS_OPTIONS.map((option) => (
-                  <option key={option} value={option}>
-                    {option}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            <div className="col-12 col-md-6">
-              <label className="form-label">Floor Segment</label>
-              <select
-                value={floorSegment}
-                onChange={(e) => setFloorSegment(e.target.value)}
-                className="form-select"
-              >
-                {FLOOR_SEGMENT_OPTIONS.map((option) => (
-                  <option key={option} value={option}>
-                    {option}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            <div className="col-12 col-md-6">
-              <label className="form-label">
-                Tenant Entity <span className="mu2-error">*</span>
-              </label>
-              <select
-                value={tenantEntity}
-                onChange={(e) => {
-                  setTenantEntity(e.target.value);
-                  if (errors.tenant_entity)
-                    setErrors({ ...errors, tenant_entity: "" });
-                }}
-                className={`form-select ${errors.tenant_entity ? "is-invalid" : ""}`}
-              >
-                <option value="">Select from list...</option>
-                {TENANT_ENTITY_OPTIONS.map((option) => (
-                  <option key={option} value={option}>
-                    {option}
-                  </option>
-                ))}
-              </select>
-              {errors.tenant_entity && (
-                <div className="mu2-error small mt-1">
-                  {errors.tenant_entity}
-                </div>
-              )}
-            </div>
-
-            <div className="col-12 col-md-6">
-              <label className="form-label">Light and Views</label>
-              <select
-                value={lightAndViews}
-                onChange={(e) => {
-                  setLightAndViews(e.target.value);
-                  if (errors.light_and_views)
-                    setErrors({ ...errors, light_and_views: "" });
-                }}
-                className={`form-select ${errors.light_and_views ? "is-invalid" : ""}`}
-              >
-                <option value="">Select Rating</option>
-                {LIGHT_AND_VIEWS_OPTIONS.map((option) => (
-                  <option key={option} value={option}>
-                    {option}
-                  </option>
-                ))}
-              </select>
-              {errors.light_and_views && (
-                <div className="mu2-error small mt-1">
-                  {errors.light_and_views}
-                </div>
-              )}
-            </div>
+      {isFetching ? (
+        <div className="text-center py-5">
+          <div className="spinner-border text-primary" role="status">
+            <span className="visually-hidden">Loading...</span>
           </div>
-        </Card>
-
-        <Card
-          title="Deal Details"
-          headerClass="bg-success text-white text-center text-md-start"
-          className="mb-4 border-0"
-        >
-          <div className="row g-3">
-            <div className="col-12 col-md-6">
-              <label className="form-label">Deal Type</label>
-              <select
-                value={dealType}
-                onChange={(e) => setDealType(e.target.value)}
-                className="form-select"
-              >
-                {DEAL_TYPE_OPTIONS.map((option) => (
-                  <option key={option} value={option}>
-                    {option}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            <div className="col-12 col-md-6">
-              <label className="form-label">Guarantee Type</label>
-              <select
-                value={guaranteeType}
-                onChange={(e) => setGuaranteeType(e.target.value)}
-                className="form-select"
-              >
-                {GUARANTEE_TYPE_OPTIONS.map((option) => (
-                  <option key={option} value={option}>
-                    {option}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            <div className="col-12 col-md-6">
-              <label className="form-label">
-                Term (Months) <span className="mu2-error">*</span>
-              </label>
-              <input
-                type="number"
-                value={termMonths}
-                onChange={(e) => {
-                  setTermMonths(e.target.value ? Number(e.target.value) : "");
-                  if (errors.term_months)
-                    setErrors({ ...errors, term_months: "" });
-                }}
-                min="1"
-                className={`form-control ${errors.term_months ? "is-invalid" : ""}`}
-              />
-              {errors.term_months && (
-                <div className="mu2-error small mt-1">{errors.term_months}</div>
-              )}
-            </div>
-          </div>
-        </Card>
-
-        <Card
-          title="Base Rent Schedule ($/PSF)"
-          headerClass="bg-primary text-white text-center text-md-start"
-          className="mb-4 border-0"
-        >
-          {rentSchedule.map((period, index) => (
-            <div key={index} className="row g-3 mb-3 align-items-end">
-              <div className="col-12 col-md-3">
-                <label className="form-label">Rent PSF</label>
-                <input
-                  type="number"
-                  step="0.01"
-                  value={period.rent}
-                  onChange={(e) => {
-                    updateRentPeriod(
-                      index,
-                      "rent",
-                      Number(e.target.value) || 0,
-                    );
-                    if (errors[`rent_${index}`]) {
-                      const newErrors = { ...errors };
-                      delete newErrors[`rent_${index}`];
-                      setErrors(newErrors);
-                    }
-                  }}
-                  className={`form-control ${errors[`rent_${index}`] ? "is-invalid" : ""}`}
-                />
-                {errors[`rent_${index}`] && (
-                  <div className="mu2-error small mt-1">
-                    {errors[`rent_${index}`]}
-                  </div>
-                )}
-              </div>
-
-              <div className="col-12 col-md-3">
-                <label className="form-label">Start Year</label>
-                <input
-                  type="number"
-                  min="1"
-                  value={period.start_y}
-                  onChange={(e) => {
-                    updateRentPeriod(
-                      index,
-                      "start_y",
-                      Number(e.target.value) || 1,
-                    );
-                    if (errors[`year_${index}`]) {
-                      const newErrors = { ...errors };
-                      delete newErrors[`year_${index}`];
-                      setErrors(newErrors);
-                    }
-                    if (errors[`year_logic_${index}`]) {
-                      const newErrors = { ...errors };
-                      delete newErrors[`year_logic_${index}`];
-                      setErrors(newErrors);
-                    }
-                  }}
-                  className={`form-control ${errors[`year_${index}`] || errors[`year_logic_${index}`] ? "is-invalid" : ""}`}
-                />
-              </div>
-
-              <div className="col-12 col-md-3">
-                <label className="form-label">End Year</label>
-                <input
-                  type="number"
-                  min="1"
-                  value={period.end_y}
-                  onChange={(e) => {
-                    updateRentPeriod(
-                      index,
-                      "end_y",
-                      Number(e.target.value) || 1,
-                    );
-                    if (errors[`year_${index}`]) {
-                      const newErrors = { ...errors };
-                      delete newErrors[`year_${index}`];
-                      setErrors(newErrors);
-                    }
-                    if (errors[`year_logic_${index}`]) {
-                      const newErrors = { ...errors };
-                      delete newErrors[`year_logic_${index}`];
-                      setErrors(newErrors);
-                    }
-                  }}
-                  className={`form-control ${errors[`year_${index}`] || errors[`year_logic_${index}`] ? "is-invalid" : ""}`}
-                />
-                {(errors[`year_${index}`] || errors[`year_logic_${index}`]) && (
-                  <div className="mu2-error small mt-1">
-                    {errors[`year_${index}`] || errors[`year_logic_${index}`]}
-                  </div>
-                )}
-              </div>
-
-              <div className="col-12 col-md-3">
-                <button
-                  type="button"
-                  onClick={() => removeRentPeriod(index)}
-                  disabled={rentSchedule.length === 1}
-                  className="btn btn-outline-danger w-100 d-flex align-items-center justify-content-center gap-2"
-                >
-                  <Trash2 size={18} />
-                  Remove
-                </button>
-              </div>
-            </div>
-          ))}
-
-          <button
-            type="button"
-            onClick={addRentPeriod}
-            className="btn btn-outline-primary d-flex align-items-center justify-content-center gap-2 w-100"
-          >
-            <Plus size={18} />
-            Add Rent Period
-          </button>
-        </Card>
-
-        <Card
-          title="Additional Terms"
-          headerClass="bg-success text-white text-center text-md-start"
-          className="mb-4 border-0"
-        >
-          <div className="row g-3">
-            <div className="col-12 col-sm-6 col-lg-3">
-              <label className="form-label">Escalation Type</label>
-              <select
-                value={escalationType}
-                onChange={(e) => setEscalationType(e.target.value)}
-                className="form-select"
-              >
-                {ESCALATION_TYPE_OPTIONS.map((option) => (
-                  <option key={option} value={option}>
-                    {option}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            <div className="col-12 col-sm-6 col-lg-3">
-              <label className="form-label">
-                Escalation Value {escalationType === "Percent" ? "(%)" : "($)"}{" "}
-                <span className="mu2-error">*</span>
-              </label>
-              <input
-                type="number"
-                step="0.1"
-                value={escalationValue}
-                onChange={(e) => {
-                  setEscalationValue(
-                    e.target.value ? Number(e.target.value) : "",
-                  );
-                  if (errors.escalation_value)
-                    setErrors({ ...errors, escalation_value: "" });
-                }}
-                className={`form-control ${errors.escalation_value ? "is-invalid" : ""}`}
-              />
-              {errors.escalation_value && (
-                <div className="mu2-error small mt-1">
-                  {errors.escalation_value}
-                </div>
-              )}
-            </div>
-
-            <div className="col-12 col-sm-6 col-lg-3">
-              <label className="form-label">Free Rent Months</label>
-              <input
-                type="number"
-                min="0"
-                step="0.1"
-                value={freeRentMonths}
-                onChange={(e) =>
-                  setFreeRentMonths(
-                    e.target.value ? Number(e.target.value) : "",
-                  )
-                }
-                className="form-control"
-              />
-            </div>
-
-            <div className="col-12 col-sm-6 col-lg-3">
-              <label className="form-label">TI Allowance</label>
-              <select
-                value={tiAllowanceRange}
-                onChange={(e) => setTiAllowanceRange(e.target.value)}
-                className="form-select"
-              >
-                <option value="">Select TI Allowance</option>
-                {TI_ALLOWANCE_OPTIONS.map((option) => (
-                  <option key={option} value={option}>
-                    {option}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            <div className="col-12 col-sm-6 col-lg-3">
-              <label className="form-label">Security Deposit (Months)</label>
-              <input
-                type="number"
-                min="0"
-                step="0.1"
-                value={securityDepMonths}
-                onChange={(e) =>
-                  setSecurityDepMonths(
-                    e.target.value ? Number(e.target.value) : "",
-                  )
-                }
-                className="form-control"
-              />
-            </div>
-          </div>
-        </Card>
-
-        <div className="d-flex flex-column align-items-center justify-content-center">
-          <button
-            type="submit"
-            disabled={isSubmitting}
-            className="btn btn-success btn-md px-4"
-          >
-            {isSubmitting ? (
-              <>
-                <span
-                  className="spinner-border spinner-border-sm me-2"
-                  role="status"
-                  aria-hidden="true"
-                ></span>
-                Submitting...
-              </>
-            ) : (
-              <>Submit to DCT</>
-            )}
-          </button>
+          <p className="mt-2">Loading comp details...</p>
         </div>
-      </form>
+      ) : (
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <Card
+            title="Building & Tenant Information"
+            headerClass="bg-primary text-white text-center text-md-start"
+            className="mb-4 border-0"
+          >
+            <div className="row g-3">
+              <div className="col-12 col-md-6">
+                <label className="form-label">
+                  Anonymous Address <span className="mu2-error">*</span>
+                </label>
+                <input
+                  type="text"
+                  value={addressAnon}
+                  onChange={(e) => {
+                    setAddressAnon(e.target.value);
+                    if (errors.address_anon)
+                      setErrors({ ...errors, address_anon: "" });
+                  }}
+                  className={`form-control ${errors.address_anon ? "is-invalid" : ""}`}
+                  placeholder="e.g., Midtown Office Tower"
+                />
+                {errors.address_anon && (
+                  <div className="mu2-error small mt-1">
+                    {errors.address_anon}
+                  </div>
+                )}
+              </div>
+
+              <div className="col-12 col-md-6">
+                <label className="form-label">Building Address</label>
+                <input
+                  type="text"
+                  value={buildingAddress}
+                  onChange={(e) => setBuildingAddress(e.target.value)}
+                  className="form-control"
+                  placeholder="e.g., 123 Main Street, New York"
+                />
+              </div>
+
+              <div className="col-12 col-md-6">
+                <label className="form-label">
+                  SF Rounded (multiple of 1000){" "}
+                  <span className="mu2-error">*</span>
+                </label>
+                <input
+                  type="number"
+                  value={sfRounded}
+                  onChange={(e) => {
+                    setSfRounded(e.target.value ? Number(e.target.value) : "");
+                    if (errors.sf_rounded)
+                      setErrors({ ...errors, sf_rounded: "" });
+                  }}
+                  min="0"
+                  step="1000"
+                  className={`form-control ${errors.sf_rounded ? "is-invalid" : ""}`}
+                />
+                {errors.sf_rounded && (
+                  <div className="mu2-error small mt-1">{errors.sf_rounded}</div>
+                )}
+              </div>
+
+              <div className="col-12 col-md-6">
+                <label className="form-label">
+                  Submarket <span className="mu2-error">*</span>
+                </label>
+                <input
+                  type="text"
+                  value={submarket}
+                  onChange={(e) => {
+                    setSubmarket(e.target.value);
+                    if (errors.submarket) setErrors({ ...errors, submarket: "" });
+                  }}
+                  className={`form-control ${errors.submarket ? "is-invalid" : ""}`}
+                />
+                {errors.submarket && (
+                  <div className="mu2-error small mt-1">{errors.submarket}</div>
+                )}
+              </div>
+
+              <div className="col-12 col-md-6">
+                <label className="form-label">Building Class</label>
+                <select
+                  value={buildingClass}
+                  onChange={(e) => setBuildingClass(e.target.value)}
+                  className="form-select"
+                >
+                  {BUILDING_CLASS_OPTIONS.map((option) => (
+                    <option key={option} value={option}>
+                      {option}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="col-12 col-md-6">
+                <label className="form-label">Floor Segment</label>
+                <select
+                  value={floorSegment}
+                  onChange={(e) => setFloorSegment(e.target.value)}
+                  className="form-select"
+                >
+                  {FLOOR_SEGMENT_OPTIONS.map((option) => (
+                    <option key={option} value={option}>
+                      {option}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="col-12 col-md-6">
+                <label className="form-label">
+                  Tenant Entity <span className="mu2-error">*</span>
+                </label>
+                <select
+                  value={tenantEntity}
+                  onChange={(e) => {
+                    setTenantEntity(e.target.value);
+                    if (errors.tenant_entity)
+                      setErrors({ ...errors, tenant_entity: "" });
+                  }}
+                  className={`form-select ${errors.tenant_entity ? "is-invalid" : ""}`}
+                >
+                  <option value="">Select from list...</option>
+                  {TENANT_ENTITY_OPTIONS.map((option) => (
+                    <option key={option} value={option}>
+                      {option}
+                    </option>
+                  ))}
+                </select>
+                {errors.tenant_entity && (
+                  <div className="mu2-error small mt-1">
+                    {errors.tenant_entity}
+                  </div>
+                )}
+              </div>
+
+              <div className="col-12 col-md-6">
+                <label className="form-label">Light and Views</label>
+                <select
+                  value={lightAndViews}
+                  onChange={(e) => {
+                    setLightAndViews(e.target.value);
+                    if (errors.light_and_views)
+                      setErrors({ ...errors, light_and_views: "" });
+                  }}
+                  className={`form-select ${errors.light_and_views ? "is-invalid" : ""}`}
+                >
+                  <option value="">Select Rating</option>
+                  {LIGHT_AND_VIEWS_OPTIONS.map((option) => (
+                    <option key={option} value={option}>
+                      {option}
+                    </option>
+                  ))}
+                </select>
+                {errors.light_and_views && (
+                  <div className="mu2-error small mt-1">
+                    {errors.light_and_views}
+                  </div>
+                )}
+              </div>
+            </div>
+          </Card>
+
+          <Card
+            title="Deal Details"
+            headerClass="bg-success text-white text-center text-md-start"
+            className="mb-4 border-0"
+          >
+            <div className="row g-3">
+              <div className="col-12 col-md-6">
+                <label className="form-label">Deal Type</label>
+                <select
+                  value={dealType}
+                  onChange={(e) => setDealType(e.target.value)}
+                  className="form-select"
+                >
+                  {DEAL_TYPE_OPTIONS.map((option) => (
+                    <option key={option} value={option}>
+                      {option}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="col-12 col-md-6">
+                <label className="form-label">Guarantee Type</label>
+                <select
+                  value={guaranteeType}
+                  onChange={(e) => setGuaranteeType(e.target.value)}
+                  className="form-select"
+                >
+                  {GUARANTEE_TYPE_OPTIONS.map((option) => (
+                    <option key={option} value={option}>
+                      {option}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="col-12 col-md-6">
+                <label className="form-label">
+                  Term (Months) <span className="mu2-error">*</span>
+                </label>
+                <input
+                  type="number"
+                  value={termMonths}
+                  onChange={(e) => {
+                    setTermMonths(e.target.value ? Number(e.target.value) : "");
+                    if (errors.term_months)
+                      setErrors({ ...errors, term_months: "" });
+                  }}
+                  min="1"
+                  className={`form-control ${errors.term_months ? "is-invalid" : ""}`}
+                />
+                {errors.term_months && (
+                  <div className="mu2-error small mt-1">{errors.term_months}</div>
+                )}
+              </div>
+            </div>
+          </Card>
+
+          <Card
+            title="Base Rent Schedule ($/PSF)"
+            headerClass="bg-primary text-white text-center text-md-start"
+            className="mb-4 border-0"
+          >
+            {rentSchedule.map((period, index) => (
+              <div key={index} className="row g-3 mb-3 align-items-end">
+                <div className="col-12 col-md-3">
+                  <label className="form-label">Rent PSF</label>
+                  <input
+                    type="number"
+                    step="0.01"
+                    value={period.rent}
+                    onChange={(e) => {
+                      updateRentPeriod(
+                        index,
+                        "rent",
+                        Number(e.target.value) || 0,
+                      );
+                      if (errors[`rent_${index}`]) {
+                        const newErrors = { ...errors };
+                        delete newErrors[`rent_${index}`];
+                        setErrors(newErrors);
+                      }
+                    }}
+                    className={`form-control ${errors[`rent_${index}`] ? "is-invalid" : ""}`}
+                  />
+                  {errors[`rent_${index}`] && (
+                    <div className="mu2-error small mt-1">
+                      {errors[`rent_${index}`]}
+                    </div>
+                  )}
+                </div>
+
+                <div className="col-12 col-md-3">
+                  <label className="form-label">Start Year</label>
+                  <input
+                    type="number"
+                    min="1"
+                    value={period.start_y}
+                    onChange={(e) => {
+                      updateRentPeriod(
+                        index,
+                        "start_y",
+                        Number(e.target.value) || 1,
+                      );
+                      if (errors[`year_${index}`]) {
+                        const newErrors = { ...errors };
+                        delete newErrors[`year_${index}`];
+                        setErrors(newErrors);
+                      }
+                      if (errors[`year_logic_${index}`]) {
+                        const newErrors = { ...errors };
+                        delete newErrors[`year_logic_${index}`];
+                        setErrors(newErrors);
+                      }
+                    }}
+                    className={`form-control ${errors[`year_${index}`] || errors[`year_logic_${index}`] ? "is-invalid" : ""}`}
+                  />
+                </div>
+
+                <div className="col-12 col-md-3">
+                  <label className="form-label">End Year</label>
+                  <input
+                    type="number"
+                    min="1"
+                    value={period.end_y}
+                    onChange={(e) => {
+                      updateRentPeriod(
+                        index,
+                        "end_y",
+                        Number(e.target.value) || 1,
+                      );
+                      if (errors[`year_${index}`]) {
+                        const newErrors = { ...errors };
+                        delete newErrors[`year_${index}`];
+                        setErrors(newErrors);
+                      }
+                      if (errors[`year_logic_${index}`]) {
+                        const newErrors = { ...errors };
+                        delete newErrors[`year_logic_${index}`];
+                        setErrors(newErrors);
+                      }
+                    }}
+                    className={`form-control ${errors[`year_${index}`] || errors[`year_logic_${index}`] ? "is-invalid" : ""}`}
+                  />
+                  {(errors[`year_${index}`] || errors[`year_logic_${index}`]) && (
+                    <div className="mu2-error small mt-1">
+                      {errors[`year_${index}`] || errors[`year_logic_${index}`]}
+                    </div>
+                  )}
+                </div>
+
+                <div className="col-12 col-md-3">
+                  <button
+                    type="button"
+                    onClick={() => removeRentPeriod(index)}
+                    disabled={rentSchedule.length === 1}
+                    className="btn btn-outline-danger w-100 d-flex align-items-center justify-content-center gap-2"
+                  >
+                    <Trash2 size={18} />
+                    Remove
+                  </button>
+                </div>
+              </div>
+            ))}
+
+            <button
+              type="button"
+              onClick={addRentPeriod}
+              className="btn btn-outline-primary d-flex align-items-center justify-content-center gap-2 w-100"
+            >
+              <Plus size={18} />
+              Add Rent Period
+            </button>
+          </Card>
+
+          <Card
+            title="Additional Terms"
+            headerClass="bg-success text-white text-center text-md-start"
+            className="mb-4 border-0"
+          >
+            <div className="row g-3">
+              <div className="col-12 col-sm-6 col-lg-3">
+                <label className="form-label">Escalation Type</label>
+                <select
+                  value={escalationType}
+                  onChange={(e) => setEscalationType(e.target.value)}
+                  className="form-select"
+                >
+                  {ESCALATION_TYPE_OPTIONS.map((option) => (
+                    <option key={option} value={option}>
+                      {option}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="col-12 col-sm-6 col-lg-3">
+                <label className="form-label">
+                  Escalation Value {escalationType === "Percent" ? "(%)" : "($)"}{" "}
+                  <span className="mu2-error">*</span>
+                </label>
+                <input
+                  type="number"
+                  step="0.1"
+                  value={escalationValue}
+                  onChange={(e) => {
+                    setEscalationValue(
+                      e.target.value ? Number(e.target.value) : "",
+                    );
+                    if (errors.escalation_value)
+                      setErrors({ ...errors, escalation_value: "" });
+                  }}
+                  className={`form-control ${errors.escalation_value ? "is-invalid" : ""}`}
+                />
+                {errors.escalation_value && (
+                  <div className="mu2-error small mt-1">
+                    {errors.escalation_value}
+                  </div>
+                )}
+              </div>
+
+              <div className="col-12 col-sm-6 col-lg-3">
+                <label className="form-label">Free Rent Months</label>
+                <input
+                  type="number"
+                  min="0"
+                  step="0.1"
+                  value={freeRentMonths}
+                  onChange={(e) =>
+                    setFreeRentMonths(
+                      e.target.value ? Number(e.target.value) : "",
+                    )
+                  }
+                  className="form-control"
+                />
+              </div>
+
+              <div className="col-12 col-sm-6 col-lg-3">
+                <label className="form-label">TI Allowance (Range)</label>
+                <select
+                  value={tiAllowanceRange}
+                  onChange={(e) => setTiAllowanceRange(e.target.value)}
+                  className="form-select"
+                >
+                  <option value="">Select TI Allowance</option>
+                  {TI_ALLOWANCE_OPTIONS.map((option) => (
+                    <option key={option} value={option}>
+                      {option}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="col-12 col-sm-6 col-lg-3">
+                <label className="form-label">TI Allowance PSF ($)</label>
+                <input
+                  type="number"
+                  min="0"
+                  step="0.1"
+                  value={tiAllowancePsf}
+                  onChange={(e) =>
+                    setTiAllowancePsf(
+                      e.target.value ? Number(e.target.value) : "",
+                    )
+                  }
+                  className="form-control"
+                  placeholder="Enter TI PSF"
+                />
+              </div>
+
+              <div className="col-12 col-sm-6 col-lg-3">
+                <label className="form-label">Security Deposit (Months)</label>
+                <input
+                  type="number"
+                  min="0"
+                  step="0.1"
+                  value={securityDepMonths}
+                  onChange={(e) =>
+                    setSecurityDepMonths(
+                      e.target.value ? Number(e.target.value) : "",
+                    )
+                  }
+                  className="form-control"
+                />
+              </div>
+            </div>
+          </Card>
+
+          <div className="d-flex flex-column align-items-center justify-content-center">
+            <button
+              type="submit"
+              disabled={isSubmitting}
+              className="btn btn-success btn-md px-4"
+            >
+              {isSubmitting ? (
+                <>
+                  <span
+                    className="spinner-border spinner-border-sm me-2"
+                    role="status"
+                    aria-hidden="true"
+                  ></span>
+                  {compId ? "Updating..." : "Submitting..."}
+                </>
+              ) : (
+                <>{compId ? "Update Comp" : "Submit to DCT"}</>
+              )}
+            </button>
+          </div>
+        </form>
+      )}
     </div>
   );
 };

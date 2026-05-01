@@ -82,7 +82,7 @@ export const DistilledExpenseTrackerlist = () => {
                   <th>Security Monitoring</th>
                   <th>Accounting</th>
                   <th>Legal</th>
-                  <th>TI Allowances</th>
+                  {/* <th>TI Allowances</th> */}
                   <th>Commissions</th>
                   <th>Interest Rates</th>
                 </tr>
@@ -128,9 +128,9 @@ export const DistilledExpenseTrackerlist = () => {
                     <td className="text-end">
                       {formatCurrency(item.legal_psf)}
                     </td>
-                    <td className="text-end">
+                    {/* <td className="text-end">
                       {formatCurrency(item.ti_allowances_psf)}
-                    </td>
+                    </td> */}
                     <td className="text-end">
                       {formatCurrency(item.commissions_psf)}
                     </td>

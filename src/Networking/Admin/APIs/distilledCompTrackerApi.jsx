@@ -5,6 +5,8 @@ import {
   distilledBenchmarkEndpoint,
   distilledCompTrackerEndpoint,
   distilledCompTrackerlistEndPoint,
+  updateDCTCompEndpoint,
+  deleteDCTCompEndpoint,
 } from "../../NWconfig";
 
 export const distilledCompTracker = createAsyncThunk(
@@ -59,6 +61,49 @@ export const distilledBenchmarkApi = createAsyncThunk(
       const response = await axiosInstance.post(
         distilledBenchmarkEndpoint,
         payload,
+      );
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.response?.data?.message || error.message);
+    }
+  },
+);
+
+export const getDCTComp = createAsyncThunk(
+  "getDCTComp",
+  async (compId, { rejectWithValue }) => {
+    try {
+      const response = await axiosInstance.get(
+        `${updateDCTCompEndpoint}${compId}`,
+      );
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.response?.data?.message || error.message);
+    }
+  },
+);
+
+export const updateDCTComp = createAsyncThunk(
+  "updateDCTComp",
+  async ({ compId, payload }, { rejectWithValue }) => {
+    try {
+      const response = await axiosInstance.put(
+        `${updateDCTCompEndpoint}${compId}`,
+        payload,
+      );
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.response?.data?.message || error.message);
+    }
+  },
+);
+
+export const deleteDCTComp = createAsyncThunk(
+  "deleteDCTComp",
+  async (compId, { rejectWithValue }) => {
+    try {
+      const response = await axiosInstance.delete(
+        `${deleteDCTCompEndpoint}${compId}`,
       );
       return response.data;
     } catch (error) {

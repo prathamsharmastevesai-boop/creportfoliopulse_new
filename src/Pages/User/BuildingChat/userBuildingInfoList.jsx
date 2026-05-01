@@ -40,7 +40,7 @@ export const UserBuildingInfolist = () => {
   }, [filteredBuildings]);
 
   const goToChat = (buildingId, category) => {
-    if (category === "tenant_info") {
+    if (category === "tenant_information") {
       navigate("/tenant-information-chat", {
         state: { buildingId, category },
       });
@@ -138,7 +138,7 @@ export const UserBuildingInfolist = () => {
                       </button>
                       <button
                         className="btn btn-dark btn-sm"
-                        onClick={() => goToChat(building.id, "tenant_info")}
+                        onClick={() => goToChat(building.id, "tenant_information")}
                       >
                         Tenant Info
                       </button>

@@ -31,7 +31,7 @@ export const USER_ROUTE_FEATURE_MAP = {
   "/tenant-market": [FEATURE_KEYS.TENANT_MARKET],
   // "/email-drafting": [FEATURE_KEYS.EMAIL_DRAFTING],
   // "/notes": [FEATURE_KEYS.NOTES],
-  // "/portfolio-forum": [FEATURE_KEYS.FORUM],
+  // "/pulse-forum": [FEATURE_KEYS.FORUM],
   "/user-sublease-tracker": [FEATURE_KEYS.SUBLEASE],
   "/user-sublease-tracker-list": [FEATURE_KEYS.SUBLEASE],
   "/user-renewal-tracker-form": [FEATURE_KEYS.RENEWAL],

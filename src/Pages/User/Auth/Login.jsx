@@ -285,9 +285,9 @@ export const Login = () => {
     const is_owner_admin = sessionStorage.getItem("is_owner_admin");
 
     if (token && role) {
-      if (role === "user") navigate("/cre-news", { replace: true });
+      if (role === "user") navigate("/user-the-pulse", { replace: true });
       else if (role === "admin")
-        navigate("/admin-dashboard", { replace: true });
+        navigate("/admin-the-pulse", { replace: true });
       else if (role === "superuser")
         navigate("/admin-management", { replace: true });
     }
@@ -318,8 +318,8 @@ export const Login = () => {
       navigate("/the-pulse-upload");
       return;
     }
-    if (role === "user") navigate("/cre-news");
-    else if (role === "admin") navigate("/admin-dashboard");
+    if (role === "user") navigate("/user-the-pulse");
+    else if (role === "admin") navigate("/admin-the-pulse");
     else if (role === "superuser") navigate("/admin-management");
   };
 

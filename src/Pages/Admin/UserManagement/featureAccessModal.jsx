@@ -2,6 +2,7 @@ import React from "react";
 import { Button, Form, Row, Col, Spinner } from "react-bootstrap";
 import { toast } from "react-toastify";
 import { FEATURE_CONFIG, getFeatureLabel } from "./featureConfig";
+import { Building2, Eye, Lock, CheckCircle, XCircle } from "lucide-react";
 
 const FeatureAccessModal = ({
   selectedUser,
@@ -59,9 +60,12 @@ const FeatureAccessModal = ({
                                   features[key] ? "text-primary" : "text-muted"
                                 }
                                 style={{
-                                  fontSize: "0.7rem",
+                                  fontSize: "0.75rem",
                                   cursor: "pointer",
                                   userSelect: "none",
+                                  display: "flex",
+                                  alignItems: "center",
+                                  gap: "6px",
                                 }}
                                 onClick={() => {
                                   if (!features[key]) {
@@ -77,16 +81,32 @@ const FeatureAccessModal = ({
                                   );
                                 }}
                               >
-                                🏢{" "}
-                                {features[key]
-                                  ? "View building access →"
-                                  : "Enable to manage buildings"}
+                                <Building2 size={14} />
+
+                                {features[key] ? (
+                                  <>
+                                    <Eye size={14} />
+                                    View building access
+                                  </>
+                                ) : (
+                                  <>
+                                    <Lock size={14} />
+                                    Enable to manage buildings
+                                  </>
+                                )}
                               </div>
                             )}
                           </div>
 
                           <div className="d-flex align-items-center gap-2">
+                            {features[key] ? (
+                              <CheckCircle size={16} className="text-success" />
+                            ) : (
+                              <XCircle size={16} className="text-danger" />
+                            )}
+
                             {togglingFeature === key && <Spinner size="sm" />}
+
                             <Form.Check
                               type="switch"
                               checked={features[key]}

@@ -16,6 +16,7 @@ import TypingIndicator from "./TypingIndicator";
 import { AskQuestionAPI } from "../Networking/Admin/APIs/UploadDocApi";
 import { BackButton } from "./backButton";
 import { AskQuestionDCTAPI } from "../Networking/Admin/APIs/distilledCompTrackerApi";
+import "./chatWindow.css";
 
 export const ChatWindow = ({
   category: propCategory,
@@ -31,14 +32,9 @@ export const ChatWindow = ({
   const textareaRef = useRef(null);
   const recognitionRef = useRef(null);
 
-  const [category, setCategory] = useState(
-    location.state?.type || propCategory,
-  );
-
+  const [category] = useState(location.state?.type || propCategory);
   const [sessionId, setSessionId] = useState(null);
-
   const [messages, setMessages] = useState([]);
-
   const [isSending, setIsSending] = useState(false);
   const [message, setMessage] = useState("");
   const [isRecording, setIsRecording] = useState(false);
@@ -53,76 +49,53 @@ export const ChatWindow = ({
 
   const getContentType = (text) => {
     if (!text || typeof text !== "string") return "text";
-
-    const trimmedText = text.trim();
-
+    const t = text.trim();
     if (
-      trimmedText.startsWith("http://") ||
-      trimmedText.startsWith("https://") ||
-      trimmedText.startsWith("www.")
+      t.startsWith("http://") ||
+      t.startsWith("https://") ||
+      t.startsWith("www.")
     ) {
       try {
-        const url = new URL(
-          trimmedText.startsWith("www.")
-            ? "https://" + trimmedText
-            : trimmedText,
-        );
-        const path = url.pathname.toLowerCase();
-
-        if (path.match(/\.(jpg|jpeg|png|webp|gif|bmp)$/)) return "image";
-        if (path.endsWith(".pdf")) return "pdf";
+        const url = new URL(t.startsWith("www.") ? "https://" + t : t);
+        const p = url.pathname.toLowerCase();
+        if (p.match(/\.(jpg|jpeg|png|webp|gif|bmp)$/)) return "image";
+        if (p.endsWith(".pdf")) return "pdf";
         return "link";
       } catch {
         return "text";
       }
     }
-
     return "text";
   };
 
+  const isSpecialCategory =
+    category === "floor_plan" ||
+    category === "building_stack" ||
+    category === "LOI";
+
   useEffect(() => {
-    if (
-      category === "floor_plan" ||
-      category === "building_stack" ||
-      category === "LOI"
-    ) {
-      setSessionId("building-chat");
+    if (isSpecialCategory || category === "DCT") {
+      setSessionId(isSpecialCategory ? "building-chat" : "dct-chat");
       setIsLoadingSession(false);
       return;
     }
-
-    if (category === "DCT") {
-      setSessionId("dct-chat");
-      setIsLoadingSession(false);
-      return;
-    }
-
     if (location.state?.sessionId) {
       setSessionId(location.state.sessionId);
       setIsLoadingSession(false);
       return;
     }
-
     const fetchLastSession = async () => {
       setIsLoadingSession(true);
       try {
         const res = await dispatch(
-          get_Session_List_Specific({
-            category,
-            buildingId: building_id,
-          }),
+          get_Session_List_Specific({ category, buildingId: building_id }),
         ).unwrap();
-
         const filtered = res.filter((s) => s.category === category);
-
         if (filtered.length > 0) {
-          const latestSession = filtered.reduce((latest, current) => {
-            return new Date(current.created_at) > new Date(latest.created_at)
-              ? current
-              : latest;
-          });
-
-          setSessionId(latestSession.session_id);
+          const latest = filtered.reduce((a, b) =>
+            new Date(b.created_at) > new Date(a.created_at) ? b : a,
+          );
+          setSessionId(latest.session_id);
         } else {
           setSessionId(uuidv4());
           setMessages([]);
@@ -131,45 +104,28 @@ export const ChatWindow = ({
         setIsLoadingSession(false);
       }
     };
-
     fetchLastSession();
   }, [category, dispatch]);
 
   useEffect(() => {
-    if (
-      category === "floor_plan" ||
-      category === "building_stack" ||
-      category === "LOI"
-    ) {
+    if (isSpecialCategory || category === "DCT" || !sessionId) {
       setMessages([]);
       setIsLoadingHistory(false);
       return;
     }
-
-    if (category === "DCT") {
-      setMessages([]);
-      setIsLoadingHistory(false);
-      return;
-    }
-
-    if (!sessionId) {
-      setMessages([]);
-      setIsLoadingHistory(false);
-      return;
-    }
-
-    const fetchChatHistory = async () => {
+    const fetchHistory = async () => {
       setIsLoadingHistory(true);
       try {
         const res = await dispatch(
           get_Chat_History({ session_id: sessionId, building_id }),
         ).unwrap();
         if (Array.isArray(res) && res.length > 0) {
-          const formatted = res.flatMap((item) => [
-            { sender: "User", message: item.question },
-            { sender: "Admin", message: item.answer },
-          ]);
-          setMessages(formatted);
+          setMessages(
+            res.flatMap((item) => [
+              { sender: "User", message: item.question },
+              { sender: "Admin", message: item.answer },
+            ]),
+          );
         } else {
           setMessages([]);
         }
@@ -177,8 +133,7 @@ export const ChatWindow = ({
         setIsLoadingHistory(false);
       }
     };
-
-    fetchChatHistory();
+    fetchHistory();
   }, [sessionId, category, dispatch]);
 
   const scrollToBottom = () => {
@@ -194,31 +149,22 @@ export const ChatWindow = ({
       toast.error("Speech Recognition not supported.");
       return;
     }
-
     try {
       await navigator.mediaDevices.getUserMedia({ audio: true });
-
       if (!recognitionRef.current) {
-        const SpeechRecognition =
-          window.SpeechRecognition || window.webkitSpeechRecognition;
-        recognitionRef.current = new SpeechRecognition();
+        const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+        recognitionRef.current = new SR();
         recognitionRef.current.continuous = false;
         recognitionRef.current.interimResults = false;
         recognitionRef.current.lang = "en-US";
-
-        recognitionRef.current.onresult = (event) => {
-          const transcript = event.results[0][0].transcript;
-          setMessage(transcript);
-        };
-
+        recognitionRef.current.onresult = (e) =>
+          setMessage(e.results[0][0].transcript);
         recognitionRef.current.onerror = () => {
           toast.error("Voice not recognized. Try again.");
           setIsRecording(false);
         };
-
         recognitionRef.current.onend = () => setIsRecording(false);
       }
-
       if (!isRecording) {
         recognitionRef.current.start();
         setIsRecording(true);
@@ -237,89 +183,72 @@ export const ChatWindow = ({
       setSpeakingIndex(null);
     } else {
       window.speechSynthesis.cancel();
-      const utterance = new SpeechSynthesisUtterance(text);
-      utterance.lang = "en-US";
-      utterance.onend = () => setSpeakingIndex(null);
+      const utt = new SpeechSynthesisUtterance(text);
+      utt.lang = "en-US";
+      utt.onend = () => setSpeakingIndex(null);
       setSpeakingIndex(index);
-      window.speechSynthesis.speak(utterance);
+      window.speechSynthesis.speak(utt);
     }
   };
 
   const handleSendMessage = async () => {
     if (!message.trim()) return toast.warning("Please enter a message.");
-
-    const userMessage = {
-      message,
-      sender: "User",
-      timestamp: new Date(),
-    };
-
+    const userMessage = { message, sender: "User", timestamp: new Date() };
     setMessages((prev) => [...prev, userMessage]);
     setMessage("");
     scrollToBottom();
-
     try {
       setIsSending(true);
       setIsReplyLoading(true);
-
       let response;
-
-      if (
-        category === "floor_plan" ||
-        category === "building_stack" ||
-        category === "LOI"
-      ) {
-        const payload = {
-          question: userMessage.message,
-          building_id,
-          category,
-        };
-
-        response = await dispatch(AskQuestionBuildingAPI(payload)).unwrap();
+      if (isSpecialCategory) {
+        response = await dispatch(
+          AskQuestionBuildingAPI({
+            question: userMessage.message,
+            building_id,
+            category,
+          }),
+        ).unwrap();
       } else if (category === "report_generation") {
-        const payload = {
-          session_id: sessionId,
-          question: userMessage.message,
-          category,
-          file_id: fileId,
-        };
-
-        response = await dispatch(AskQuestionReportAPI(payload)).unwrap();
+        response = await dispatch(
+          AskQuestionReportAPI({
+            session_id: sessionId,
+            question: userMessage.message,
+            category,
+            file_id: fileId,
+          }),
+        ).unwrap();
       } else if (category === "DCT") {
-        const payload = {
-          question: userMessage.message,
-        };
-        response = await dispatch(AskQuestionDCTAPI(payload)).unwrap();
+        response = await dispatch(
+          AskQuestionDCTAPI({ question: userMessage.message }),
+        ).unwrap();
       } else {
-        const payload = {
-          session_id: sessionId,
-          question: userMessage.message,
-          category,
-          file_id: fileId,
-          building_id,
-        };
-
-        response = await dispatch(AskQuestionAPI(payload)).unwrap();
+        response = await dispatch(
+          AskQuestionAPI({
+            session_id: sessionId,
+            question: userMessage.message,
+            category,
+            file_id: fileId,
+            building_id,
+          }),
+        ).unwrap();
       }
-
       if (response?.answer) {
-        const contentType = getContentType(response.answer);
-
-        const adminMessage = {
-          message: response.answer,
-          sender: "Admin",
-          timestamp: new Date(),
-          type: contentType,
-        };
-
-        setMessages((prev) => [...prev, adminMessage]);
+        setMessages((prev) => [
+          ...prev,
+          {
+            message: response.answer,
+            sender: "Admin",
+            timestamp: new Date(),
+            type: getContentType(response.answer),
+          },
+        ]);
       } else {
         toast.warning("No response from assistant.");
       }
-
       scrollToBottom();
-    } catch (error) {
-      console.error("Error sending message:", error);
+    } catch (err) {
+      console.error("Error sending message:", err);
     } finally {
       setIsSending(false);
       setIsReplyLoading(false);
@@ -327,258 +256,228 @@ export const ChatWindow = ({
   };
 
   const handleNewSession = () => {
-    const newId = uuidv4();
-    setSessionId(newId);
+    setSessionId(uuidv4());
     setMessages([]);
     toast.info(`Started a new chat session for "${category}".`);
   };
 
   const handleNavigation = () => {
-    if (category == "floor_plan") {
-      navigate("/user-files-media", {
-        state: {
-          buildingId: building_id,
-        },
-      });
+    if (category === "floor_plan") {
+      navigate("/user-files-media", { state: { buildingId: building_id } });
+    } else if (category === "LOI") {
+      navigate("/documents/LOI", { state: { buildingId: building_id } });
     } else {
-      navigate("/documents/LOI", {
-        state: {
-          buildingId: building_id,
-        },
-      });
+      navigate("/documents-lease", { state: { buildingId: building_id } });
     }
   };
 
+  const fullTitle = [heading, address].filter(Boolean).join(" – ");
+
   return (
-    <div className="container-fluid py-3" style={{ height: "90vh" }}>
-      <div className="row h-100">
-        <div className="col-md-12 d-flex flex-column">
-          <div className="chat-header d-flex justify-content-between align-items-center mb-2 position-relative flex-wrap">
-            <div className="d-flex align-items-center position-relative w-100 mt-3 mt-md-0">
-              <div className="d-flex align-items-center">
-                <BackButton />
-              </div>
-
-              <h5
-                className="chat-title mb-0 text-truncate address-title position-absolute start-50 translate-middle-x text-center"
-                title={address}
-              >
-                {heading}
-                {address ? " - " : ""}
-                {address}
-              </h5>
-
-              <div className="ms-auto d-flex align-items-center">
-                {category !== "floor_plan" &&
-                  category !== "building_stack" &&
-                  category !== "LOI" &&
-                  category !== "DCT" && (
-                    <button
-                      className="btn btn-outline-secondary btn-sm d-flex align-items-center"
-                      onClick={handleNewSession}
-                      disabled={isLoadingSession}
-                    >
-                      <i className="bi bi-plus-circle"></i>
-                      <span className="d-none d-md-inline ms-1">
-                        New Session
-                      </span>
-                    </button>
-                  )}
-
-                {category === "LOI" && (
-                  <button
-                    className="btn btn-outline-secondary btn-sm"
-                    onClick={() => handleNavigation()}
-                  >
-                    <i className="bi bi-upload" style={{ fontSize: 14 }} />
-
-                    <span className="d-none d-md-inline ms-1">
-                      UPLOAD NEW/ "VIEW LOI’s"
-                    </span>
-                  </button>
-                )}
-              </div>
-            </div>
+    <>
+      <div className="cw-root">
+        <div className="cw-header">
+          <div className="cw-header__back">
+            <BackButton />
           </div>
 
-          <div className="flex-grow-1 overflow-auto  rounded mb-2 hide-scrollbar">
-            {isLoading ? (
-              <div
-                className="d-flex justify-content-center align-items-center text-muted w-100"
-                style={{ minHeight: "60vh" }}
+          <div className="cw-header__title" title={fullTitle}>
+            {fullTitle}
+          </div>
+
+          <div className="cw-header__actions">
+            {!isSpecialCategory && category !== "DCT" && (
+              <button
+                className="cw-btn"
+                onClick={handleNewSession}
+                disabled={isLoadingSession}
+                title="New Session"
               >
-                <div className="spinner-border text-secondary me-2" />
-                {isLoadingSession
-                  ? "Loading chat session..."
-                  : "Loading chat history..."}
-              </div>
-            ) : (
-              <div className="message-container1 hide-scrollbar" ref={chatRef}>
-                {messages.length > 0 ? (
-                  <>
-                    {messages.map((msg, i) => (
-                      <div
-                        key={i}
-                        className={`mb-2 small ${
-                          msg.sender === "Admin" ? "text-start" : "text-end"
-                        }`}
-                      >
-                        <div
-                          className={`d-inline-block px-3 py-2 position-relative responsive-box ${
-                            msg.sender === "Admin"
-                              ? "bg-secondary-theme "
-                              : "bg-chat-send"
-                          }`}
-                        >
-                          {msg.sender === "Admin" ? (
-                            <>
-                              <i
-                                className={`bi ${
-                                  speakingIndex === i
-                                    ? "bi-volume-up-fill"
-                                    : "bi-volume-mute"
-                                } ms-2`}
-                                style={{
-                                  cursor: "pointer",
-                                  fontSize: "1rem",
-                                  color:
-                                    speakingIndex === i
-                                      ? "var(--accent-color)"
-                                      : "var(--text-secondary)",
-                                  position: "absolute",
-                                  right: "8px",
-                                  bottom: "18px",
-                                }}
-                                onClick={() => toggleSpeak(i, msg.message)}
-                              ></i>
-
-                              <div className="py-3">
-                                {(!msg.type || msg.type === "text") && (
-                                  <ReactMarkdown>{msg.message}</ReactMarkdown>
-                                )}
-
-                                {msg.type === "image" && (
-                                  <img
-                                    src={msg.message}
-                                    alt="response"
-                                    className="img-fluid rounded border"
-                                    style={{
-                                      cursor: "pointer",
-                                      maxHeight: "300px",
-                                    }}
-                                    onClick={() => setPreviewImage(msg.message)}
-                                  />
-                                )}
-
-                                {msg.type === "pdf" && (
-                                  <div
-                                    style={{ cursor: "pointer" }}
-                                    onClick={() => setPreviewPdf(msg.message)}
-                                    className="d-inline-block"
-                                  >
-                                    <iframe
-                                      src={msg.message}
-                                      title="PDF Preview"
-                                      className="w-100 rounded border shadow-sm"
-                                      style={{
-                                        height: "auto",
-                                        maxWidth: "400px",
-                                      }}
-                                    />
-                                    <div className="text-center text-primary fw-semibold mt-2 small">
-                                      Click to view full PDF
-                                    </div>
-                                  </div>
-                                )}
-
-                                {msg.type === "link" && (
-                                  <a
-                                    href={msg.message}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="text-primary fw-semibold"
-                                  >
-                                    Open File
-                                  </a>
-                                )}
-                              </div>
-                            </>
-                          ) : (
-                            msg.message
-                          )}
-                        </div>
-                      </div>
-                    ))}
-
-                    {isReplyLoading && <TypingIndicator />}
-                  </>
-                ) : (
-                  <div
-                    className="d-flex justify-content-center align-items-center text-muted w-100 text-center"
-                    style={{ minHeight: "60vh" }}
-                  >
-                    No messages yet.
-                    {!sessionId &&
-                      " Click 'New Session' to start a conversation."}
-                  </div>
-                )}
-              </div>
+                <i className="bi bi-plus-circle" />
+                <span className="cw-btn__label">New Session</span>
+              </button>
+            )}
+            {(category === "LOI" || category === "Lease") && (
+              <button
+                className="cw-btn"
+                onClick={handleNavigation}
+                title={
+                  category === "LOI"
+                    ? "Upload / View LOI"
+                    : "Upload / View Lease"
+                }
+              >
+                <i className="bi bi-upload" />
+                <span className="cw-btn__label">
+                  {category === "LOI"
+                    ? "Upload / View LOI"
+                    : "Upload / View Lease"}
+                </span>
+              </button>
             )}
           </div>
+        </div>
 
-          <div className="pt-2 pb-1">
-            <div className="d-flex align-items-end rounded-pill py-2 px-3 border chat-input-wrapper">
-              <textarea
-                ref={textareaRef}
-                rows={1}
-                className="form-control flex-grow-1 border-0 shadow-none bg-transparent me-2"
-                placeholder={"Ask Now, Let's Work..."}
-                value={message}
-                onChange={(e) => setMessage(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter" && !e.shiftKey) {
-                    e.preventDefault();
-                    handleSendMessage();
-                  }
-                }}
-                disabled={!sessionId || isSending || isLoading}
+        <div className="cw-body">
+          {isLoading ? (
+            <div className="cw-empty">
+              <div
+                className="spinner-border text-secondary me-2"
+                style={{ width: 20, height: 20, borderWidth: 2 }}
               />
-
-              {message.length > 0 ? (
-                <button
-                  className="btn btn-secondary rounded-circle"
-                  onClick={handleSendMessage}
-                  disabled={isSending || isLoading || !sessionId}
-                >
-                  {isSending ? (
-                    <div className="spinner-border spinner-border-sm text-light" />
-                  ) : (
-                    <i className="bi bi-send-fill"></i>
-                  )}
-                </button>
+              <span>
+                {isLoadingSession
+                  ? "Loading chat session…"
+                  : "Loading chat history…"}
+              </span>
+            </div>
+          ) : (
+            <div
+              ref={chatRef}
+              style={{ height: "100%", overflowY: "auto" }}
+              className="hide-scrollbar"
+            >
+              {messages.length > 0 ? (
+                <>
+                  {messages.map((msg, i) => (
+                    <div
+                      key={i}
+                      className={`cw-bubble-wrap cw-bubble-wrap--${msg.sender === "Admin" ? "admin" : "user"}`}
+                    >
+                      <div
+                        className={`cw-bubble cw-bubble--${msg.sender === "Admin" ? "admin" : "user"}`}
+                      >
+                        {msg.sender === "Admin" ? (
+                          <>
+                            {(!msg.type || msg.type === "text") && (
+                              <div className="py-1">
+                                <ReactMarkdown>{msg.message}</ReactMarkdown>
+                              </div>
+                            )}
+                            {msg.type === "image" && (
+                              <img
+                                src={msg.message}
+                                alt="response"
+                                className="img-fluid rounded border"
+                                style={{ cursor: "pointer", maxHeight: 280 }}
+                                onClick={() => setPreviewImage(msg.message)}
+                              />
+                            )}
+                            {msg.type === "pdf" && (
+                              <div
+                                style={{ cursor: "pointer" }}
+                                onClick={() => setPreviewPdf(msg.message)}
+                              >
+                                <iframe
+                                  src={msg.message}
+                                  title="PDF Preview"
+                                  style={{
+                                    height: "auto",
+                                    maxWidth: 380,
+                                    width: "100%",
+                                    borderRadius: 6,
+                                  }}
+                                />
+                                <div
+                                  className="text-center text-primary fw-semibold mt-1"
+                                  style={{ fontSize: 12 }}
+                                >
+                                  Click to view full PDF
+                                </div>
+                              </div>
+                            )}
+                            {msg.type === "link" && (
+                              <a
+                                href={msg.message}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-primary fw-semibold"
+                              >
+                                Open File
+                              </a>
+                            )}
+                            <button
+                              className={`cw-speak-btn ${speakingIndex === i ? "cw-speak-btn--active" : ""}`}
+                              onClick={() => toggleSpeak(i, msg.message)}
+                              title={
+                                speakingIndex === i ? "Stop" : "Read aloud"
+                              }
+                            >
+                              <i
+                                className={`bi ${speakingIndex === i ? "bi-volume-up-fill" : "bi-volume-mute"}`}
+                              />
+                            </button>
+                          </>
+                        ) : (
+                          msg.message
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                  {isReplyLoading && <TypingIndicator />}
+                </>
               ) : (
-                <button
-                  className={`btn rounded-circle ${
-                    isRecording ? "btn-danger" : "btn-outline-secondary"
-                  }`}
-                  onClick={startRecording}
-                  disabled={isSending || isLoading || !sessionId}
-                >
-                  <i
-                    className={`bi ${
-                      isRecording ? "bi-mic-mute-fill" : "bi-mic-fill"
-                    }`}
-                  ></i>
-                </button>
+                <div className="cw-empty">
+                  No messages yet.
+                  {!sessionId && " Click 'New Session' to start."}
+                </div>
               )}
             </div>
-          </div>
+          )}
+        </div>
+
+        <div className="cw-input-bar">
+          <textarea
+            ref={textareaRef}
+            rows={1}
+            className="cw-textarea"
+            placeholder="Ask Now, Let's Work…"
+            value={message}
+            onChange={(e) => setMessage(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" && !e.shiftKey) {
+                e.preventDefault();
+                handleSendMessage();
+              }
+            }}
+            disabled={!sessionId || isSending || isLoading}
+          />
+
+          {message.length > 0 ? (
+            <button
+              className="cw-icon-btn cw-icon-btn--send"
+              onClick={handleSendMessage}
+              disabled={isSending || isLoading || !sessionId}
+              title="Send"
+            >
+              {isSending ? (
+                <span
+                  className="spinner-border spinner-border-sm"
+                  style={{ width: 14, height: 14, borderWidth: 2 }}
+                />
+              ) : (
+                <i className="bi bi-send-fill" />
+              )}
+            </button>
+          ) : (
+            <button
+              className={`cw-icon-btn ${isRecording ? "cw-icon-btn--mic-on" : "cw-icon-btn--mic"}`}
+              onClick={startRecording}
+              disabled={isSending || isLoading || !sessionId}
+              title={isRecording ? "Stop recording" : "Voice input"}
+            >
+              <i
+                className={`bi ${isRecording ? "bi-mic-mute-fill" : "bi-mic-fill"}`}
+              />
+            </button>
+          )}
         </div>
       </div>
+
       {previewImage && (
         <div
           className="modal fade show d-block"
-          style={{ backgroundColor: "rgba(0,0,0,0.7)" }}
+          style={{ backgroundColor: "rgba(0,0,0,0.75)", zIndex: 1060 }}
           onClick={() => setPreviewImage(null)}
         >
           <div
@@ -591,8 +490,7 @@ export const ChatWindow = ({
                   type="button"
                   className="btn-close btn-close-white"
                   onClick={() => setPreviewImage(null)}
-                  aria-label="Close"
-                ></button>
+                />
               </div>
               <div className="modal-body text-center p-0">
                 <img
@@ -606,14 +504,15 @@ export const ChatWindow = ({
           </div>
         </div>
       )}
+
       {previewPdf && (
         <div
           className="modal fade show d-block"
-          style={{ backgroundColor: "rgba(0,0,0,0.8)" }}
+          style={{ backgroundColor: "rgba(0,0,0,0.82)", zIndex: 1060 }}
           onClick={() => setPreviewPdf(null)}
         >
           <div
-            className="modal-dialog modal-dialog-centered modal"
+            className="modal-dialog modal-dialog-centered modal-xl"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="modal-content border-0 bg-transparent">
@@ -622,21 +521,20 @@ export const ChatWindow = ({
                   type="button"
                   className="btn-close btn-close-white"
                   onClick={() => setPreviewPdf(null)}
-                  aria-label="Close"
-                ></button>
+                />
               </div>
               <div className="modal-body p-0">
                 <iframe
                   src={previewPdf}
                   title="PDF Full View"
                   className="w-100 rounded"
-                  style={{ height: "90vh", border: "none" }}
+                  style={{ height: "88vh", border: "none" }}
                 />
               </div>
             </div>
           </div>
         </div>
       )}
-    </div>
+    </>
   );
 };

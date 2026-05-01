@@ -157,7 +157,7 @@ export const Tours = () => {
                 onChange={handleChange}
                 isInvalid={!!errors.date}
                 className="py-2"
-                min={new Date().toISOString().split("T")[0]}
+
               />
               <Form.Control.Feedback type="invalid">
                 {errors.date}

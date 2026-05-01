@@ -24,6 +24,7 @@ const INITIAL_FORM = {
   contact_name: "",
   contact_email: "",
   contact_phone: "",
+  is_global: false,
 };
 
 export const TourForm = ({
@@ -38,6 +39,7 @@ export const TourForm = ({
   const [loading, setLoading] = useState(false);
   const [form, setForm] = useState(INITIAL_FORM);
   const [errors, setErrors] = useState({});
+  const role = sessionStorage.getItem("role");
 
   useEffect(() => {
     if (editData) {
@@ -48,8 +50,11 @@ export const TourForm = ({
   }, [editData, preselectedDate]);
 
   const handleChange = (e) => {
-    const { name, value } = e.target;
-    setForm((prev) => ({ ...prev, [name]: value }));
+    const { name, value, type, checked } = e.target;
+    setForm((prev) => ({
+      ...prev,
+      [name]: type === "checkbox" ? checked : value,
+    }));
     if (errors[name]) setErrors((prev) => ({ ...prev, [name]: "" }));
   };
 
@@ -100,7 +105,7 @@ export const TourForm = ({
             <span className="visually-hidden">Loading...</span>
           </div>
           <div className="cal-form-overlay__text">
-            {editData ? "Updating tour…" : "Scheduling tour…"}
+            {editData ? "Updating event…" : "Scheduling event…"}
           </div>
         </div>
       )}
@@ -108,7 +113,7 @@ export const TourForm = ({
       <div className="d-flex align-items-center justify-content-between px-4 py-3 cal-section-border">
         <div>
           <h6 className="mb-0 fw-semibold cal-title">
-            {editData ? "Edit Tour" : "Schedule a Tour"}
+            {editData ? "Edit Tour" : "Schedule an Event"}
           </h6>
           <small className="cal-subtitle">Fill in the details below</small>
         </div>
@@ -293,6 +298,28 @@ export const TourForm = ({
             />
           </div>
         </div>
+        {(role === "admin" || role === "superuser") && (
+          <div className="mb-3 form-check px-4">
+            <input
+              type="checkbox"
+              name="is_global"
+              className="form-check-input"
+              id="isGlobalCheck"
+              checked={form.is_global}
+              onChange={handleChange}
+            />
+            <label
+              className="form-check-label small fw-medium cal-form-label"
+              htmlFor="isGlobalCheck"
+              style={{ cursor: "pointer" }}
+            >
+              Make this a Global (Admin) Event
+            </label>
+            <div className="form-text mt-0 cal-subtitle" style={{ fontSize: '11px' }}>
+              Global events are visible to all users.
+            </div>
+          </div>
+        )}
 
         {error && !loading && (
           <div className="alert alert-danger py-2 small mb-0">
@@ -330,9 +357,9 @@ export const TourForm = ({
               {editData ? "Updating…" : "Scheduling…"}
             </>
           ) : editData ? (
-            "Update Tour"
+            "Update Event"
           ) : (
-            "Schedule Tour"
+            "Schedule Event"
           )}
         </button>
       </div>

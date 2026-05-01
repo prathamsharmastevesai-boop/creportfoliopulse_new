@@ -72,7 +72,7 @@ const DeleteConfirmModal = ({
       <div className="cal-delete-modal" onClick={(e) => e.stopPropagation()}>
         <div className="d-flex align-items-center justify-content-between px-4 py-3 cal-section-border">
           <h6 className="mb-0 fw-semibold cal-delete-modal__title">
-            Delete Tour
+            Delete Event
           </h6>
           <button
             type="button"
@@ -84,7 +84,7 @@ const DeleteConfirmModal = ({
 
         <div className="px-4 py-4 text-center">
           <p className="mb-2 cal-delete-modal__body-title">
-            Are you sure you want to delete this tour?
+            Are you sure you want to delete this event?
           </p>
           <p className="mb-0 cal-delete-modal__tour-name">"{tourTitle}"</p>
         </div>
@@ -191,10 +191,10 @@ export const CalendarList = () => {
           <FullLoader
             text={
               fetchLoading
-                ? "Loading tours…"
+                ? "Loading events…"
                 : createLoading
-                  ? "Scheduling tour…"
-                  : "Updating tour…"
+                  ? "Scheduling event…"
+                  : "Updating event…"
             }
           />
         )}
@@ -203,7 +203,7 @@ export const CalendarList = () => {
           <div>
             <h6 className="mb-0 fw-semibold cal-title">Scheduled Tours</h6>
             <small className="cal-subtitle">
-              {tours.length} tour{tours.length !== 1 ? "s" : ""} total
+              {tours.length} event{tours.length !== 1 ? "s" : ""} total
             </small>
           </div>
 
@@ -268,7 +268,7 @@ export const CalendarList = () => {
           {!fetchLoading && filtered.length === 0 && (
             <div className="text-center py-5 px-4">
               <div className="cal-empty-icon mb-3">📅</div>
-              <p className="small fw-medium mb-1 cal-title">No tours found</p>
+              <p className="small fw-medium mb-1 cal-title">No events found</p>
               <p className="small mb-0 cal-subtitle">
                 {search
                   ? "Try a different search term"
@@ -318,6 +318,20 @@ export const CalendarList = () => {
                       >
                         {tour.tour_type}
                       </span>
+                      {tour.is_global && (
+                        <span
+                          className="badge rounded-pill"
+                          style={{
+                            backgroundColor: "rgba(220, 53, 69, 0.1)",
+                            color: "#dc3545",
+                            fontSize: "10px",
+                            padding: "4px 8px",
+                            border: "1px solid rgba(220, 53, 69, 0.2)",
+                          }}
+                        >
+                          Admin Event
+                        </span>
+                      )}
                       <span className="cal-meta">{tour.duration}</span>
                     </div>
 

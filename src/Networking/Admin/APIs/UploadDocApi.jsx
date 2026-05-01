@@ -22,7 +22,7 @@ export const UploadDocSubmit = createAsyncThunk(
       formData.append("category", category);
 
       const response = await axiosInstance.post(
-        `${baseURL}${UploadDoc}`,
+        UploadDoc,
         formData,
       );
 
@@ -44,7 +44,7 @@ export const UpdateDocSubmit = createAsyncThunk(
       formData.append("category", category);
 
       const response = await axiosInstance.patch(
-        `${baseURL}${UpdateDoc}`,
+        UpdateDoc,
         formData,
       );
 
@@ -59,7 +59,7 @@ export const ListDocSubmit = createAsyncThunk(
   "docs/ListDocSubmit",
   async ({ building_id, category }, { rejectWithValue }) => {
     try {
-      const response = await axiosInstance.get(`${baseURL}${ListDoc}`, {
+      const response = await axiosInstance.get(ListDoc, {
         params: { building_id, category },
       });
       return response.data;
@@ -89,7 +89,7 @@ export const AskQuestionAPI = createAsyncThunk(
   async (data, { rejectWithValue }) => {
     try {
       const response = await axiosInstance.post(
-        `${baseURL}${AskQuestion}`,
+        AskQuestion,
         data,
       );
 

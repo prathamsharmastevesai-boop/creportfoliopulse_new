@@ -2,8 +2,11 @@ import React, { useState } from "react";
 import { Button, Card, Container, Row, Col } from "react-bootstrap";
 import { DistilledCompTrackerList } from "./distilledCompTrackerList";
 import { DistilledCompTracker } from "./distilledCompTracker";
+import { useNavigate } from "react-router-dom";
+import { Plus } from "lucide-react";
 
 export const DistilledCompTrackerPage = () => {
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("chart");
 
   const headerTitle =
@@ -15,9 +18,8 @@ export const DistilledCompTrackerPage = () => {
     <Container fluid className="p-0">
       <div className="px-3 py-3 ">
         <div className="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-2">
-          <h5 className="m-0 mx-4 mb-2 mb-md-0 text-center text-md-start">
-            {headerTitle}
-          </h5>
+          <h4 className="fw-bold mx-5 mx-md-0">{headerTitle}</h4>
+
           <div className="d-flex flex-wrap gap-2 px-3">
             <Button
               variant={activeTab === "chart" ? "light" : "dark"}
@@ -26,12 +28,24 @@ export const DistilledCompTrackerPage = () => {
             >
               DCT
             </Button>
+
             <Button
               variant={activeTab === "list" ? "light" : "dark"}
               onClick={() => setActiveTab("list")}
               className="flex-grow-1 flex-md-grow-0"
             >
               List
+            </Button>
+
+            <Button
+              variant="secondary"
+              onClick={() => navigate("/distilled-comp-tracker-form")}
+              className="comp-button flex-grow-1 flex-md-grow-0 d-flex align-items-center justify-content-center gap-2 fw-semibold px-4"
+              onMouseEnter={(e) => (e.currentTarget.style.opacity = "0.88")}
+              onMouseLeave={(e) => (e.currentTarget.style.opacity = "1")}
+            >
+              <Plus size={17} strokeWidth={2.5} />
+              Add Comp
             </Button>
           </div>
         </div>

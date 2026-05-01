@@ -18,6 +18,8 @@ import { EmptyFeed } from "./Components/EmptyFeed";
 import { PostTypeFilter } from "./Components/PostTypeFilter";
 import { ConfirmModal } from "./Components/ConfirmModal";
 import "./forum.css";
+import LiveNYCWire from "./livenycWire";
+import ConfirmDeleteModal from "../../../Component/confirmDeleteModal";
 
 export const PortfolioForum = () => {
   const dispatch = useDispatch();
@@ -29,8 +31,6 @@ export const PortfolioForum = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [activeType, setActiveType] = useState(null);
   const [showCreateModal, setShowCreateModal] = useState(false);
-  const [showDeleteModal, setShowDeleteModal] = useState(false);
-  const [threadToDelete, setThreadToDelete] = useState(null);
   const [deletingId, setDeletingId] = useState(null);
   const [editingThread, setEditingThread] = useState(null);
 
@@ -88,28 +88,22 @@ export const PortfolioForum = () => {
     return matchesSearch;
   });
 
-  const handleDeleteThread = (id) => {
-    setThreadToDelete(id);
-    setShowDeleteModal(true);
+  const deleteThread = async (id) => {
+    try {
+      setDeletingId(id);
+      await dispatch(deleteThreadsApi({ thread_id: id })).unwrap();
+      await fetchThreads();
+    } catch (error) {
+      console.error("Error deleting thread:", error);
+      toast.error("Failed to delete post");
+    } finally {
+      setDeletingId(null);
+    }
   };
 
   const handleEditThread = (thread) => {
     setEditingThread(thread);
     setShowCreateModal(true);
-  };
-
-  const confirmDeleteThread = async () => {
-    try {
-      setDeletingId(threadToDelete);
-      await dispatch(deleteThreadsApi({ thread_id: threadToDelete })).unwrap();
-      await fetchThreads();
-    } catch (error) {
-      console.error("Error deleting thread:", error);
-    } finally {
-      setDeletingId(null);
-      setShowDeleteModal(false);
-      setThreadToDelete(null);
-    }
   };
 
   const handlePostCreated = () => {
@@ -125,58 +119,53 @@ export const PortfolioForum = () => {
   return (
     <>
       <div className="container-fluid p-2 p-md-3 li-forum-container">
-        <PageHeader title="Portfolio Forum" />
-
-        <div className="li-feed-layout">
-          <div className="mb-3">
-            <input
-              className="form-control li-search w-100 li-search-input"
-              placeholder="🔍 Search posts..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-            />
-          </div>
-
-          <PostTypeFilter active={activeType} onChange={handleTypeChange} />
-
-          {userdata && (
-            <CreatePostBox
-              userdata={userdata}
-              onOpenModal={() => setShowCreateModal(true)}
-            />
-          )}
-
-          {loadingThreads ? (
-            <div className="text-center py-5">
-              <Spinner animation="border" variant="secondary" />
-              <p className="li-loading-text">Loading posts...</p>
-            </div>
-          ) : filteredThreads.length === 0 ? (
-            <EmptyFeed onCreatePost={() => setShowCreateModal(true)} />
-          ) : (
-            filteredThreads.map((t) => (
-              <PostCard
-                key={t.id}
-                thread={t}
-                userdata={userdata}
-                onDelete={handleDeleteThread}
-                onEdit={handleEditThread}
-                deletingId={deletingId}
-                onThreadUpdate={refreshThread}
+        <PageHeader title="Pulse Forum" />
+        <div className="li-forum-wrapper">
+          <div className="li-feed-layout">
+            <div className="mb-3">
+              <input
+                className="form-control li-search w-100 li-search-input"
+                placeholder="🔍 Search posts..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
               />
-            ))
-          )}
+            </div>
+
+            {/* <PostTypeFilter active={activeType} onChange={handleTypeChange} /> */}
+
+            {userdata && (
+              <CreatePostBox
+                userdata={userdata}
+                onOpenModal={() => setShowCreateModal(true)}
+              />
+            )}
+
+            {loadingThreads ? (
+              <div className="text-center py-5">
+                <Spinner animation="border" variant="secondary" />
+                <p className="li-loading-text">Loading posts...</p>
+              </div>
+            ) : filteredThreads.length === 0 ? (
+              <EmptyFeed onCreatePost={() => setShowCreateModal(true)} />
+            ) : (
+              filteredThreads.map((t) => (
+                <PostCard
+                  key={t.id}
+                  thread={t}
+                  userdata={userdata}
+                  onDelete={deleteThread}
+                  onEdit={handleEditThread}
+                  deletingId={deletingId}
+                  onThreadUpdate={refreshThread}
+                />
+              ))
+            )}
+          </div>
+          <div className="li-wire-sidebar">
+            <LiveNYCWire isAdmin={userdata?.role === "admin"} />
+          </div>
         </div>
       </div>
-
-      <ConfirmModal
-        show={showDeleteModal}
-        onHide={() => setShowDeleteModal(false)}
-        title="Delete Post"
-        body="Are you sure you want to delete this post? All comments will also be removed."
-        onConfirm={confirmDeleteThread}
-        loading={deletingId === threadToDelete}
-      />
 
       <Modal
         show={showCreateModal}
@@ -186,7 +175,11 @@ export const PortfolioForum = () => {
       >
         <Modal.Header closeButton className="li-modal-header-custom">
           <div className="d-flex align-items-center gap-3">
-            <Avatar name={userdata?.name || "Me"} size={44} />
+            <Avatar
+              name={userdata?.name || "Me"}
+              photo={userdata?.photo_url}
+              size={44}
+            />
             <div>
               <div className="fw-semibold li-modal-title-custom">
                 {editingThread

@@ -539,7 +539,7 @@ export const ProjectList = () => {
                       name="startDate"
                       value={createForm.startDate}
                       onChange={handleCreateChange}
-                      min={new Date().toISOString().split("T")[0]}
+                     
                     />
                     {errors.startDate && (
                       <div className="invalid-feedback">{errors.startDate}</div>
@@ -556,7 +556,7 @@ export const ProjectList = () => {
                       name="targetDate"
                       value={createForm.targetDate}
                       onChange={handleCreateChange}
-                      min={new Date().toISOString().split("T")[0]}
+                      
                     />
                     {errors.targetDate && (
                       <div className="invalid-feedback">

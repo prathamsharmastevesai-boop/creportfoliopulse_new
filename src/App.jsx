@@ -103,9 +103,12 @@ import { FloorPlanUpload } from "./Pages/User/Dashboard/floorPlanUpload";
 import { LoiAudit } from "./Pages/User/LoiAudit/loiAudit";
 import FilesMedia from "./Pages/Admin/GeneralInfo/files&Media";
 import { Calendar } from "./Pages/User/Calendar/calendar";
-import AdminLoiAudit from "./Pages/Admin/LoiAudit/AdminLoiAudit";
+import { AdminLoiAudit } from "./Pages/Admin/LoiAudit/AdminLoiAudit";
 import { ThePulse } from "./Pages/Common/thePulse";
 import ThePulseUpload from "./Pages/Common/the_Pulse_Upload";
+import { OwnerAdminDashboard } from "./Pages/Admin/DashBoard/OwnerAdminDashboard";
+import { Lease } from "./Pages/User/Chat/leaseUpload";
+import { TenantPulse } from "./Pages/User/TenantPulse/TenantPulse";
 
 function App() {
   return (
@@ -159,6 +162,10 @@ function App() {
                       path="/admin-dashboard"
                       element={<AdminDashboard />}
                     />
+                    <Route
+                      path="/owner-dashboard"
+                      element={<OwnerAdminDashboard />}
+                    />
 
                     <Route
                       path="/user-management"
@@ -175,11 +182,6 @@ function App() {
                       path="/lease-drafting-upload"
                       element={<LeaseDraftingUpload />}
                     />
-
-                    {/* <Route
-                      path="/admin-broker-index"
-                      element={<AdminSpaceUpBuildinglist />}
-                    /> */}
 
                     <Route
                       path="/admin-maintenance-building-list"
@@ -279,6 +281,10 @@ function App() {
                       path="/admin-distilled-comp-tracker"
                       element={<DestilledCompTracker />}
                     />
+                    <Route
+                      path="/admin-distilled-comp-tracker/:compId"
+                      element={<DestilledCompTracker />}
+                    />
 
                     <Route
                       path="/sublease-tracker-form"
@@ -308,6 +314,7 @@ function App() {
                       element={<AdminLoiAudit />}
                     />
                     <Route path="/space-inquiry" element={<SpaceInquiry />} />
+                    <Route path="/admin-profile" element={<UserProfile />} />
                   </Route>
                   <Route
                     element={
@@ -319,6 +326,7 @@ function App() {
                     }
                   >
                     <Route path="/no-access" element={<NoAccess />} />
+                    <Route path="/calendar" element={<Calendar />} />
                     <Route path="*" element={<RoleBasedRedirect />} />
                   </Route>
                   <Route
@@ -332,13 +340,15 @@ function App() {
 
                     <Route path="/user-the-pulse" element={<ThePulse />} />
 
-                    <Route path="/calendar" element={<Calendar />} />
-
                     <Route path="/portfolio-chat" element={<PortfolioChat />} />
 
                     <Route path="/cre-news" element={<CreNews />} />
 
+                    <Route path="/rss-tenant" element={<TenantPulse />} />
+
                     <Route path="/documents/LOI" element={<Loi />} />
+
+                    <Route path="/documents-lease" element={<Lease />} />
 
                     <Route
                       path="/chat/:conversationId"
@@ -360,10 +370,7 @@ function App() {
 
                     <Route path="/notes" element={<Notes />} />
 
-                    <Route
-                      path="/portfolio-forum"
-                      element={<PortfolioForum />}
-                    />
+                    <Route path="/pulse-forum" element={<PortfolioForum />} />
 
                     <Route
                       path="/ai-lease-abstract-upload"
@@ -381,6 +388,15 @@ function App() {
                       path="/distilled-comp-tracker"
                       element={<DistilledCompTrackerPage />}
                     />
+                    <Route
+                      path="/distilled-comp-tracker-form"
+                      element={<DestilledCompTracker />}
+                    />
+                    <Route
+                      path="/distilled-comp-tracker-form/:compId"
+                      element={<DestilledCompTracker />}
+                    />
+
                     <Route path="/dct-chat" element={<DCTChat />} />
 
                     <Route path="/calculator" element={<CalulatorPage />} />
@@ -411,8 +427,8 @@ function App() {
                       element={<MaintenanceUpdate />}
                     />
 
-                    <Route path="/loi-audit" element={<LoiAudit />} />
-
+                    {/* <Route path="/loi-audit" element={<LoiAudit />} /> */}
+                    <Route path="/loi-audit" element={<AdminLoiAudit />} />
                     <Route
                       path="/contacts-hub-chat"
                       element={<ContactsHub />}

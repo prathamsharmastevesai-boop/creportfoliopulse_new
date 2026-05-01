@@ -30,10 +30,11 @@ const ProtectedRoute = ({ children, allowedRoles = [] }) => {
   const { userdata } = useSelector((state) => state.ProfileSlice);
 
   useEffect(() => {
-    if (token && role === "user" && !userdata) {
+    console.log(token, role === "user" || role === "admin", "datasss");
+    if (token && (role === "user" || role === "admin")) {
       dispatch(getProfileDetail());
     }
-  }, [dispatch, token, role, userdata]);
+  }, [dispatch, token, role]);
 
   useEffect(() => {
     if (!token) return;

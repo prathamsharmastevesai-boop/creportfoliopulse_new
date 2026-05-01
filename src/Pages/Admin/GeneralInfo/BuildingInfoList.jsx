@@ -170,12 +170,6 @@ const BuildingCard = ({
           </>
         ) : (
           <>
-            {/* <button
-              className="btn btn-light btn-sm"
-              onClick={() => onGoToChat(building.id, "floor_plan")}
-            >
-              <i className="bi bi-image"></i>
-            </button> */}
             <button
               className="btn btn-light btn-sm"
               onClick={() => onGoToChat(building.id, "building_stack")}
@@ -190,7 +184,7 @@ const BuildingCard = ({
             </button>
             <button
               className="btn btn-light btn-sm"
-              onClick={() => onGoToChat(building.id, "tenant_info")}
+              onClick={() => onGoToChat(building.id, "tenant_information")}
             >
               <i className="bi bi-people"></i>
             </button>
@@ -256,7 +250,7 @@ export const BuildingInfoList = () => {
   }, [BuildingList, searchTerm, loading]);
 
   const goToChat = (buildingId, category) => {
-    if (category === "tenant_info") {
+    if (category === "tenant_information") {
       navigate("/tenant-info-upload", {
         state: { office: { buildingId, category } },
       });

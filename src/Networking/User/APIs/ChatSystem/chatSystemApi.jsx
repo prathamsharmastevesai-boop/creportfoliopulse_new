@@ -113,17 +113,6 @@ export const deleteMessage = createAsyncThunk(
   },
 );
 
-// export const markMessageRead = createAsyncThunk(
-//   "chat/markMessageRead",
-//   async (messageId, { rejectWithValue }) => {
-//     try {
-//       await axiosInstance.post(`/messenger/messages/${messageId}/read`);
-//       return messageId;
-//     } catch (err) {
-//       return rejectWithValue(err.response?.data || err.message);
-//     }
-//   },
-// );
 
 export const createGroupApi = createAsyncThunk(
   "chat/createGroup",
@@ -156,11 +145,6 @@ export const uploadChatFileApi = createAsyncThunk(
     }
   },
 );
-
-// export const deleteMessageApi = async (messageId) => {
-//   const res = await axiosInstance.delete(`/messenger/messages/${messageId}`);
-//   return res.data;
-// };
 
 export const leaveGroupApi = createAsyncThunk(
   "chat/leaveGroup",

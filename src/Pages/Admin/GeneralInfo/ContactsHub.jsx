@@ -3,7 +3,7 @@ import DocumentManager from "../../../Component/DocumentManager";
 
 export const ContactsHubUpload = () => (
   <DocumentManager
-    category="ThirdParty"
+    category="contacts_hub"
     title="Contacts Hub"
     description="Upload and manage documents for Contacts Hub"
   />

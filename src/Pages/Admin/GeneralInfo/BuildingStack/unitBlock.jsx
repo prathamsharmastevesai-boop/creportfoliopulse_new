@@ -107,8 +107,6 @@ export const UnitBlock = ({
                   {unit.suite ? `Suite ${unit.suite}` : "Unit"}&bull;{" "}
                   {(unit.square_footage || unit.rsf || 0).toLocaleString()} SF
                 </div>
-
-                {/* <div className="bs-unit-detail">{unit.lease_expiration}</div> */}
               </>
             ) : (
               <>

@@ -5,7 +5,7 @@ export const fetchAdminPendingDealsApi = createAsyncThunk(
   "adminLoi/fetchPending",
   async (_, { rejectWithValue }) => {
     try {
-      const res = await axiosInstance.get("/loi/admin/deals/pending");
+      const res = await axiosInstance.get("/loi/deals/pending");
       return res.data?.data ?? res.data ?? [];
     } catch (error) {
       return rejectWithValue(error.message);
@@ -17,10 +17,7 @@ export const extractLoiDataApi = createAsyncThunk(
   "adminLoi/extractData",
   async (dealId, { rejectWithValue }) => {
     try {
-      const res = await axiosInstance.post(
-        `/loi/admin/deals/${dealId}/extract`,
-        {},
-      );
+      const res = await axiosInstance.post(`/loi/deals/${dealId}/extract`, {});
 
       return res.data;
     } catch (error) {
@@ -56,7 +53,7 @@ export const updateAllLoiFieldsApi = createAsyncThunk(
       });
 
       const response = await axiosInstance.patch(
-        `/loi/admin/deals/${dealId}/extracted-field`,
+        `/loi/deals/${dealId}/extracted-field`,
         {
           updates: cleanedUpdates,
         },
@@ -79,7 +76,7 @@ export const fetchDeltaReportApi = createAsyncThunk(
     { rejectWithValue },
   ) => {
     try {
-      const res = await axiosInstance.post(`/loi/admin/deals/${dealId}/delta`, {
+      const res = await axiosInstance.post(`/loi/deals/${dealId}/delta`, {
         building_profile_id: buildingProfileId,
         building_name: buildingName,
       });
@@ -98,7 +95,7 @@ export const updateLoiFieldApi = createAsyncThunk(
   ) => {
     try {
       const res = await axiosInstance.patch(
-        `/loi/admin/deals/${dealId}/extracted-field`,
+        `/loi/deals/${dealId}/extracted-field`,
         {
           field_name: fieldName,
           new_value: newValue,
@@ -118,7 +115,7 @@ export const draftCounterLoiApi = createAsyncThunk(
   async ({ dealId, strategy_text, template_id }, { rejectWithValue }) => {
     try {
       const res = await axiosInstance.post(
-        `/loi/admin/deals/${dealId}/draft-counter`,
+        `/loi/deals/${dealId}/draft-counter`,
         {
           strategy_text,
           template_id,
@@ -134,11 +131,10 @@ export const draftCounterLoiApi = createAsyncThunk(
 export const fetchCitationsApi = createAsyncThunk(
   "adminLoi/fetchCitations",
   async ({ dealId, versionId }, { rejectWithValue }) => {
-    console.log(dealId, versionId, "dealId, versionId ");
 
     try {
       const res = await axiosInstance.get(
-        `/loi/admin/deals/${dealId}/citations/${versionId}`,
+        `/loi/deals/${dealId}/citations/${versionId}`,
       );
       return (res.data?.citations || res.data) ?? [];
     } catch (error) {
@@ -151,10 +147,9 @@ export const certifyVersionApi = createAsyncThunk(
   "adminLoi/certifyVersion",
   async ({ dealId, version_id }, { rejectWithValue }) => {
     try {
-      const res = await axiosInstance.post(
-        `/loi/admin/deals/${dealId}/certify`,
-        { version_id },
-      );
+      const res = await axiosInstance.post(`/loi/deals/${dealId}/certify`, {
+        version_id,
+      });
       return res.data;
     } catch (error) {
       return rejectWithValue(error.message);
@@ -167,7 +162,7 @@ export const fetchLoiDocumentApi = createAsyncThunk(
   async ({ dealId, version = "v2" }, { rejectWithValue }) => {
     try {
       const res = await axiosInstance.get(
-        `/loi/admin/deals/${dealId}/document/${version}`,
+        `/loi/deals/${dealId}/document/${version}`,
       );
       return res.data;
     } catch (error) {
@@ -180,9 +175,7 @@ export const fetchDealPdfApi = createAsyncThunk(
   "adminLoiAudit/fetchDealPdf",
   async (dealId, { rejectWithValue }) => {
     try {
-      const response = await axiosInstance.get(
-        `/loi/admin/deals/${dealId}/pdf`,
-      );
+      const response = await axiosInstance.get(`/loi/deals/${dealId}/pdf`);
       return response.data;
     } catch (err) {
       return rejectWithValue(
@@ -196,12 +189,9 @@ export const downloadCertifiedDocApi = createAsyncThunk(
   "adminLoi/downloadCertified",
   async (dealId, { rejectWithValue }) => {
     try {
-      const res = await axiosInstance.get(
-        `/loi/admin/deals/${dealId}/download`,
-        {
-          responseType: "blob",
-        },
-      );
+      const res = await axiosInstance.get(`/loi/deals/${dealId}/download`, {
+        responseType: "blob",
+      });
       return res.data;
     } catch (error) {
       return rejectWithValue(error.message);
@@ -213,7 +203,7 @@ export const fetchAuditStatsApi = createAsyncThunk(
   "adminLoi/fetchAuditStats",
   async (dealId, { rejectWithValue }) => {
     try {
-      const res = await axiosInstance.get(`/loi/admin/deals/${dealId}/audit`);
+      const res = await axiosInstance.get(`/loi/deals/${dealId}/audit`);
       return res.data;
     } catch (error) {
       return rejectWithValue(error.message);
@@ -225,9 +215,7 @@ export const fetchVersionTimelineApi = createAsyncThunk(
   "adminLoi/fetchTimeline",
   async (dealId, { rejectWithValue }) => {
     try {
-      const res = await axiosInstance.get(
-        `/loi/admin/deals/${dealId}/timeline`,
-      );
+      const res = await axiosInstance.get(`/loi/deals/${dealId}/timeline`);
       return (res.data?.timeline || res.data) ?? [];
     } catch (error) {
       return rejectWithValue(error.message);
@@ -239,7 +227,7 @@ export const fetchDealContrastApi = createAsyncThunk(
   "adminLoi/fetchContrast",
   async ({ current_deal_id, query }, { rejectWithValue }) => {
     try {
-      const res = await axiosInstance.post("/loi/admin/rag/contrast", {
+      const res = await axiosInstance.post("/loi/rag/contrast", {
         current_deal_id,
         query,
       });
@@ -254,7 +242,7 @@ export const askRAGApi = createAsyncThunk(
   "adminLoi/askRAG",
   async ({ question }, { rejectWithValue }) => {
     try {
-      const res = await axiosInstance.post("/loi/admin/rag/ask", { question });
+      const res = await axiosInstance.post("/loi/rag/ask", { question });
       return res.data;
     } catch (error) {
       return rejectWithValue(error.message);
@@ -266,7 +254,7 @@ export const fetchAdminDashboardDealsApi = createAsyncThunk(
   "adminLoi/fetchDashboard",
   async (filters, { rejectWithValue }) => {
     try {
-      const res = await axiosInstance.get("/loi/admin/deals", {
+      const res = await axiosInstance.get("/loi/deals", {
         params: filters,
       });
       return res.data;
@@ -280,7 +268,7 @@ export const fetchLoiTemplatesApi = createAsyncThunk(
   "adminLoi/fetchTemplates",
   async (_, { rejectWithValue }) => {
     try {
-      const res = await axiosInstance.get("/loi/admin/templates");
+      const res = await axiosInstance.get("/loi/templates");
       return res.data?.data ?? res.data ?? [];
     } catch (error) {
       return rejectWithValue(error.message);
@@ -292,13 +280,9 @@ export const uploadLoiTemplateApi = createAsyncThunk(
   "adminLoi/uploadTemplate",
   async (formData, { rejectWithValue }) => {
     try {
-      const res = await axiosInstance.post(
-        "/loi/admin/templates/upload",
-        formData,
-        {
-          headers: { "Content-Type": "multipart/form-data" },
-        },
-      );
+      const res = await axiosInstance.post("/loi/templates/upload", formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
 
       return res.data;
     } catch (error) {
@@ -311,7 +295,7 @@ export const fetchBuildingProfilesApi = createAsyncThunk(
   "adminLoi/fetchProfiles",
   async (_, { rejectWithValue }) => {
     try {
-      const res = await axiosInstance.get("/loi/admin/building-profiles");
+      const res = await axiosInstance.get("/loi/building-profiles");
       return res.data?.data ?? res.data ?? [];
     } catch (error) {
       return rejectWithValue(error.message);
@@ -324,7 +308,7 @@ export const createBuildingProfileApi = createAsyncThunk(
   async (profileData, { rejectWithValue }) => {
     try {
       const res = await axiosInstance.post(
-        "/loi/admin/building-profiles",
+        "/loi/building-profiles",
         profileData,
       );
 
@@ -340,7 +324,7 @@ export const updateBuildingProfileApi = createAsyncThunk(
   async ({ profileId, profileData }, { rejectWithValue }) => {
     try {
       const res = await axiosInstance.put(
-        `/loi/admin/building-profiles/${profileId}`,
+        `/loi/building-profiles/${profileId}`,
         profileData,
       );
 

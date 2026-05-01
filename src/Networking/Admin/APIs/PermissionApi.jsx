@@ -13,7 +13,7 @@ export const ListRequestSubmit = createAsyncThunk(
   "auth/ListRequestSubmit",
   async (_, { rejectWithValue }) => {
     try {
-      const response = await axiosInstance.get(`${baseURL}${Request_list}`);
+      const response = await axiosInstance.get(Request_list);
       return response.data;
     } catch (error) {
       return rejectWithValue(error);
@@ -26,7 +26,7 @@ export const Request_Approved_Deny_Submit = createAsyncThunk(
   async (data, { rejectWithValue }) => {
     try {
       const response = await axiosInstance.patch(
-        `${baseURL}${Request_approve_deny}`,
+        Request_approve_deny,
         data,
       );
 
@@ -41,7 +41,7 @@ export const Approved_list_submit = createAsyncThunk(
   "auth/Approved_list_submit",
   async (_, { rejectWithValue }) => {
     try {
-      const response = await axiosInstance.get(`${baseURL}${Approved_list}`);
+      const response = await axiosInstance.get(Approved_list);
       return response.data;
     } catch (error) {
       return rejectWithValue(error);
@@ -53,7 +53,7 @@ export const Denied_list_submit = createAsyncThunk(
   "auth/Denied_list_submit",
   async (_, { rejectWithValue }) => {
     try {
-      const response = await axiosInstance.get(`${baseURL}${Denied_list}`);
+      const response = await axiosInstance.get(Denied_list);
       return response.data;
     } catch (error) {
       return rejectWithValue(error);

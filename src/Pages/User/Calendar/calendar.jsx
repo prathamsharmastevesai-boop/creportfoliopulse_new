@@ -88,8 +88,8 @@ export const Calendar = () => {
   return (
     <div className="cal-page p-3 p-md-4">
       <div className="mx-auto">
-        <div className="d-flex align-items-start justify-content-between mb-3">
-          <div className="d-flex align-items-center gap-3">
+        <div className="d-flex flex-column flex-sm-row align-items-start align-items-sm-center justify-content-between gap-4 mb-4">
+          <div className="d-flex align-items-center gap-1 flex-wrap">
             <div className="cal-header-icon">
               <svg
                 width="16"
@@ -130,72 +130,91 @@ export const Calendar = () => {
           </div>
         </div>
 
-        <Card variant="elevated" className="mb-3 shadow-sm" bodyClass="p-4">
-          <div className="d-flex align-items-center justify-content-between mb-4">
-            <h6 className="mb-0 fw-bold cal-month-label">
-              {MONTHS[viewMonth]} {viewYear}
-            </h6>
-            <div className="d-flex align-items-center gap-1">
-              <button type="button" onClick={prevMonth} className="cal-nav-btn">
-                ‹
-              </button>
-              <button type="button" onClick={goToday} className="cal-today-btn">
-                Today
-              </button>
-              <button type="button" onClick={nextMonth} className="cal-nav-btn">
-                ›
-              </button>
+        <div className="row g-3">
+          <div className="col-12 col-lg-6">
+            <Card variant="elevated" className="mb-3 shadow-sm" bodyClass="p-4">
+              <div className="d-flex align-items-center justify-content-between mb-4">
+                <h6 className="mb-0 fw-bold cal-month-label small small-md-normal">
+                  {MONTHS[viewMonth]} {viewYear}
+                </h6>
+                <div className="d-flex align-items-center gap-1">
+                  <button
+                    type="button"
+                    onClick={prevMonth}
+                    className="cal-nav-btn"
+                  >
+                    ‹
+                  </button>
+                  <button
+                    type="button"
+                    onClick={goToday}
+                    className="cal-today-btn"
+                  >
+                    Today
+                  </button>
+                  <button
+                    type="button"
+                    onClick={nextMonth}
+                    className="cal-nav-btn"
+                  >
+                    ›
+                  </button>
+                </div>
+              </div>
+
+              <div className="cal-grid mb-2">
+                {DAYS.map((d) => (
+                  <div key={d} className="cal-day-header">
+                    {d}
+                  </div>
+                ))}
+              </div>
+
+              <div className="cal-grid--gap">
+                {calendarDays.map((day, idx) => {
+                  if (!day) return <div key={`e-${idx}`} />;
+                  const ymd = toYMD(viewYear, viewMonth, day);
+                  const isToday = ymd === todayYMD;
+                  const tourCount = toursByDate[ymd] ?? 0;
+
+                  return (
+                    <button
+                      key={ymd}
+                      type="button"
+                      onClick={() => openModal(ymd)}
+                      className={[
+                        "cal-day-cell",
+                        isToday ? "cal-day-cell--today" : "",
+                        tourCount ? "cal-day-cell--has-dot" : "",
+                      ]
+                        .filter(Boolean)
+                        .join(" ")}
+                    >
+                      {day}
+                      {tourCount > 0 && (
+                        <span
+                          className={`cal-dot${isToday ? " cal-dot--on-today" : ""}`}
+                        />
+                      )}
+                    </button>
+                  );
+                })}
+              </div>
+            </Card>
+          </div>
+          <div className="col-12 col-lg-6">
+            <div className="h-100">
+              {activeTab === "schedule" ? (
+                <TourForm
+                  preselectedDate={selectedDate}
+                  onSuccess={() => dispatch(fetchToursApi())}
+                />
+              ) : (
+                <CalendarList />
+              )}
             </div>
           </div>
-
-          <div className="cal-grid mb-2">
-            {DAYS.map((d) => (
-              <div key={d} className="cal-day-header">
-                {d}
-              </div>
-            ))}
-          </div>
-
-          <div className="cal-grid--gap">
-            {calendarDays.map((day, idx) => {
-              if (!day) return <div key={`e-${idx}`} />;
-              const ymd = toYMD(viewYear, viewMonth, day);
-              const isToday = ymd === todayYMD;
-              const tourCount = toursByDate[ymd] ?? 0;
-
-              return (
-                <button
-                  key={ymd}
-                  type="button"
-                  onClick={() => openModal(ymd)}
-                  className={[
-                    "cal-day-cell",
-                    isToday ? "cal-day-cell--today" : "",
-                    tourCount ? "cal-day-cell--has-dot" : "",
-                  ]
-                    .filter(Boolean)
-                    .join(" ")}
-                >
-                  {day}
-                  {tourCount > 0 && (
-                    <span
-                      className={`cal-dot${isToday ? " cal-dot--on-today" : ""}`}
-                    />
-                  )}
-                </button>
-              );
-            })}
-          </div>
-        </Card>
-
-        {activeTab === "schedule" ? (
-          <TourForm
-            preselectedDate={selectedDate}
-            onSuccess={() => dispatch(fetchToursApi())}
-          />
-        ) : (
-          <CalendarList />
-        )}
+        </div>
       </div>
 
       {modalOpen && (

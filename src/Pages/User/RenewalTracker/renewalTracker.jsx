@@ -15,13 +15,6 @@ export const RenewalTracker = () => {
   const role = sessionStorage.getItem("role");
   const Role = role;
 
-  const today = new Date();
-  const localDate = new Date(
-    today.getTime() - today.getTimezoneOffset() * 60000,
-  )
-    .toISOString()
-    .split("T")[0];
-
   const [form, setForm] = useState({
     tenant_name: "",
     building_address: "",
@@ -296,7 +289,6 @@ export const RenewalTracker = () => {
       variant="elevated"
       title={quarterName}
       bodyClass="p-3"
-      style={{ backgroundColor: "#e9eef6" }}
     >
       <Row>
         <Col md={6} className="mb-2">
@@ -440,7 +432,6 @@ export const RenewalTracker = () => {
               onChange={handleChange}
               isInvalid={!!errors.lease_commencement_date}
               className="py-2"
-              min={localDate}
             />
             <Form.Control.Feedback type="invalid">
               {errors.lease_commencement_date}
@@ -458,7 +449,7 @@ export const RenewalTracker = () => {
               onChange={handleChange}
               isInvalid={!!errors.lease_expiration_date}
               className="py-2"
-              min={form.lease_commencement_date || localDate}
+              min={form.lease_commencement_date}
             />
             <Form.Control.Feedback type="invalid">
               {errors.lease_expiration_date}
@@ -476,7 +467,6 @@ export const RenewalTracker = () => {
               onChange={handleChange}
               isInvalid={!!errors.notice_of_renewal_date}
               className="py-2"
-              min={localDate}
               max={form.lease_expiration_date || undefined}
             />
             <Form.Control.Feedback type="invalid">

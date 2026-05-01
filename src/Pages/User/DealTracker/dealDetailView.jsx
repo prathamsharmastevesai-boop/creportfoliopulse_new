@@ -29,6 +29,7 @@ const DealDetailView = () => {
     current_lease_expiration: "",
     space_inquiry_date: "",
     space_inquiry_notes: "",
+    deal_type: "",
   });
 
   const [stages, setStages] = useState([]);
@@ -53,6 +54,7 @@ const DealDetailView = () => {
         floor_suite_current: result.floor_suite_current || "",
         broker_of_record: result.broker_of_record || "",
         landlord_lead_of_record: result.landlord_lead_of_record || "",
+        deal_type: result.deal_type || "",
         current_lease_expiration: result.current_lease_expiration
           ? result.current_lease_expiration.substring(0, 10)
           : "",
@@ -423,6 +425,32 @@ const DealDetailView = () => {
             ))}
 
             <div className="col-md-6 col-12">
+              <label className="fw-semibold">Type of Deal</label>
+              {isEditMode ? (
+                <select
+                  className="form-select"
+                  name="deal_type"
+                  value={form.deal_type}
+                  onChange={handleInputChange}
+                  disabled={saving}
+                >
+                  <option value="">Select Deal Type</option>
+                  <option value="new">New</option>
+                  <option value="renewal">Renewal</option>
+                  <option value="expansion">Expansion</option>
+                  <option value="consolidation">Consolidation</option>
+                  <option value="sublease">Sublease</option>
+                </select>
+              ) : (
+                <div className="form-control-plaintext text-capitalize">
+                  {form.deal_type || (
+                    <span className="text-muted">Not specified</span>
+                  )}
+                </div>
+              )}
+            </div>
+
+            <div className="col-md-6 col-12">
               <label className="fw-semibold">Last Updated</label>
               <div className="form-control-plaintext">
                 {formatDate(deal.last_updated) || "N/A"}
@@ -465,9 +493,8 @@ const DealDetailView = () => {
               {stages.map((stage, index) => (
                 <div
                   key={stage.id || index}
-                  className={`stage-item border rounded p-3 mb-3 ${
-                    stage.is_completed
-                  }`}
+                  className={`stage-item border rounded p-3 mb-3 ${stage.is_completed
+                    }`}
                 >
                   <div className="row align-items-center">
                     <div className="col-md-1 col-2 text-center">

@@ -484,7 +484,7 @@ export const GeminiChat = () => {
                     className="bi bi-stars me-2"
                     style={{ fontSize: "1.3rem" }}
                   ></i>
-                  Gemini
+                  Ask Portfolio Pulse
                 </span>
               </h5>
 
@@ -618,7 +618,7 @@ export const GeminiChat = () => {
                       className="bi bi-stars me-2"
                       style={{ fontSize: "1.3rem" }}
                     ></i>
-                    Gemini
+                    Ask Portfolio Pulse
                   </h5>
 
                   <div className="mt-3 d-flex gap-2">

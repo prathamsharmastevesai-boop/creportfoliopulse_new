@@ -1,4 +1,5 @@
 import React from "react";
+import { formatNumber } from "../../../Component/numberFormat";
 
 function KPICard({
   label,
@@ -22,7 +23,7 @@ function KPICard({
   return (
     <div className="tp-kpi-card">
       <p className="tp-kpi-label">{label}</p>
-      <p className="tp-kpi-value">{consensus ?? "—"}</p>
+      <p className="tp-kpi-value">{formatNumber(consensus) ?? "—"}</p>
       {change && (
         <p className="tp-kpi-sub" style={{ color: trendColor }}>
           {change}

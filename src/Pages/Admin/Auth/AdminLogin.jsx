@@ -1,6 +1,9 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { googleLoginService, LoginSubmit } from "../../../Networking/Admin/APIs/LoginAPIs";
+import {
+  googleLoginService,
+  LoginSubmit,
+} from "../../../Networking/Admin/APIs/LoginAPIs";
 import { useDispatch } from "react-redux";
 import RAGLoader from "../../../Component/Loader";
 import side_photo from "../../../assets/side_photo.jpg";
@@ -28,9 +31,9 @@ export const AdminLogin = () => {
     if (role === "superuser") {
       navigate("/admin-management");
     } else if (role === "admin") {
-      navigate("/admin-dashboard");
+      navigate("/admin-the-pulse");
     } else if (role === "user") {
-      navigate("/cre-news");
+      navigate("/user-the-pulse");
     }
   }, []);
 
@@ -60,12 +63,9 @@ export const AdminLogin = () => {
 
       const idToken = credentialResponse.credential;
 
-      const res = await dispatch(
-        googleLoginService(idToken)
-      ).unwrap();
+      const res = await dispatch(googleLoginService(idToken)).unwrap();
 
       const { role, access_token } = res;
-
 
       if (!["admin", "superuser"].includes(role)) {
         toast.error("You are not authorized to access admin panel");
@@ -77,16 +77,14 @@ export const AdminLogin = () => {
 
       toast.success("Admin Google login successful");
 
-      if (role === "admin") navigate("/admin-dashboard");
+      if (role === "admin") navigate("/admin-the-pulse");
       else navigate("/admin-management");
-
     } catch (err) {
       toast.error(err || "Google login failed");
     } finally {
       setLoading(false);
     }
   };
-
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -97,8 +95,9 @@ export const AdminLogin = () => {
       const res = await dispatch(
         LoginSubmit({
           email: email.trim(),
-          password: password.trim(), role: "admin"
-        })
+          password: password.trim(),
+          role: "admin",
+        }),
       ).unwrap();
 
       const { role, access_token } = res;
@@ -114,7 +113,7 @@ export const AdminLogin = () => {
       toast.success(`${role} login successful`);
 
       if (role === "admin") {
-        navigate("/admin-dashboard");
+        navigate("/admin-the-pulse");
       } else if (role === "superuser") {
         navigate("/admin-management");
       }
@@ -180,8 +179,9 @@ export const AdminLogin = () => {
                 </span>
                 <input
                   type={showPassword ? "text" : "password"}
-                  className={`form-control ${errors.password ? "is-invalid" : ""
-                    }`}
+                  className={`form-control ${
+                    errors.password ? "is-invalid" : ""
+                  }`}
                   placeholder="••••••••"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}

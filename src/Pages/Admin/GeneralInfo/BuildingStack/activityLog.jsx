@@ -101,10 +101,6 @@ export const ActivityLog = ({ buildingId, activities }) => {
             <span className="activity-log d-block">
               {formatActivityMessage(activity)}
             </span>
-
-            {/* <span className="bs-log-user d-block text-muted">
-              {activity.modified_by_name} ({activity.modified_by_role})
-            </span> */}
           </div>
         ))
       ) : (

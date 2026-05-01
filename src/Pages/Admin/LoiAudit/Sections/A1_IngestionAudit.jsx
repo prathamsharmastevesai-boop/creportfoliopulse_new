@@ -225,7 +225,6 @@ const IngestionAuditSection = ({
     });
 
     if (!Object.keys(updates).length) {
-      // console.log("No changes to save");
       return;
     }
 
@@ -236,8 +235,6 @@ const IngestionAuditSection = ({
           updates,
         }),
       ).unwrap();
-
-      // console.log("All changed fields updated successfully");
     } catch (error) {
       console.error("Bulk update failed:", error);
     }
@@ -261,46 +258,12 @@ const IngestionAuditSection = ({
 
   const pdfUrl =
     typeof dealPdfUrl === "string" ? dealPdfUrl : dealPdfUrl?.url || "";
-  // console.log(dealPdfUrl, "dealPdfUrl");
 
   return (
     <div className="loi-section-grid a1-grid">
       <div className="loi-column left-col" style={{ maxHeight: "500px" }}>
         <div className="col-header">
           <span className="col-title">PDF Viewer</span>
-        </div>
-
-        <div className="pending-deals-list">
-          <div className="section-subtitle">
-            PENDING DEALS{" "}
-            <span className="badge-id">{pendingDeals.length}</span>
-          </div>
-
-          {pendingDealsLoading ? (
-            <div className="d-flex align-items-center gap-2 py-4 text-muted small">
-              Fetching deals...
-            </div>
-          ) : pendingDeals.length > 0 ? (
-            pendingDeals.map((deal) => (
-              <div
-                key={deal.deal_id}
-                className={`deal-card ${
-                  selectedDeal?.deal_id === deal.deal_id ? "selected" : ""
-                }`}
-                onClick={() => onDealSelect(deal)}
-              >
-                <div className="deal-info">
-                  <div className="deal-name">{deal.tenant_name}</div>
-                  <div className="deal-address">
-                    {deal.building} · {deal.broker_company}
-                  </div>
-                </div>
-                <span className="status-badge pending">Pending</span>
-              </div>
-            ))
-          ) : (
-            <div className="text-muted small mt-3">No pending deals found</div>
-          )}
         </div>
 
         <div className="pdf-preview-box">

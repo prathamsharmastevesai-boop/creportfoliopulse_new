@@ -116,7 +116,7 @@ export const SessionList = ({ setShowSessionModal }) => {
     if (setShowSessionModal) setShowSessionModal(false);
 
     switch (session.category) {
-      case "ThirdParty":
+      case "contacts_hub":
         navigate("/contacts-hub-chat", {
           state: { sessionId: session.session_id, type: session.category },
         });

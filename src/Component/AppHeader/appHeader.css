@@ -23,12 +23,11 @@
   --drawer-accent: #c0392b;
 }
 
-/* ── Base header ── */
 .app-header {
   position: fixed;
   top: 0;
   left: var(--sidebar-width);
-  /* starts after collapsed sidebar */
+
   right: 0;
   z-index: 1000;
   height: var(--header-height);
@@ -38,9 +37,6 @@
   transition: left 0.25s ease;
 }
 
-/* When sidebar is expanded via JS inline style, CSS transition handles slide */
-
-/* ── Bar layout: everything pushed right ── */
 .app-header__bar {
   display: flex;
   align-items: center;
@@ -50,7 +46,6 @@
   gap: 8px;
 }
 
-/* ── Nav ── */
 .app-header__nav {
   flex: 0 0 auto;
   overflow: visible;
@@ -121,12 +116,11 @@
   width: 5px;
   height: 5px;
   border-radius: 50%;
-  /* background: var(--tab-active-underline); */
+
   opacity: 0.9;
   box-shadow: 0 0 5px rgba(192, 57, 43, 0.7);
 }
 
-/* ── Hamburger (mobile only) ── */
 .app-header__hamburger {
   display: none;
   flex-direction: column;
@@ -183,13 +177,13 @@
   letter-spacing: 0.06em;
   color: var(--welcome-color);
   text-transform: uppercase;
+
   text-align: start;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
-/* ── Mobile drawer (slides in from right) ── */
 .app-header__drawer {
   position: fixed;
   top: var(--header-height);
@@ -247,13 +241,11 @@
   background: rgba(192, 57, 43, 0.08);
 }
 
-/* ── Backdrop ── */
 .app-header__backdrop {
   position: fixed;
   inset: 0;
   top: var(--header-height);
   background: rgba(0, 0, 0, 0.55);
-  /* z-index: 1038; */
   animation: backdropFadeIn 0.22s ease forwards;
 }
 
@@ -267,7 +259,6 @@
   }
 }
 
-/* ── Controls (icons / avatar) ── */
 .app-header__controls {
   flex-shrink: 0;
   display: flex;
@@ -298,11 +289,80 @@
   background: rgba(255, 255, 255, 0.06);
 }
 
-/* ── Tablet: 768px–1023px ── */
+.li-header-profile {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 4px 8px;
+  border-radius: 30px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  margin-right: 8px;
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.li-header-profile:hover {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(255, 255, 255, 0.15);
+}
+
+.li-header-profile-info {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  line-height: 1.2;
+}
+
+.li-header-profile-name {
+  font-size: 13px;
+  font-weight: 600;
+  color: #ffffff;
+  white-space: nowrap;
+}
+
+.li-header-profile-role {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: rgba(255, 255, 255, 0.45);
+  font-weight: 500;
+}
+
+.li-header-profile-avatar {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 2px solid rgba(255, 255, 255, 0.1);
+  background: #1a1d29;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.li-header-profile-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.li-header-profile-initial {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #c0392b, #8e44ad);
+  color: white;
+  font-weight: 700;
+  font-size: 14px;
+}
+
 @media (min-width: 768px) and (max-width: 1023px) {
   .app-header {
     left: var(--sidebar-width);
-    /* sidebar always collapsed on tablet */
   }
 
   .app-header__nav {
@@ -314,15 +374,12 @@
   .app-header__nav::-webkit-scrollbar {
     display: none;
   }
-}
 
-/* @media (max-width: 995px) {
-  .app-header__welcome {
+  .li-header-profile-info {
     display: none;
   }
-} */
+}
 
-/* ── Tablet: 768px–991px ── */
 @media (min-width: 768px) and (max-width: 991px) {
   .app-header {
     left: var(--sidebar-width);
@@ -333,7 +390,6 @@
     gap: 12px;
   }
 
-  /* Company name DIKHAO */
   .app-header__welcome {
     display: flex;
     flex-shrink: 0;
@@ -349,23 +405,19 @@
     max-width: 180px;
   }
 
-  /* Nav SCROLLABLE karo */
   .app-header__nav {
     flex: 1 1 auto;
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
     scrollbar-width: none;
-    /* Firefox */
   }
 
   .app-header__nav::-webkit-scrollbar {
     display: none;
-    /* Chrome/Safari */
   }
 
   .app-header__tab-list {
     flex-wrap: nowrap;
-    /* tabs ek line mein rahen */
     gap: 4px;
   }
 
@@ -376,11 +428,9 @@
   }
 }
 
-/* ── Mobile: ≤ 767px ── */
 @media (max-width: 767px) {
   .app-header {
     left: 0;
-    /* full width — sidebar is hidden/overlay on mobile */
   }
 
   .app-header__bar {
@@ -394,27 +444,21 @@
     align-items: center;
     flex: 1 1 auto;
     margin-left: 0;
-    text-align: center;
+    text-align: end;
   }
 
   .app-header__welcome-text {
-    font-size: 0.65rem;
-    letter-spacing: 0.06em;
-    color: var(--welcome-color);
-    text-transform: uppercase;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+    display: none;
   }
 
   .app-header__welcome-text strong {
     color: var(--welcome-strong-color);
+
     font-weight: 600;
   }
 
   .app-header__nav {
     display: none;
-    /* tabs go into drawer on mobile */
   }
 
   .app-header__hamburger {
@@ -422,7 +466,6 @@
   }
 }
 
-/* ── Very small screens ── */
 @media (max-width: 479px) {
   .app-header__bar {
     padding: 0 8px;

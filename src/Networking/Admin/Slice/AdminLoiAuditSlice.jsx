@@ -1,6 +1,6 @@
 import { createSlice } from "@reduxjs/toolkit";
 import {
-  fetchAdminPendingDealsApi,
+
   fetchAdminDashboardDealsApi,
   fetchDeltaReportApi,
   fetchCitationsApi,
@@ -127,18 +127,7 @@ const adminLoiAuditSlice = createSlice({
         state.uploadLoading = false;
       })
 
-      .addCase(fetchAdminPendingDealsApi.pending, (state) => {
-        state.pendingDealsLoading = true;
-      })
-      .addCase(fetchAdminPendingDealsApi.fulfilled, (state, action) => {
-        state.pendingDeals = action.payload.pending || [];
-        state.totalPending = action.payload.total || 0;
-        state.pendingDealsLoading = false;
-      })
-      .addCase(fetchAdminPendingDealsApi.rejected, (state, action) => {
-        state.error = action.payload;
-        state.pendingDealsLoading = false;
-      })
+
 
       .addCase(fetchLoiDocumentApi.pending, (state) => {
         state.documentLoading = true;
@@ -175,8 +164,8 @@ const adminLoiAuditSlice = createSlice({
       .addCase(fetchBuildingProfilesApi.rejected, (state) => {
         state.profilesLoading = false;
       })
-      .addCase(createBuildingProfileApi.fulfilled, (state, action) => {})
-      .addCase(updateBuildingProfileApi.fulfilled, (state, action) => {})
+      .addCase(createBuildingProfileApi.fulfilled, (state, action) => { })
+      .addCase(updateBuildingProfileApi.fulfilled, (state, action) => { })
 
       .addCase(fetchAdminDashboardDealsApi.pending, (state) => {
         state.dashboardDealsLoading = true;

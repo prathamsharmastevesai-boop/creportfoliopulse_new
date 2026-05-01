@@ -73,8 +73,9 @@ export const UserManagement = () => {
   useEffect(() => {
     const storedRole = sessionStorage.getItem("role");
     setRole(storedRole);
-    const is_owner_admin = sessionStorage.getItem("is_owner_admin");
-    setOwneradmin(is_owner_admin);
+
+    const isOwnerAdmin = sessionStorage.getItem("is_owner_admin") === "true";
+    setOwneradmin(isOwnerAdmin);
   }, []);
 
   useEffect(() => {
@@ -267,11 +268,9 @@ export const UserManagement = () => {
                     <td>{capitalFunction(user.company_name || "—") || "--"}</td>
                     <td>
                       <span
-                        className={`badge rounded-pill bg-${
-                          user.status === "Active" ? "success" : "warning"
-                        } bg-opacity-10 text-${
-                          user.status === "Active" ? "success" : "warning"
-                        }`}
+                        className={`badge rounded-pill bg-${user.status === "Active" ? "success" : "warning"
+                          } bg-opacity-10 text-${user.status === "Active" ? "success" : "warning"
+                          }`}
                       >
                         {user.status || "--"}
                       </span>
@@ -308,7 +307,7 @@ export const UserManagement = () => {
                           }
                         >
                           {manageLoading === user.email &&
-                          user.role === "user" ? (
+                            user.role === "user" ? (
                             <>
                               <Spinner size="sm" className="me-1" />
                               Loading...

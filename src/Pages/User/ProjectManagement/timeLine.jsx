@@ -298,7 +298,7 @@ export const TimelinePhaseSection = ({ projectId }) => {
                 }
               }}
               disabled={submitting}
-              min={new Date().toISOString().split("T")[0]}
+
             />
             {errors.start_date && (
               <div className="invalid-feedback">{errors.start_date}</div>
@@ -320,7 +320,7 @@ export const TimelinePhaseSection = ({ projectId }) => {
                 }
               }}
               disabled={submitting}
-              min={form.start_date || new Date().toISOString().split("T")[0]}
+              min={form.start_date}
             />
             {errors.end_date && (
               <div className="invalid-feedback">{errors.end_date}</div>
@@ -432,9 +432,8 @@ export const TimelinePhaseSection = ({ projectId }) => {
             .map((phase) => (
               <li key={phase.id} className="timeline-item mb-3 d-flex">
                 <div
-                  className={`timeline-dot me-3 mt-2 ${
-                    phase.is_completed ? "bg-success" : "bg-secondary"
-                  }`}
+                  className={`timeline-dot me-3 mt-2 ${phase.is_completed ? "bg-success" : "bg-secondary"
+                    }`}
                   style={{
                     width: 12,
                     height: 12,
@@ -469,11 +468,10 @@ export const TimelinePhaseSection = ({ projectId }) => {
 
                   <div className="text-end">
                     <span
-                      className={`badge mb-2 ${
-                        phase.is_completed
-                          ? "bg-success"
-                          : "bg-warning text-dark"
-                      }`}
+                      className={`badge mb-2 ${phase.is_completed
+                        ? "bg-success"
+                        : "bg-warning text-dark"
+                        }`}
                     >
                       {phase.is_completed ? "Completed" : "Pending"}
                     </span>

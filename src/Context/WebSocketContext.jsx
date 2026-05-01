@@ -16,7 +16,6 @@ import {
   updateConversationWithMessage,
 } from "../Networking/User/Slice/chatSystemSlice";
 
-// ─── Constants ────────────────────────────────────────────────────────────────
 const WS_URL =
   "wss://creportfoliopulseversion1-78014104811.us-central1.run.app/messenger/ws";
 
@@ -33,7 +32,7 @@ const HEARTBEAT_INTERVAL_MS = 30_000;
 const TYPING_AUTO_CLEAR_MS = 3_000;
 const TYPING_DEBOUNCE_MS = 500;
 
-// ─── Helpers ──────────────────────────────────────────────────────────────────
+
 const getToken = () =>
   sessionStorage.getItem("access_token") || sessionStorage.getItem("token");
 
@@ -43,11 +42,11 @@ const getUserIdFromStorage = () =>
 const backoffDelay = (attempt) =>
   Math.min(BASE_RECONNECT_DELAY_MS * 2 ** attempt, MAX_RECONNECT_DELAY_MS);
 
-// ─── Context ──────────────────────────────────────────────────────────────────
+
 const WebSocketContext = createContext(null);
 export const useWebSocket = () => useContext(WebSocketContext);
 
-// ─── Entry-event config ───────────────────────────────────────────────────────
+
 const ENTRY_EVENT_MAP = {
   ENTRY_APPROVED: { label: "Approved", actor: "reviewed_by_name" },
   ENTRY_REJECTED: { label: "Rejected", actor: "reviewed_by_name" },
@@ -61,7 +60,7 @@ const BUILDING_ACTION_LABELS = {
   delete: "An item was removed",
 };
 
-// ─── Provider ─────────────────────────────────────────────────────────────────
+
 export const WebSocketProvider = ({ children }) => {
   const dispatch = useDispatch();
 
@@ -81,7 +80,7 @@ export const WebSocketProvider = ({ children }) => {
   const myUserId = userdata?.id || getUserIdFromStorage();
   const token = getToken();
 
-  // ── Notification helpers ─────────────────────────────────────────────────
+
   useEffect(() => {
     if ("Notification" in window && Notification.permission === "default") {
       Notification.requestPermission();
@@ -103,7 +102,7 @@ export const WebSocketProvider = ({ children }) => {
     }
   }, []);
 
-  // ── Message queue flush ──────────────────────────────────────────────────
+
   const flushQueue = useCallback(() => {
     while (messageQueue.current.length > 0) {
       const payload = messageQueue.current.shift();
@@ -116,7 +115,7 @@ export const WebSocketProvider = ({ children }) => {
     }
   }, []);
 
-  // ── Core socket message handler ──────────────────────────────────────────
+
   const handleMessage = useCallback(
     (event) => {
       let data;
@@ -127,7 +126,7 @@ export const WebSocketProvider = ({ children }) => {
         return;
       }
 
-      // Entry events
+
       if (ENTRY_EVENT_MAP[data.type]) {
         const cfg = ENTRY_EVENT_MAP[data.type];
         showNotification({
@@ -140,11 +139,11 @@ export const WebSocketProvider = ({ children }) => {
 
       switch (data.type) {
         case "MY_PRESENCE":
-         
+
           break;
 
         case "USER_STATUS":
-          // ✅ Handle online/offline status from backend
+
           dispatch(
             setUserStatus({
               user_id: data.user_id,
@@ -168,8 +167,6 @@ export const WebSocketProvider = ({ children }) => {
                 is_typing: data.is_typing !== false,
               }),
             );
-
-            // Clear existing timeout for this sender
             const key = `${conversationId}_${data.sender_id}`;
             if (typingTimeoutsRef.current[key]) {
               clearTimeout(typingTimeoutsRef.current[key]);
@@ -212,7 +209,7 @@ export const WebSocketProvider = ({ children }) => {
             }),
           );
 
-          // ✅ Update conversation list with latest message
+
           dispatch(
             updateConversationWithMessage({
               conversation_id: data.conversation_id,
@@ -266,7 +263,7 @@ export const WebSocketProvider = ({ children }) => {
           break;
 
         case "HEARTBEAT_ACK":
-          // Heartbeat acknowledged — no action needed
+
           break;
 
         case "ERROR":
@@ -280,20 +277,20 @@ export const WebSocketProvider = ({ children }) => {
     [dispatch, myUserId, showNotification],
   );
 
-  // ── Cleanup ──────────────────────────────────────────────────────────────
+
   const cleanup = useCallback(() => {
     if (reconnectTimer.current) {
       clearTimeout(reconnectTimer.current);
       reconnectTimer.current = null;
     }
-    // Clean up all typing timeouts
+
     Object.values(typingTimeoutsRef.current).forEach((timeout) => {
       clearTimeout(timeout);
     });
     typingTimeoutsRef.current = {};
   }, []);
 
-  // ── Connect ──────────────────────────────────────────────────────────────
+
   const connect = useCallback(() => {
     cleanup();
 
@@ -313,13 +310,13 @@ export const WebSocketProvider = ({ children }) => {
     }
 
     const wsUrl = `${WS_URL}?token=${token}`;
-  
+
 
     const socket = new WebSocket(wsUrl);
     socketRef.current = socket;
 
     socket.onopen = () => {
-     
+
       reconnectAttempts.current = 0;
       setStatus(CONNECTION_STATUS.CONNECTED);
       setIsConnected(true);
@@ -329,7 +326,7 @@ export const WebSocketProvider = ({ children }) => {
     socket.onmessage = handleMessage;
 
     socket.onclose = (event) => {
-    
+
       setIsConnected(false);
       socketRef.current = null;
 
@@ -348,7 +345,7 @@ export const WebSocketProvider = ({ children }) => {
       const delay = backoffDelay(reconnectAttempts.current);
       reconnectAttempts.current += 1;
 
-     
+
       setStatus(CONNECTION_STATUS.RECONNECTING);
       reconnectTimer.current = setTimeout(connect, delay);
     };
@@ -358,10 +355,10 @@ export const WebSocketProvider = ({ children }) => {
     };
   }, [token, myUserId, cleanup, flushQueue, handleMessage]);
 
-  // ── Listen for external auth changes ────────────────────────────────────
+
   useEffect(() => {
     const handleAuthChange = () => {
-     
+
       reconnectAttempts.current = 0;
       connect();
     };
@@ -369,12 +366,12 @@ export const WebSocketProvider = ({ children }) => {
     return () => window.removeEventListener("authChanged", handleAuthChange);
   }, [connect]);
 
-  // ── Auto-connect when credentials become available ───────────────────────
+
   useEffect(() => {
     if (!isConnected && token && myUserId) connect();
   }, [token, myUserId, isConnected, connect]);
 
-  // ── Heartbeat ────────────────────────────────────────────────────────────
+
   const sendHeartbeat = useCallback(() => {
     if (socketRef.current?.readyState === WebSocket.OPEN) {
       socketRef.current.send(JSON.stringify({ type: "HEARTBEAT" }));
@@ -387,7 +384,7 @@ export const WebSocketProvider = ({ children }) => {
     return () => clearInterval(interval);
   }, [isConnected, sendHeartbeat]);
 
-  // ── Unmount cleanup ──────────────────────────────────────────────────────
+
   useEffect(() => {
     return () => {
       cleanup();
@@ -398,7 +395,7 @@ export const WebSocketProvider = ({ children }) => {
     };
   }, [cleanup]);
 
-  // ── Public API ───────────────────────────────────────────────────────────
+
 
   const sendMessage = useCallback(
     (payload, { queue = true } = {}) => {
@@ -465,7 +462,7 @@ export const WebSocketProvider = ({ children }) => {
           },
         });
 
-        // Optionally dispatch to update local state
+
         dispatch(
           markMessagesRead({
             conversation_id: conversationId,

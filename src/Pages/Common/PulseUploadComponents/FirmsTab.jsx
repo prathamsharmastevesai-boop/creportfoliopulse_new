@@ -1,13 +1,12 @@
 import React, { useState } from "react";
 import { useDispatch } from "react-redux";
 import { toast } from "react-toastify";
-import { Field, Btn } from "./SharedComponents";
+import { Field, Btn, TextAreaField } from "./SharedComponents";
 import {
   createFirmThunk,
   deleteFirmThunk,
 } from "../../../Networking/Admin/APIs/ThePulseUploadApi";
 import { Trash2 } from "lucide-react";
-import ConfirmDeleteModal from "../../../Component/confirmDeleteModal";
 
 export const FirmsTab = ({ firms, onRefresh }) => {
   const dispatch = useDispatch();
@@ -19,9 +18,6 @@ export const FirmsTab = ({ firms, onRefresh }) => {
   });
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
-
-  const [showDeleteModal, setShowDeleteModal] = useState(false);
-  const [firmToDelete, setFirmToDelete] = useState(null);
 
   const validate = () => {
     let tempErrors = {};
@@ -58,20 +54,13 @@ export const FirmsTab = ({ firms, onRefresh }) => {
     }
   };
 
-  const openDeleteModal = (firm) => {
-    setFirmToDelete(firm);
-    setShowDeleteModal(true);
-  };
-
-  const handleDelete = async () => {
-    if (!firmToDelete) return;
+  const handleDelete = async (id, name) => {
+    if (!window.confirm(`Are you sure you want to delete "${name}"?`)) return;
 
     setLoading(true);
     try {
-      await dispatch(deleteFirmThunk(firmToDelete.id)).unwrap();
+      await dispatch(deleteFirmThunk(id)).unwrap();
       onRefresh();
-      setShowDeleteModal(false);
-      setFirmToDelete(null);
     } catch {
     } finally {
       setLoading(false);
@@ -85,38 +74,38 @@ export const FirmsTab = ({ firms, onRefresh }) => {
         <div className="tpu-row">
           <Field
             label="Name"
-            required={true}
+            required
             value={form.name}
             onChange={(v) => {
               setForm((f) => ({ ...f, name: v }));
               if (errors.name) setErrors((prev) => ({ ...prev, name: "" }));
             }}
-            placeholder="CBRE"
+            placeholder="e.g. CBRE"
             error={errors.name}
           />
           <Field
-            label="Short name"
-            required={true}
+            label="Short Name"
+            required
             value={form.short_name}
             onChange={(v) => {
               setForm((f) => ({ ...f, short_name: v }));
               if (errors.short_name)
                 setErrors((prev) => ({ ...prev, short_name: "" }));
             }}
-            placeholder="CBRE"
+            placeholder="e.g. CBRE"
             error={errors.short_name}
           />
         </div>
         <div className="tpu-row">
           <div className="w-100">
-            <p className="tpu-field-label">
-              Color <span style={{ color: "red" }}>*</span>
-            </p>
+            <label className="sc-label">
+              Color <span className="text-danger">*</span>
+            </label>
 
-            <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+            <div className="d-flex align-items-center gap-2">
               <input
                 type="color"
-                value={form.color || "#003087"}
+                value={form.color || "#0969da"}
                 onChange={(e) => {
                   setForm((f) => ({ ...f, color: e.target.value }));
                   if (errors.color) {
@@ -124,37 +113,33 @@ export const FirmsTab = ({ firms, onRefresh }) => {
                   }
                 }}
                 style={{
-                  width: "50px",
-                  height: "40px",
-                  border: "none",
+                  width: "48px",
+                  height: "38px",
+                  padding: "2px",
+                  borderRadius: "8px",
+                  border: "1px solid var(--border-color)",
+                  background: "var(--bg-secondary)",
                   cursor: "pointer",
                 }}
               />
-
-              <input
-                type="text"
+              <Field
                 value={form.color}
-                onChange={(e) =>
-                  setForm((f) => ({ ...f, color: e.target.value }))
-                }
-                className="tpu-input"
-                placeholder="#003087"
+                onChange={(v) => setForm((f) => ({ ...f, color: v }))}
+                placeholder="#0969da"
+                error={errors.color}
               />
             </div>
-
-            {errors.color && <p className="tpu-error">{errors.color}</p>}
           </div>
 
           <div className="w-100">
-            <p className="tpu-field-label">Methodology notes</p>
-            <textarea
+            <TextAreaField
+              label="Methodology Notes"
               value={form.methodology_notes}
-              onChange={(e) =>
-                setForm((f) => ({ ...f, methodology_notes: e.target.value }))
+              onChange={(v) =>
+                setForm((f) => ({ ...f, methodology_notes: v }))
               }
-              className="tpu-textarea"
-              style={{ minHeight: 60 }}
               placeholder="Enter methodology details..."
+              rows={2}
             />
           </div>
         </div>
@@ -188,10 +173,7 @@ export const FirmsTab = ({ firms, onRefresh }) => {
                     Color
                   </th>
                   <th className="tpu-th">Methodology Notes</th>
-                  <th
-                    className="tpu-th"
-                    style={{ width: 80, textAlign: "center" }}
-                  >
+                  <th className="tpu-th" style={{ width: 80, textAlign: "center" }}>
                     Actions
                   </th>
                 </tr>
@@ -236,7 +218,7 @@ export const FirmsTab = ({ firms, onRefresh }) => {
                     <td className="tpu-td" style={{ textAlign: "center" }}>
                       <button
                         className="tpu-delete-btn"
-                        onClick={() => openDeleteModal(f)}
+                        onClick={() => handleDelete(f.id, f.name)}
                         title="Delete Firm"
                       >
                         <Trash2 size={16} />
@@ -249,17 +231,6 @@ export const FirmsTab = ({ firms, onRefresh }) => {
           </div>
         )}
       </div>
-
-      <ConfirmDeleteModal
-        show={showDeleteModal}
-        selectedEmail={firmToDelete?.name}
-        deleteLoading={loading}
-        onClose={() => {
-          setShowDeleteModal(false);
-          setFirmToDelete(null);
-        }}
-        onDelete={handleDelete}
-      />
     </div>
   );
 };

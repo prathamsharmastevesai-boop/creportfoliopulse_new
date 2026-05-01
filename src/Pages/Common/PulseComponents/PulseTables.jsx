@@ -1,4 +1,5 @@
 import React from "react";
+import { formatNumber } from "../../../Component/numberFormat";
 
 export function badgeClass(type) {
   switch (type?.toLowerCase()) {
@@ -46,7 +47,7 @@ export function TransactionTable({ transactions }) {
                   fontVariantNumeric: "tabular-nums",
                 }}
               >
-                {Number(tx.sf).toLocaleString()}
+                {formatNumber(tx.sf)}
               </td>
               <td className="tp-td">
                 <span className={`tp-badge ${badgeClass(tx.deal_type)}`}>
@@ -87,7 +88,12 @@ export function SubmarketTable({ submarketData }) {
                 {f.vacancy_rate}%
               </td>
               <td className="tp-td" style={{ textAlign: "right" }}>
-                ${parseFloat(f.asking_rent).toFixed(2)}/SF
+                {f.asking_rent
+                  ? `$${Number(f.asking_rent).toLocaleString("en-US", {
+                      minimumFractionDigits: 2,
+                      maximumFractionDigits: 2,
+                    })}/SF`
+                  : "—"}
               </td>
             </tr>
           ))}

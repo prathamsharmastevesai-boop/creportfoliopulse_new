@@ -377,13 +377,6 @@ export const UserProfile = ({
             </div>
           </div>
 
-          {/* <div className="profile-section">
-            <button className="profile-action-btn" onClick={onSearchClick}>
-              <i className="ri-search-line profile-action-icon" />
-              <span>Search in conversation</span>
-            </button>
-          </div> */}
-
           <div className="profile-section">
             <button
               className="profile-action-btn"
@@ -414,16 +407,7 @@ export const UserProfile = ({
               </button>
             ) : (
               ""
-              // <button
-              //   className="profile-action-btn"
-              //   style={{ color: "#EA4335" }}
-              // >
-              //   <i
-              //     className="ri-user-unfollow-line profile-action-icon"
-              //     style={{ color: "#EA4335" }}
-              //   />
-              //   <span>Block {name}</span>
-              // </button>
+          
             )}
           </div>
         </div>

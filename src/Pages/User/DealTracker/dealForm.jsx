@@ -21,6 +21,7 @@ const DealForm = () => {
     current_lease_expiration: "",
     space_inquiry_date: "",
     space_inquiry_notes: "",
+    deal_type: "",
   });
 
   const baseStages = [
@@ -163,6 +164,7 @@ const DealForm = () => {
           current_lease_expiration: "",
           space_inquiry_date: "",
           space_inquiry_notes: "",
+          deal_type: "",
         });
         setStages(baseStages.map(initializeStage));
       }
@@ -313,6 +315,23 @@ const DealForm = () => {
                 />
               </div>
             ))}
+
+            <div className="col-md-6 col-12">
+              <label className="fw-semibold">Type of Deal</label>
+              <select
+                className="form-select"
+                value={form.deal_type}
+                onChange={(e) => setForm({ ...form, deal_type: e.target.value })}
+                disabled={saving}
+              >
+                <option value="">Select Deal Type</option>
+                <option value="new">New</option>
+                <option value="renewal">Renewal</option>
+                <option value="expansion">Expansion</option>
+                <option value="consolidation">Consolidation</option>
+                <option value="sublease">Sublease</option>
+              </select>
+            </div>
           </div>
 
           <h5 className="fw-bold mt-4 pb-2 border-bottom">

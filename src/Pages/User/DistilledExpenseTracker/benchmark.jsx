@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Form, Button, Card, Spinner, Alert } from "react-bootstrap";
 import { Bar } from "react-chartjs-2";
 import { useDispatch, useSelector } from "react-redux";
@@ -12,11 +12,6 @@ export const Benchmark = () => {
     Data: benchmarkData,
     error: apiError,
   } = useSelector((state) => state.ForumSlice);
-
-  const [sfBand, setSfBand] = useState("");
-  const [submarket, setSubmarket] = useState("");
-  const [buildingClass, setBuildingClass] = useState("");
-  const [formError, setFormError] = useState("");
 
   const SUBMARKET_OPTIONS = [
     "Midtown",
@@ -56,11 +51,26 @@ export const Benchmark = () => {
     security_monitoring_systems_psf: "Security Monitoring ($/PSF)",
     accounting_psf: "Accounting ($/PSF)",
     legal_psf: "Legal ($/PSF)",
-    ti_allowances_psf: "TI Allowances ($/PSF)",
+    // ti_allowances_psf: "TI Allowances ($/PSF)",
     commissions_psf: "Commissions ($/PSF)",
     interest_rates_psf: "Interest Rates ($/PSF)",
     realestate_taxes_psf: "Real Estate Taxes ($/PSF)",
   };
+
+  const [sfBand, setSfBand] = useState(SF_BAND_OPTIONS[0]);
+  const [submarket, setSubmarket] = useState(SUBMARKET_OPTIONS[0]);
+  const [buildingClass, setBuildingClass] = useState(CLASS_OPTIONS[0]);
+  const [formError, setFormError] = useState("");
+
+  useEffect(() => {
+    dispatch(
+      getBenchmark({
+        sf_band: sfBand,
+        submarket,
+        building_class: buildingClass,
+      }),
+    );
+  }, []);
 
   const handleFetch = () => {
     if (!sfBand || !submarket || !buildingClass) {
@@ -139,15 +149,13 @@ export const Benchmark = () => {
 
   return (
     <div>
-      {" "}
       <div
-        className="header-bg {
--bg d-flex justify-content-start px-3 align-items-center sticky-header"
+        className="header-bg d-flex justify-content-start px-3 px-md-0 align-items-start sticky-header"
       >
-        <h5 className="mb-0 mx-4">DET Benchmarking</h5>
+        <h5 className="mb-0 mx-4 activity-log">DET Benchmarking</h5>
       </div>
-      <div className="container-fuild p-3">
-        <Card className="p-4 shadow-sm">
+      <div className="container-fuild">
+        <Card className="p-2 shadow-sm">
           <div className="row g-3">
             <div className="col-12 col-sm-6 col-md-4">
               <Form.Group>

@@ -16,7 +16,6 @@ export const DistilledExpenseTrackerPage = () => {
     } else if (theme === "blue") {
       return isActive ? "primary" : "outline-light";
     } else {
-
       return isActive ? "light" : "outline-light";
     }
   };
@@ -35,7 +34,7 @@ export const DistilledExpenseTrackerPage = () => {
             : "Monitor and manage historical expense submissions and reports"
         }
         actions={
-          <div className="d-flex gap-2 flex-wrap">
+          <div className="d-flex gap-2 justify-content-end flex-wrap">
             <Button
               variant={getBtnVariant("form")}
               size="sm"

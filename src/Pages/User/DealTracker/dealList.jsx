@@ -108,6 +108,8 @@ const DealList = () => {
         deal.current_building_address.toLowerCase().includes(term)) ||
       (deal.broker_of_record &&
         deal.broker_of_record.toLowerCase().includes(term)) ||
+      (deal.deal_type &&
+        deal.deal_type.toLowerCase().includes(term)) ||
       (getCurrentStatus(deal) &&
         getCurrentStatus(deal).toLowerCase().includes(term))
     );
@@ -314,10 +316,23 @@ const DealList = () => {
                       <div className="fw-semibold">
                         {item.tenant_name || "N/A"}
                       </div>
+                      {item.deal_type && (
+                        <div
+                          className="badge mt-1 text-uppercase"
+                          style={{
+                            backgroundColor: "#fef3c7",
+                            color: "#92400e",
+                            fontSize: "10px",
+                            letterSpacing: "0.5px",
+                          }}
+                        >
+                          {item.deal_type}
+                        </div>
+                      )}
                       {item.floor_suite_interest && (
-                        <small className="text-muted">
+                        <div className="text-muted small">
                           {item.floor_suite_interest}
-                        </small>
+                        </div>
                       )}
                     </td>
                     <td>

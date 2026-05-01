@@ -1,35 +1,84 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
   getProfileDetail,
   ProfileUpdateApi,
 } from "../../../Networking/User/APIs/Profile/ProfileApi";
 import { useDispatch, useSelector } from "react-redux";
-import { FaEdit, FaSave, FaTimes } from "react-icons/fa";
+import {
+  FaEdit,
+  FaSave,
+  FaTimes,
+  FaCamera,
+  FaEnvelope,
+  FaPhone,
+  FaBuilding,
+  FaShieldAlt,
+  FaCheckCircle,
+} from "react-icons/fa";
 import RAGLoader from "../../../Component/Loader";
-import Card from "../../../Component/Card/Card";
 import { capitalFunction } from "../../../Component/capitalLetter";
+import "./profile.css";
+const truncate = (str, max = 35) =>
+  str && str.length > max ? str.slice(0, max) + "…" : str;
+
+const ROLE_CONFIG = {
+  owner: { label: "Owner", cls: "up-role--owner", icon: "👑" },
+  admin: { label: "Admin", cls: "up-role--admin", icon: "🛡️" },
+  superuser: { label: "Super Admin", cls: "up-role--admin", icon: "⚡" },
+  user: { label: "User", cls: "up-role--user", icon: "👤" },
+};
+
+const InfoRow = ({ icon: Icon, label, value, mono = false, delay = 0 }) => (
+  <div className="up-info-row" style={{ animationDelay: `${delay}ms` }}>
+    <div className="up-info-icon-wrap">
+      <Icon size={12} />
+    </div>
+    <div className="up-info-body">
+      <span className="up-info-label">{label}</span>
+      <span className={`up-info-value${mono ? " up-mono" : ""}`}>
+        {value || "—"}
+      </span>
+    </div>
+  </div>
+);
+
+const Field = ({ label, children, error, hint }) => (
+  <div className="up-field">
+    <label className="up-field-label">{label}</label>
+    {children}
+    {error && <div className="up-field-error">{error}</div>}
+    {hint && !error && <div className="up-field-hint">{hint}</div>}
+  </div>
+);
 
 export const UserProfile = () => {
   const { userdata } = useSelector((state) => state.ProfileSlice);
-
   const dispatch = useDispatch();
+  const photoInputRef = useRef(null);
 
   const [name, setName] = useState("");
   const [number, setNumber] = useState("");
+  const [company, setCompany] = useState("");
   const [photoFile, setPhotoFile] = useState(null);
-  const [bgPhotoFile, setBgPhotoFile] = useState(null);
+  const [photoPreview, setPhotoPreview] = useState(null);
   const [loading, setLoading] = useState(false);
   const [loadingProfile, setLoadingProfile] = useState(true);
   const [isEditing, setIsEditing] = useState(false);
   const [errors, setErrors] = useState({});
+  const [saved, setSaved] = useState(false);
+
+  const is_owner_admin = sessionStorage.getItem("is_owner_admin") === "true";
+  console.log(is_owner_admin, "is_owner_admin");
+
+  const roleConf = ROLE_CONFIG[userdata?.role] || ROLE_CONFIG.user;
 
   useEffect(() => {
     const fetchProfile = async () => {
       setLoadingProfile(true);
       try {
         await dispatch(getProfileDetail());
-      } catch (error) {
-        console.error("Failed to load profile:", error);
+      } catch (e) {
+        console.error("Failed to load profile:", e);
       } finally {
         setLoadingProfile(false);
       }
@@ -41,203 +90,273 @@ export const UserProfile = () => {
     if (userdata) {
       setName(userdata.name || "");
       setNumber(userdata.number || "");
+      setCompany(userdata.company_name || "");
+      setPhotoPreview(userdata.photo_url || null);
     }
   }, [userdata]);
 
   const cancelEditing = () => {
-    setName(userdata.name || "");
-    setNumber(userdata.number || "");
+    setName(userdata?.name || "");
+    setNumber(userdata?.number || "");
+    setCompany(userdata?.company_name || "");
     setPhotoFile(null);
-    setBgPhotoFile(null);
+    setPhotoPreview(userdata?.photo_url || null);
     setIsEditing(false);
+    setErrors({});
+  };
+
+  const handlePhotoChange = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    setPhotoFile(file);
+    setPhotoPreview(URL.createObjectURL(file));
   };
 
   const validate = () => {
-    let tempErrors = {};
+    const errs = {};
+    if (!name.trim()) errs.name = "Name is required";
+    else if (name.trim().length < 3) errs.name = "At least 3 characters";
+    else if (name.trim().length > 35) errs.name = "Max 35 characters";
 
-    if (!name.trim()) {
-      tempErrors.name = "Name is required";
-    } else if (name.trim().length < 3) {
-      tempErrors.name = "Name must be at least 3 characters";
-    } else if (name.trim().length > 20) {
-      tempErrors.name = "Name must not exceed 20 characters";
-    }
+    if (!number.trim()) errs.number = "Phone is required";
+    else if (!/^\d+$/.test(number)) errs.number = "Digits only";
+    else if (number.length < 10 || number.length > 15)
+      errs.number = "10–15 digits";
 
-    if (!number.trim()) {
-      tempErrors.number = "Phone number is required";
-    } else if (!/^\d+$/.test(number)) {
-      tempErrors.number = "Phone number must contain only digits";
-    } else if (number.length < 10 || number.length > 15) {
-      tempErrors.number = "Phone number must be 10–15 digits";
-    }
+    if (is_owner_admin && company.trim().length > 35)
+      errs.company = "Max 35 characters";
 
-    setErrors(tempErrors);
-    return Object.keys(tempErrors).length === 0;
+    setErrors(errs);
+    return Object.keys(errs).length === 0;
   };
 
   const handleProfileUpdate = async (e) => {
     e.preventDefault();
-
     if (!validate()) return;
-
     setLoading(true);
 
     const formData = new FormData();
     formData.append("name", name);
     formData.append("number", number);
+    if (is_owner_admin) formData.append("company_name", company);
     if (photoFile) formData.append("photo", photoFile);
-    if (bgPhotoFile) formData.append("bg_photo", bgPhotoFile);
 
     try {
       await dispatch(ProfileUpdateApi(formData));
       dispatch(getProfileDetail());
       setIsEditing(false);
       setPhotoFile(null);
-      setBgPhotoFile(null);
       setErrors({});
-    } catch (error) {
-      console.error("Update failed:", error);
+      setSaved(true);
+      setTimeout(() => setSaved(false), 2500);
+    } catch (err) {
+      console.error("Update failed:", err);
     } finally {
       setLoading(false);
     }
   };
 
-  return (
-    <>
-      <div
-        className="hero-section text-center bg-dark py-3 mb-4 animate__animated animate__fadeInDown"
-        style={{
-          position: "sticky",
-          top: 0,
-          zIndex: 3,
-          borderBottom: "1px solid #dee2e6",
-        }}
-      >
-        <h2 className="fw-bold text-light">👤 Profile</h2>
-        <p className="text-light mb-0">Here's a summary of your profile.</p>
-      </div>
+  const initials = name
+    ? name
+      .trim()
+      .split(" ")
+      .map((w) => w[0])
+      .slice(0, 2)
+      .join("")
+      .toUpperCase()
+    : "?";
 
-      <div className="container-fuild p-3">
-        {loadingProfile ? (
-          <div className="text-center ">
-            <RAGLoader />
-            <p className="mt-2 text-muted">Loading profile...</p>
-          </div>
-        ) : (
-          <Card
-            variant="elevated"
-            className="shadow-sm overflow-hidden"
-            title="👤 Profile Info"
-            headerAction={
-              !isEditing ? (
+  return (
+    <div className="up-root">
+      {loadingProfile ? (
+        <div className="up-loader-wrap">
+          <RAGLoader />
+          <p className="up-loader-text">Loading profile…</p>
+        </div>
+      ) : (
+        <div className="up-card up-animate-in">
+          <div className="up-cover">
+            <div className="up-cover-pattern" aria-hidden />
+
+            <div className="up-cover-actions">
+              {!isEditing ? (
                 <button
-                  className="btn btn-outline"
+                  className="up-icon-btn"
                   onClick={() => setIsEditing(true)}
+                  title="Edit profile"
                 >
-                  <FaEdit className="me-1" />
+                  <FaEdit size={13} />
+                  <span>Edit</span>
                 </button>
               ) : (
                 <button
-                  className="btn btn-outline-secondary"
+                  className="up-icon-btn up-icon-btn--cancel"
                   onClick={cancelEditing}
+                  title="Cancel"
                 >
-                  <FaTimes className="me-1" />
+                  <FaTimes size={13} />
+                  <span>Cancel</span>
                 </button>
-              )
-            }
-          >
-            <form onSubmit={handleProfileUpdate}>
-              <div className="mb-2">
-                {!isEditing ? (
-                  <>
-                    <label className="form-label fw-bold">Full Name</label>
-                    <br />
-                    <label>{capitalFunction(name)}</label>
-                  </>
-                ) : (
-                  <>
-                    <label className="form-label">Name</label>
+              )}
+            </div>
+          </div>
+
+          <div className="up-avatar-zone">
+            <div className="up-avatar-wrap">
+              {photoPreview ? (
+                <img
+                  src={photoPreview}
+                  alt="Avatar"
+                  className="up-avatar-img"
+                />
+              ) : (
+                <div className="up-avatar-initials">{initials}</div>
+              )}
+              {isEditing && (
+                <>
+                  <button
+                    type="button"
+                    className="up-avatar-cam"
+                    onClick={() => photoInputRef.current?.click()}
+                    title="Change photo"
+                  >
+                    <FaCamera size={11} />
+                  </button>
+                  <input
+                    ref={photoInputRef}
+                    type="file"
+                    accept="image/*"
+                    className="d-none"
+                    onChange={handlePhotoChange}
+                  />
+                </>
+              )}
+            </div>
+
+            <div className="up-identity">
+              <h5 className="up-display-name">
+                {truncate(capitalFunction(name)) || "—"}
+              </h5>
+              <span className={`up-role-badge ${roleConf.cls}`}>
+                <span className="up-role-icon">{roleConf.icon}</span>
+                {roleConf.label}
+              </span>
+            </div>
+          </div>
+
+          <div className="up-body">
+            <form onSubmit={handleProfileUpdate} noValidate>
+              {!isEditing && (
+                <div className="up-info-list">
+                  <InfoRow
+                    icon={FaEnvelope}
+                    label="Email"
+                    value={userdata?.email}
+                    delay={60}
+                  />
+                  <InfoRow
+                    icon={FaPhone}
+                    label="Phone"
+                    value={userdata?.number}
+                    delay={120}
+                    mono
+                  />
+                  <InfoRow
+                    icon={FaBuilding}
+                    label="Company"
+                    value={truncate(userdata?.company_name)}
+                    delay={180}
+                  />
+                </div>
+              )}
+
+              {isEditing && (
+                <div className="up-edit-grid">
+                  <Field label="Full Name" error={errors.name}>
                     <input
                       value={name}
                       onChange={(e) => {
-                        const value = e.target.value;
-
-                        if (value.length > 20) {
-                          setErrors({
-                            ...errors,
-                            name: "Name cannot exceed 20 characters",
-                          });
-                          return;
-                        }
-
-                        setName(value);
-                        setErrors({ ...errors, name: "" });
+                        const v = e.target.value;
+                        if (v.length > 35) return;
+                        setName(v);
+                        setErrors((prev) => ({ ...prev, name: "" }));
                       }}
-                      className={`form-control ${errors.name ? "is-invalid" : ""}`}
+                      className={`up-input${errors.name ? " up-input--err" : ""}`}
+                      placeholder="Your full name"
                     />
-                    {errors.name && (
-                      <div className="invalid-feedback">{errors.name}</div>
-                    )}
-                  </>
-                )}
-              </div>
+                  </Field>
 
-              <div className="mb-3">
-                {!isEditing ? (
-                  <>
-                    <label className="form-label fw-bold">Phone Number</label>
-                    <br />
-                    <label>{number}</label>
-                  </>
-                ) : (
-                  <>
-                    <label className="form-label">Phone Number</label>
+                  <Field label="Phone Number" error={errors.number}>
                     <input
                       value={number}
                       onChange={(e) => {
-                        const value = e.target.value.replace(/\D/g, "");
-                        setNumber(value);
-                        setErrors({ ...errors, number: "" });
+                        const v = e.target.value.replace(/\D/g, "");
+                        setNumber(v);
+                        setErrors((prev) => ({ ...prev, number: "" }));
                       }}
-                      className={`form-control ${errors.number ? "is-invalid" : ""}`}
+                      className={`up-input up-mono${errors.number ? " up-input--err" : ""}`}
+                      placeholder="10–15 digits"
                       maxLength={15}
                     />
-                    {errors.number && (
-                      <div className="invalid-feedback">{errors.number}</div>
-                    )}
-                  </>
-                )}
-              </div>
+                  </Field>
 
-              {isEditing && (
-                <div className="d-flex justify-content-end gap-2">
-                  <button
-                    type="button"
-                    className="btn btn-outline-danger"
-                    onClick={cancelEditing}
-                    disabled={loading}
+                  <Field
+                    label="Company Name"
+                    error={errors.company}
+                    hint={
+                      !is_owner_admin ? "Only the owner can edit this field." : null
+                    }
                   >
-                    Cancel
-                  </button>
-                  <button
-                    type="submit"
-                    className="btn btn-warning"
-                    disabled={loading}
-                  >
-                    {loading ? (
-                      "Saving..."
-                    ) : (
-                      <>
-                        <FaSave className="me-1" /> Save Changes
-                      </>
-                    )}
-                  </button>
+                    <input
+                      value={truncate(company)}
+                      onChange={
+                        is_owner_admin === true
+                          ? (e) => {
+                            const v = e.target.value;
+                            if (v.length > 35) return;
+                            setCompany(v);
+                            setErrors((prev) => ({ ...prev, company: "" }));
+                          }
+                          : undefined
+                      }
+                      readOnly={!is_owner_admin}
+                      disabled={!is_owner_admin}
+                      className={`up-input${!is_owner_admin ? " up-input--readonly" : ""}${errors.company ? " up-input--err" : ""}`}
+                      placeholder="Company name"
+                    />
+                  </Field>
+
+                  <Field label="Email" hint="Email cannot be changed.">
+                    <input
+                      value={userdata?.email || ""}
+                      readOnly
+                      disabled
+                      className="up-input up-input--readonly"
+                    />
+                  </Field>
+
+                  <div className="up-action-row">
+                    <button
+                      type="submit"
+                      className="up-btn up-btn--primary"
+                      disabled={loading}
+                    >
+                      {loading ? (
+                        <span className="up-spinner" />
+                      ) : (
+                        <FaSave size={11} />
+                      )}
+                      {loading ? "Saving…" : "Save Changes"}
+                    </button>
+                  </div>
                 </div>
               )}
             </form>
-          </Card>
-        )}
-      </div>
-    </>
+
+
+          </div>
+        </div>
+      )}
+    </div>
   );
 };

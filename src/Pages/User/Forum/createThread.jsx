@@ -12,8 +12,12 @@ export const CreateThread = ({ onClose, initialData = null }) => {
   const dispatch = useDispatch();
   const isEdit = !!initialData;
 
-  const [title, setTitle] = useState(initialData?.title === "undefined" ? "" : (initialData?.title || ""));
-  const [content, setContent] = useState(initialData?.content === "undefined" ? "" : (initialData?.content || ""));
+  const [title, setTitle] = useState(
+    initialData?.title === "undefined" ? "" : initialData?.title || "",
+  );
+  const [content, setContent] = useState(
+    initialData?.content === "undefined" ? "" : initialData?.content || "",
+  );
   const [postType, setPostType] = useState(initialData?.post_type || "update");
   const [file, setFile] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -52,7 +56,6 @@ export const CreateThread = ({ onClose, initialData = null }) => {
             data: formData,
           }),
         ).unwrap();
-
       } else {
         await dispatch(
           createThread({
@@ -62,13 +65,11 @@ export const CreateThread = ({ onClose, initialData = null }) => {
             file,
           }),
         ).unwrap();
-
       }
 
       await dispatch(get_Threads_Api()).unwrap();
       if (onClose) onClose();
     } catch (err) {
-
     } finally {
       setLoading(false);
     }
@@ -96,7 +97,7 @@ export const CreateThread = ({ onClose, initialData = null }) => {
         />
       </Form.Group>
 
-      <Form.Group className="mb-3">
+      {/* <Form.Group className="mb-3">
         <Form.Label>Post Type</Form.Label>
         <Form.Select
           value={postType}
@@ -107,7 +108,7 @@ export const CreateThread = ({ onClose, initialData = null }) => {
           <option value="question">Questions</option>
           <option value="event">Event</option>
         </Form.Select>
-      </Form.Group>
+      </Form.Group> */}
 
       <Form.Group className="mb-3">
         <Form.Label>Upload File</Form.Label>
@@ -129,8 +130,53 @@ export const CreateThread = ({ onClose, initialData = null }) => {
           <Form.Control
             type="file"
             onChange={(e) => {
-              setFile(e.target.files[0]);
-              setRemoveFile(false);
+              const selectedFile = e.target.files[0];
+              if (!selectedFile) return;
+
+              if (selectedFile.size > 5 * 1024 * 1024) {
+                toast.error("File size must be 5MB or less");
+                e.target.value = null;
+                setFile(null);
+                return;
+              }
+
+              const setValidFile = () => {
+                setFile(selectedFile);
+                setRemoveFile(false);
+              };
+
+              if (selectedFile.type.startsWith("image/")) {
+                const img = new Image();
+                const url = URL.createObjectURL(selectedFile);
+
+                img.src = url;
+
+                img.onload = () => {
+                  URL.revokeObjectURL(url);
+
+                
+                  const isValid =
+                    (img.width === 400 && img.height === 450) ||
+                    (img.width === 450 && img.height === 400);
+
+                  if (!isValid) {
+                    toast.error("Image must be 400x450 or 450x400 pixels");
+                    e.target.value = null;
+                    setFile(null);
+                  } else {
+                    setValidFile();
+                  }
+                };
+
+                img.onerror = () => {
+                  URL.revokeObjectURL(url);
+                  toast.error("Invalid image file");
+                  e.target.value = null;
+                  setFile(null);
+                };
+              } else {
+                setValidFile();
+              }
             }}
           />
         )}
@@ -142,7 +188,13 @@ export const CreateThread = ({ onClose, initialData = null }) => {
         onClick={handleSubmit}
         disabled={loading}
       >
-        {loading ? (isEdit ? "Updating..." : "Creating...") : (isEdit ? "Update Post" : "+ Create Thread")}
+        {loading
+          ? isEdit
+            ? "Updating..."
+            : "Creating..."
+          : isEdit
+            ? "Update Post"
+            : "+ Create Thread"}
       </Button>
     </div>
   );

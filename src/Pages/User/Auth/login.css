@@ -1,8 +1,3 @@
-/* ============================================================
-   LOGIN PAGE — extracted from Login.jsx
-   ============================================================ */
-
-/* Background gradient shared by both login and company-select screens */
 .login-bg {
   background: linear-gradient(135deg, #2c5f8d 0%, #4a7ba7 100%);
 }
@@ -22,14 +17,12 @@
   border-radius: 20px;
 }
 
-/* ── Portal heading ── */
 .login-portal-title {
   font-size: clamp(1.25rem, 5vw, 1.75rem);
   letter-spacing: 0.5px;
   line-height: 1.3;
 }
 
-/* Company-select screen: slightly smaller title + visible subtitle */
 .login-portal-title.login-portal-title--sm {
   font-size: clamp(1.1rem, 4vw, 1.5rem);
 }
@@ -39,13 +32,11 @@
   font-size: 0.9rem;
 }
 
-/* ── Card ── */
 .login-card {
   border-radius: 12px;
   overflow: hidden;
 }
 
-/* ── Form inputs ── */
 .login-input {
   border-radius: 12px;
   font-size: 1rem;
@@ -55,19 +46,16 @@
   padding-right: 45px;
 }
 
-/* ── Eye-toggle icon inside password field ── */
 .login-eye-toggle {
   cursor: pointer;
   color: #6b7280;
 }
 
-/* ── Forgot-password link ── */
 .login-forgot-btn {
   color: #0066cc;
   font-size: 0.85rem;
 }
 
-/* ── Sign-in submit button ── */
 .login-submit-btn {
   background-color: #0066cc;
   border-radius: 25px;
@@ -75,7 +63,6 @@
   border: none;
 }
 
-/* ── Full-screen loader overlay ── */
 .login-overlay-loader {
   position: fixed;
   top: 0;
@@ -89,21 +76,14 @@
   z-index: 9999;
 }
 
-/* ============================================================
-   COMPANY SELECTION SCREEN
-   ============================================================ */
-
-/* Padding for the company-select wrapper */
 .login-bg.login-bg--company {
   padding: 20px;
 }
 
-/* "Your Companies (n)" heading */
 .login-companies-heading {
   font-size: 0.95rem;
 }
 
-/* ── Portfolio card (base) ── */
 .login-portfolio-card {
   border: 2px solid #e5e7eb;
   border-radius: 12px;
@@ -131,7 +111,6 @@
   opacity: 0.7;
 }
 
-/* Checkmark badge shown when a card is selected */
 .login-portfolio-check {
   position: absolute;
   top: 10px;
@@ -145,7 +124,6 @@
   justify-content: center;
 }
 
-/* Building icon container inside each portfolio card */
 .login-portfolio-icon {
   width: 40px;
   height: 40px;
@@ -157,13 +135,11 @@
   margin-bottom: 10px;
 }
 
-/* Company name text */
 .login-portfolio-name {
   font-size: 0.95rem;
   line-height: 1.3;
 }
 
-/* Role badge (background & color set dynamically via style prop) */
 .login-role-badge {
   display: inline-flex;
   align-items: center;
@@ -175,13 +151,11 @@
   letter-spacing: 0.3px;
 }
 
-/* ── Back-to-login link ── */
 .login-back-btn {
   color: #6b7280;
   font-size: 0.85rem;
 }
 
-/* ── Continue button ── */
 .login-continue-btn {
   background-color: #0066cc;
   border-radius: 25px;
@@ -193,10 +167,6 @@
 .login-continue-btn--disabled {
   opacity: 0.5;
 }
-
-/* ============================================================
-   AUP MODAL
-   ============================================================ */
 
 .login-aup-overlay {
   background-color: rgba(0, 0, 0, 0.5);

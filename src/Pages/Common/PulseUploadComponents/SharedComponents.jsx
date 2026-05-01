@@ -1,63 +1,112 @@
 import React from "react";
 import { AlertCircle } from "lucide-react";
 
-export const Field = ({ label, value, onChange, placeholder, type = "text", error, required }) => {
+
+export const Field = ({ label, value, onChange, placeholder, type = "text", error, required, disabled }) => {
   return (
-    <div className="tpu-field" style={{ marginBottom: '1.25rem' }}>
-      <p className="tpu-field-label" style={{ display: 'flex', gap: '4px' }}>
-        {label} {required && <span style={{ color: '#ef4444' }}>*</span>}
-      </p>
+    <div className="sc-field">
+      {label && (
+        <label className="sc-label">
+          {label} {required && <span className="text-danger">*</span>}
+        </label>
+      )}
       <div className="position-relative">
         <input
           type={type}
           value={value}
           onChange={(e) => onChange(e.target.value)}
           placeholder={placeholder}
-          className={`tpu-input ${error ? "tpu-input-error" : ""}`}
-          style={{
-            background: 'var(--bg-secondary)',
-            borderColor: error ? '#ef4444' : 'var(--border-color)',
-            paddingRight: error ? '40px' : '12px',
-            color: 'var(--text-primary)'
-          }}
+          disabled={disabled}
+          className={`sc-input ${error ? "sc-input-error" : ""}`}
         />
         {error && (
-          <div 
-            className="position-absolute end-0 top-50 translate-middle-y me-3"
-            style={{ color: '#ef4444', display: 'flex', alignItems: 'center' }}
-          >
-            <AlertCircle size={20} strokeWidth={2.5} />
+          <div className="position-absolute end-0 top-50 translate-middle-y me-3 text-danger d-flex align-items-center">
+            <AlertCircle size={18} strokeWidth={2.5} />
           </div>
         )}
       </div>
-      {error && (
-        <p style={{ 
-          color: '#ff8080', 
-          fontSize: '13px', 
-          marginTop: '6px', 
-          fontWeight: '400',
-          letterSpacing: '0.01em'
-        }}>
-          {error}
-        </p>
-      )}
+      {error && <p className="sc-error-msg">{error}</p>}
     </div>
   );
 };
 
-export const Btn = ({ children, onClick, primary, loading, danger, disabled }) => {
-  const className = `tpu-btn ${primary ? "tpu-btn-primary" : ""} ${
-    danger ? "tpu-btn-danger" : ""
-  }`;
-  
+export const SelectField = ({ label, value, onChange, options, error, required, disabled, placeholder }) => {
+  return (
+    <div className="sc-field">
+      {label && (
+        <label className="sc-label">
+          {label} {required && <span className="text-danger">*</span>}
+        </label>
+      )}
+      <div className="position-relative">
+        <select
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          disabled={disabled}
+          className={`sc-select ${error ? "sc-input-error" : ""}`}
+        >
+          <option value="">{placeholder || "Select an option"}</option>
+          {options.map((opt) => (
+            <option key={opt.value || opt.id} value={opt.value || opt.id}>
+              {opt.label || opt.name}
+            </option>
+          ))}
+        </select>
+      </div>
+      {error && <p className="sc-error-msg">{error}</p>}
+    </div>
+  );
+};
+
+export const Badge = ({ children, type = "neutral", className = "" }) => {
+  const badgeClass = `sc-badge sc-badge-${type} ${className}`;
+  return <span className={badgeClass}>{children}</span>;
+};
+
+
+export const TextAreaField = ({ label, value, onChange, placeholder, error, required, disabled, rows = 3 }) => {
+  return (
+    <div className="sc-field">
+      {label && (
+        <label className="sc-label">
+          {label} {required && <span className="text-danger">*</span>}
+        </label>
+      )}
+      <textarea
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        placeholder={placeholder}
+        disabled={disabled}
+        rows={rows}
+        className={`sc-input ${error ? "sc-input-error" : ""}`}
+        style={{ minHeight: '80px', resize: 'vertical' }}
+      />
+      {error && <p className="sc-error-msg">{error}</p>}
+    </div>
+  );
+};
+
+
+export const Btn = ({ children, onClick, primary, loading, danger, disabled, className = "", type = "button" }) => {
+  const btnClass = `tpu-btn ${primary ? "tpu-btn-primary" : ""} ${danger ? "tpu-btn-danger" : ""
+    } ${className}`;
+
   return (
     <button
+      type={type}
       onClick={onClick}
       disabled={loading || disabled}
-      className={className}
+      className={btnClass}
       style={{ opacity: (loading || disabled) ? 0.7 : 1 }}
     >
-      {loading ? "Loading..." : children}
+      {loading ? (
+        <>
+          <span className="spinner-border spinner-border-sm me-2" />
+          Loading...
+        </>
+      ) : (
+        children
+      )}
     </button>
   );
 };

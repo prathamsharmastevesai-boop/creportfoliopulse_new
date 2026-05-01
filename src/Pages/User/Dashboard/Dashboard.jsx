@@ -13,11 +13,13 @@ const BuildingCard = ({ building, cardRef, onGoToChat }) => {
     { icon: "bi-fire", cat: "fire_safety", label: "Fire & Safety" },
     { icon: "bi-stack", cat: "building_stack", label: "Building Stack" },
     { icon: "bi-info-circle", cat: "building_info", label: "Building Info" },
-    { icon: "bi-person-lines-fill", cat: "tenant_info", label: "Tenant Info" },
+    { icon: "bi-person-lines-fill", cat: "tenant_information", label: "Tenant Info" },
   ];
 
   const hasAccess = (cat) => {
     const categories = building.categories || [];
+    console.log(categories, "categories");
+
     if (categories.includes("building_info")) {
       if (cat === "building_info" || cat === "building_stack") return true;
     }
@@ -159,7 +161,7 @@ export const Dashboard = () => {
   const goToChat = (buildingId, category) => {
     const routes = {
       fire_safety: "/user-fire-safety-building-mechanicals",
-      tenant_info: "/tenant-information-chat",
+      tenant_information: "/tenant-information-chat",
       building_stack: "/user-building-stack-floor",
       default: "/building-chat",
     };

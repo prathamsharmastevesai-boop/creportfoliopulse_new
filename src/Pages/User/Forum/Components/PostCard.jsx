@@ -1,4 +1,4 @@
-import React, { useState, useRef, useCallback } from "react";
+import React, { useState, useRef, useCallback, useEffect } from "react";
 import { useDispatch } from "react-redux";
 import { Spinner } from "react-bootstrap";
 import { MoreHorizontal, MessageSquare, Pencil, Trash2 } from "lucide-react";
@@ -50,6 +50,8 @@ export const PostCard = ({
   const [showDeleteThoughtModal, setShowDeleteThoughtModal] = useState(false);
   const [thoughtToDelete, setThoughtToDelete] = useState(null);
   const [isContentExpanded, setIsContentExpanded] = useState(false);
+  const [showDeleteThreadModal, setShowDeleteThreadModal] = useState(false);
+  const [threadToDelete, setThreadToDelete] = useState(null);
   const CONTENT_LIMIT = 300;
 
   const [localReaction, setLocalReaction] = useState(
@@ -162,6 +164,19 @@ export const PostCard = ({
     }
   };
 
+  const confirmDeleteThread = async () => {
+    if (!threadToDelete) return;
+
+    try {
+      await onDelete(threadToDelete);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setShowDeleteThreadModal(false);
+      setThreadToDelete(null);
+    }
+  };
+
   const handleFileSelect = (e) => {
     const file = e.target.files[0];
     if (!file) return;
@@ -248,18 +263,25 @@ export const PostCard = ({
   const displayPostType =
     thread.post_type === "undefined" ? null : thread.post_type;
 
+  useEffect(() => {
+    console.log("THREAD MODAL STATE:", showDeleteThreadModal);
+  }, [showDeleteThreadModal]);
+
   return (
     <>
       <div className="li-card mb-3">
         <div className="d-flex align-items-start gap-3 mb-3">
-          <Avatar name={thread.author_name} size={48} />
+          <Avatar
+            name={thread.author_name}
+            photo={thread.author_photo_url}
+            size={48}
+          />
           <div className="flex-grow-1 min-w-0">
             <div className="d-flex align-items-center flex-wrap gap-1">
               <span className="fw-semibold li-card-author-name">
                 {capitalFunction(thread.author_name || "Unknown")}
               </span>
               {thread.author_role === "admin" && <AdminBadge />}
-              <PostTypeBadge postType={displayPostType} />
             </div>
             <TimeStamp dateString={thread.created_at} />
           </div>
@@ -277,8 +299,11 @@ export const PostCard = ({
             {thread.can_delete && (
               <button
                 className="btn btn-sm d-flex align-items-center justify-content-center rounded-circle li-card-action-btn delete"
-                onClick={() => onDelete(thread.id)}
-                title="Delete post"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setThreadToDelete(thread.id);
+                  setShowDeleteThreadModal(true);
+                }}
               >
                 {deletingId === thread.id ? (
                   <Spinner animation="border" size="sm" />
@@ -462,12 +487,12 @@ export const PostCard = ({
       </div>
 
       <ConfirmModal
-        show={showDeleteThoughtModal}
-        onHide={() => setShowDeleteThoughtModal(false)}
-        title="Delete Comment"
-        body="Are you sure you want to delete this comment?"
-        onConfirm={confirmDeleteThought}
-        loading={loadingId === thoughtToDelete?.thoughtId}
+        show={showDeleteThreadModal}
+        onHide={() => setShowDeleteThreadModal(false)}
+        title="Delete Post"
+        body="Are you sure you want to delete this post?"
+        onConfirm={confirmDeleteThread}
+        loading={deletingId === thread.id}
       />
     </>
   );

@@ -127,7 +127,7 @@ export const SubmitProposal = () => {
             value={formDataState.rsf}
             onChange={(e) => handleChange("rsf", e.target.value)}
             icon={<Tag size={12} />}
-            validate="integer"
+            validate="alphanumeric"
           />
         </div>
 

@@ -151,7 +151,7 @@ export const ToursDetails = () => {
               {[...filteredTours].reverse().map((tour) => (
                 <tr key={tour.id}>
                   <td>{tour.building || "N/A"}</td>
-                  <td>{tour.user_email || "N/A"}</td>
+                  <td>{tour.user_name || "N/A"}</td>
                   <td>{tour.date?.split("T")[0] || "N/A"}</td>
                   <td>{tour.floor_suite || "N/A"}</td>
                   <td>{tour.tenant || "N/A"}</td>

@@ -1,10 +1,14 @@
 import React, { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { Loader2 } from "lucide-react";
+import { Settings, PenTool } from "lucide-react";
 import { fetchAdminDashboardDealsApi } from "../../../../Networking/Admin/APIs/AdminLoiAuditApi";
 import RAGLoader from "../../../../Component/Loader";
 
-const AllDealsSection = () => {
+const AllDealsSection = ({
+  onDealClick,
+  onOpenSettings,
+  onOpenSubmitProposal,
+}) => {
   const dispatch = useDispatch();
   const { allDeals, dashboardStats, dashboardDealsLoading } = useSelector(
     (state) => state.adminLoiAudit,
@@ -46,17 +50,42 @@ const AllDealsSection = () => {
 
         <div className="deals-dashboard m-2">
           <div className="dashboard-header">
-            <span className="section-title">ALL DEALS DASHBOARD </span>
-            <select
-              className="status-filter"
-              value={statusFilter}
-              onChange={(e) => setStatusFilter(e.target.value)}
+            <span className="section-title">ALL DEALS DASHBOARD</span>
+
+            <div
+              className="dashboard-header-actions"
+              style={{ display: "flex", alignItems: "center", gap: "10px" }}
             >
-              <option value="All">All Statuses</option>
-              <option value="Submitted">Submitted</option>
-              <option value="Extracted">Extracted</option>
-              <option value="Counter Sent">Counter Sent</option>
-            </select>
+              <button
+                className="go-btn"
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "5px",
+                  padding: "6px 14px",
+                }}
+                onClick={onOpenSubmitProposal}
+                title="Submit Proposal"
+              >
+                <PenTool size={14} />
+                <span>Submit Proposal</span>
+              </button>
+
+              <button
+                className="go-btn"
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "5px",
+                  padding: "6px 14px",
+                }}
+                onClick={onOpenSettings}
+                title="Open Settings"
+              >
+                <Settings size={14} />
+                <span>Settings</span>
+              </button>
+            </div>
           </div>
 
           <div className="deals-list-master mt-3">
@@ -67,7 +96,12 @@ const AllDealsSection = () => {
               </div>
             ) : allDeals.length > 0 ? (
               allDeals.map((deal) => (
-                <div key={deal.deal_id} className="master-deal-row">
+                <div
+                  key={deal.deal_id}
+                  className="master-deal-row"
+                  style={{ cursor: "pointer" }}
+                  onClick={() => onDealClick && onDealClick(deal)}
+                >
                   <div className="deal-main-info">
                     <div className="deal-name">{deal.tenant_name}</div>
                     <div className="deal-sub">
@@ -78,21 +112,20 @@ const AllDealsSection = () => {
                   </div>
                   <div className="deal-actions">
                     <span
-                      className={`status-pill ${deal.status?.toLowerCase().replace(" ", "-") || "submitted"}`}
+                      className={`status-pill ${
+                        deal.status?.toLowerCase().replace(" ", "-") ||
+                        "submitted"
+                      }`}
                     >
                       {deal.status || "SUBMITTED"}
                     </span>
                     {deal.is_vectorized && (
                       <span className="rag-pill">RAG ✓</span>
                     )}
-                    <button
-                      className="go-btn"
-                      onClick={() =>
-                        (window.location.href = `#A1?dealId=${deal.deal_id}`)
-                      }
-                    >
+
+                    <span className="go-btn" style={{ pointerEvents: "none" }}>
                       → A1
-                    </button>
+                    </span>
                   </div>
                 </div>
               ))

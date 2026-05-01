@@ -23,6 +23,7 @@ export const Field = ({
 
   const handleChange = (e) => {
     const val = e.target.value;
+
     if (validate === "email") {
       const isValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val);
       setError(val && !isValid ? "Enter a valid email address" : "");
@@ -32,7 +33,11 @@ export const Field = ({
     } else if (validate === "string") {
       const isValid = /^[a-zA-Z\s]*$/.test(val);
       setError(val && !isValid ? "Only letters allowed" : "");
+    } else if (validate === "alphanumeric") {
+      const isValid = /^[a-zA-Z0-9]*$/.test(val);
+      setError(val && !isValid ? "Only letters and numbers allowed" : "");
     }
+
     onChange(e);
   };
 

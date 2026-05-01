@@ -159,7 +159,7 @@ export const EditInformationCollaboration = ({ data, onClose, onSuccess }) => {
               TenantMarket: "Tenant Market",
               Comps: "Comps",
               TenantInformation: "Tenant Info",
-              ThirdParty: "Third Party",
+              contacts_hub: "Third Party",
               Colleague: "Employee",
               BuildingInfo: "Building Info",
               ComparativeBuilding: "Comparative Building",

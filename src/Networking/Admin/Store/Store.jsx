@@ -21,6 +21,9 @@ import calendarReducer from "../../User/Slice/calendarslice";
 import adminLoiAuditReducer from "../../Admin/Slice/AdminLoiAuditSlice";
 import marketReducer from "../../CommonApi/thePulseSlice";
 import pulseUploadReducer from "../../CommonApi/thePulseUploadSlice";
+import ownerDashboardReducer from "../Slice/ownerDashboardSlice";
+import tiCalculatorReducer from "../../User/Slice/tiCalculatorSlice";
+import tenantPulseReducer from "../../User/Slice/tenantPulseSlice";
 
 const store = configureStore({
   reducer: {
@@ -46,6 +49,9 @@ const store = configureStore({
     adminLoiAudit: adminLoiAuditReducer,
     marketSlice: marketReducer,
     pulseUploadSlice: pulseUploadReducer,
+    ownerDashboardSlice: ownerDashboardReducer,
+    tiCalculatorSlice: tiCalculatorReducer,
+    tenantPulseSlice: tenantPulseReducer,
   },
 });
 

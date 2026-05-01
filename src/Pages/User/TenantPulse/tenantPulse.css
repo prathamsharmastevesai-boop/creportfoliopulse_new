@@ -1,0 +1,331 @@
+.tp-container {
+  padding: 20px;
+  background-color: var(--bg-primary);
+  min-height: 100vh;
+  font-family: var(--font-primary);
+}
+
+.tp-header {
+  margin-bottom: 24px;
+}
+
+.tp-title {
+  color: var(--text-primary);
+  font-weight: 800;
+  margin: 0;
+}
+
+.tp-content-grid {
+  display: grid;
+  grid-template-columns: 1fr 350px;
+  gap: 24px;
+  align-items: flex-start;
+}
+
+@media (max-width: 1200px) {
+  .tp-content-grid {
+    grid-template-columns: 1fr 300px;
+  }
+}
+
+@media (max-width: 991px) {
+  .tp-content-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Header Manage Button (Mobile) */
+.tp-header-manage-btn {
+  background-color: var(--accent-color) !important;
+  border: none !important;
+  border-radius: 8px !important;
+  width: 38px !important;
+  height: 38px !important;
+  padding: 0 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  box-shadow: 0 4px 10px rgba(61, 139, 253, 0.3) !important;
+  transition: all 0.3s ease !important;
+}
+
+.tp-header-manage-btn:hover {
+  transform: translateY(-2px);
+  filter: brightness(1.1);
+}
+
+@media (min-width: 992px) {
+  .tp-header-manage-btn {
+    display: none !important;
+  }
+}
+
+/* Feed Section */
+.tp-main-section {
+  min-width: 0;
+}
+
+.tp-search-container {
+  margin-bottom: 20px;
+}
+
+.tp-search-input {
+  background-color: var(--bs-input-bg) !important;
+  border: 1px solid var(--border-color) !important;
+  color: var(--text-primary) !important;
+  border-radius: 8px !important;
+  padding: 10px 15px !important;
+  width: 100%;
+}
+
+.tp-feed-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.tp-news-card {
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 14px;
+  padding: 20px;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.tp-news-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  border-color: var(--accent-color);
+}
+
+.tp-news-card::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 4px;
+  background-color: var(--accent-color);
+  opacity: 0.8;
+}
+
+.tp-news-card.sentiment-positive::before {
+  background-color: #22c55e;
+}
+
+.tp-news-card.sentiment-negative::before {
+  background-color: #ef4444;
+}
+
+.tp-news-card.sentiment-neutral::before {
+  background-color: #94a3b8;
+}
+
+.tp-news-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 8px;
+  gap: 15px;
+}
+
+.tp-news-headline {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  text-decoration: none;
+  line-height: 1.4;
+  transition: color 0.2s;
+}
+
+.tp-news-headline:hover {
+  color: var(--accent-color);
+}
+
+.tp-sentiment-badge {
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.sentiment-positive .tp-sentiment-badge {
+  background: rgba(34, 197, 94, 0.1);
+  color: #22c55e;
+}
+
+.sentiment-negative .tp-sentiment-badge {
+  background: rgba(239, 68, 68, 0.1);
+  color: #ef4444;
+}
+
+.sentiment-neutral .tp-sentiment-badge {
+  background: rgba(148, 163, 184, 0.1);
+  color: #94a3b8;
+}
+
+.tp-news-snippet {
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  margin-bottom: 15px;
+  line-height: 1.5;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.tp-news-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  border-top: 1px solid var(--border-color);
+  padding-top: 12px;
+}
+
+.tp-news-meta {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.tp-news-company {
+  color: var(--accent-color);
+  font-weight: 600;
+}
+
+.tp-news-date {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+/* Side Section */
+.tp-side-section {
+  position: sticky;
+  top: 20px;
+}
+
+.tp-add-box, .tp-following-box {
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 14px;
+  padding: 24px;
+}
+
+.tp-offcanvas {
+  background-color: var(--bg-primary) !important;
+  color: var(--text-primary) !important;
+}
+
+.tp-offcanvas .offcanvas-header {
+  border-bottom: 1px solid var(--border-color);
+}
+
+.tp-offcanvas .btn-close {
+  filter: var(--close-btn-filter, invert(1));
+}
+
+.tp-limit-info {
+  padding: 12px;
+  background: var(--hover-bg);
+  border-radius: 8px;
+  border-left: 3px solid var(--accent-color);
+}
+
+.tp-limit-text {
+  font-size: 0.85rem;
+  margin-bottom: 6px;
+  display: block;
+  font-weight: 600;
+}
+
+.tp-progress {
+  height: 6px !important;
+  background-color: var(--bs-input-bg) !important;
+  border-radius: 3px !important;
+}
+
+.tp-progress-bar {
+  background-color: var(--accent-color) !important;
+}
+
+.tp-following-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.tp-company-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 12px;
+  background: var(--hover-bg);
+  border-radius: 8px;
+  border: 1px solid transparent;
+  transition: all 0.2s;
+}
+
+.tp-company-item:hover {
+  border-color: var(--border-color);
+  background: var(--bg-primary);
+}
+
+.tp-company-name {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.tp-unfollow-btn {
+  background: transparent;
+  border: none;
+  color: #ef4444;
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 4px 8px;
+  border-radius: 4px;
+  transition: background 0.2s;
+}
+
+.tp-unfollow-btn:hover {
+  background: rgba(239, 68, 68, 0.1);
+}
+
+.tp-btn-follow-icon {
+  background: var(--accent-color) !important;
+  border: none !important;
+  color: #ffffff !important;
+  width: 42px !important;
+  height: 42px !important;
+  border-radius: 8px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  flex-shrink: 0 !important;
+  transition: all 0.3s ease !important;
+}
+
+.tp-btn-follow-icon:hover {
+  filter: brightness(1.1);
+  box-shadow: 0 4px 10px rgba(61, 139, 253, 0.3);
+}
+
+.tp-empty-state {
+  text-align: center;
+  padding: 80px 20px;
+  color: var(--text-secondary);
+}
+
+.tp-empty-icon {
+  font-size: 3.5rem;
+  margin-bottom: 15px;
+  opacity: 0.3;
+}

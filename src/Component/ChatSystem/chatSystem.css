@@ -721,10 +721,6 @@
   transition: background 0.15s;
 }
 
-.back-btn:hover {
-  background: var(--hover-bg);
-}
-
 .header-title {
   font-size: 19px;
   font-weight: 600;
@@ -2489,10 +2485,6 @@
 }
 
 .user-item:hover {
-  background: var(--hover-bg) !important;
-}
-
-.back-btn:hover {
   background: var(--hover-bg) !important;
 }
 

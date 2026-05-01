@@ -40,7 +40,11 @@ export const CommentInput = ({
   fileInputRef,
 }) => (
   <div className="d-flex gap-2 mt-2 align-items-start">
-    <Avatar name={userdata?.name || "Me"} size={36} />
+    <Avatar
+      name={userdata?.name || "Me"}
+      photo={userdata?.photo_url}
+      size={36}
+    />
     <div className="flex-grow-1">
       <FileAttachPreview
         preview={selectedFilePreview}
@@ -60,10 +64,7 @@ export const CommentInput = ({
               }
             }}
           />
-          <label
-            className="ms-1 li-comment-attach-icon"
-            title="Attach file"
-          >
+          <label className="ms-1 li-comment-attach-icon" title="Attach file">
             <Paperclip size={16} />
             <input
               ref={fileInputRef}
@@ -110,13 +111,16 @@ export const CommentItem = ({
   onDelete,
   loadingId,
 }) => {
-  const canAct =
-    sessionStorage.getItem("role");
+  const canAct = sessionStorage.getItem("role");
 
   if (msg.deleted) {
     return (
       <div className="d-flex gap-2 mb-3">
-        <Avatar name="?" size={32} />
+        <Avatar
+          name={msg?.author_name}
+          photo={msg?.author_photo_url}
+          size={36}
+        />
         <p className="text-danger fst-italic mb-0 li-no-comments-text">
           This comment was deleted.
         </p>
@@ -126,7 +130,7 @@ export const CommentItem = ({
 
   return (
     <div className="d-flex gap-2 mb-3">
-      <Avatar name={msg.author_name} size={32} />
+      <Avatar name={msg?.author_name} photo={msg?.author_photo_url} size={36} />
       <div className="flex-grow-1">
         <div className="p-2 px-3 rounded-3 li-comment-bubble">
           <div className="d-flex align-items-center gap-2 mb-1">
@@ -135,9 +139,7 @@ export const CommentItem = ({
             </span>
             {msg.author_role === "admin" && <AdminBadge />}
           </div>
-          <p className="mb-0 li-comment-bubble-text">
-            {msg.content}
-          </p>
+          <p className="mb-0 li-comment-bubble-text">{msg.content}</p>
           <MediaDisplay post={msg} isComment={true} />
         </div>
 
@@ -155,13 +157,9 @@ export const CommentItem = ({
             <button
               className="btn btn-link p-0 text-danger li-comment-action-links"
               onClick={() => onDelete(selectedThread.id, msg.id)}
-              disabled={loadingId === msg.id}
+              disabled={false}
             >
-              {loadingId === msg.id ? (
-                <Spinner size="sm" animation="border" />
-              ) : (
-                "Delete"
-              )}
+              Delete
             </button>
           )}
         </div>

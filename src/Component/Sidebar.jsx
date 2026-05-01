@@ -49,6 +49,7 @@ export const Sidebar = ({ collapsed, setCollapsed }) => {
   });
 
   const role = sessionStorage.getItem("role");
+  const is_owner_admin = sessionStorage.getItem("is_owner_admin");
 
   useEffect(() => {
     const handleResize = () => {
@@ -180,9 +181,8 @@ export const Sidebar = ({ collapsed, setCollapsed }) => {
         >
           <span>{label}</span>
           <i
-            className={`bi ms-2 ${
-              openMenu === menuKey ? "bi-chevron-down" : "bi-chevron-right"
-            }`}
+            className={`bi ms-2 ${openMenu === menuKey ? "bi-chevron-down" : "bi-chevron-right"
+              }`}
           />
         </li>
       );
@@ -229,12 +229,26 @@ export const Sidebar = ({ collapsed, setCollapsed }) => {
             </h6>
           )}
           <li className="nav-header text-light small">Main</li>
-
+          {is_owner_admin == true ? (
+            <NavItem
+              path="/owner-dashboard"
+              icon="bi-speedometer2"
+              label="Dashboard"
+              isActivePath={isActive("/owner-dashboard")}
+            />
+          ) : (
+            <NavItem
+              path="/admin-dashboard"
+              icon="bi-speedometer2"
+              label="Dashboard"
+              isActivePath={isActive("/admin-dashboard")}
+            />
+          )}
           <NavItem
-            path="/admin-dashboard"
-            icon="bi-speedometer2"
-            label="Dashboard"
-            isActivePath={isActive("/admin-dashboard")}
+            path="/calendar"
+            icon="bi-calendar"
+            label="Calendar"
+            isActivePath={isActive("/calendar")}
           />
           <NavItem
             path="/user-management"
@@ -260,12 +274,12 @@ export const Sidebar = ({ collapsed, setCollapsed }) => {
             label="Portfolio Voice"
             isActivePath={isActive("/portfolio-voice")}
           />
-          <NavItem
+          {/* <NavItem
             path="/admin-portfolio-forum"
             icon="bi-chat-square-dots"
-            label="Portfolio Forum"
+            label="Pulse Forum"
             isActivePath={isActive("/admin-portfolio-forum")}
-          />
+          /> */}
           <NavItem
             path="/lease-drafting-upload"
             icon="bi-pencil-square"
@@ -290,12 +304,12 @@ export const Sidebar = ({ collapsed, setCollapsed }) => {
             label="Distilled Expense Tracker"
             isActivePath={isActive("/distilled-expense-tracker")}
           />
-          <NavItem
+          {/* <NavItem
             path="/admin-loi-audit"
             icon="bi-file-earmark-check"
             label="LOI Audit"
             isActivePath={isActive("/admin-loi-audit")}
-          />
+          /> */}
           <NavItem
             path="/space-inquiry"
             icon="bi-journal-text"
@@ -303,12 +317,6 @@ export const Sidebar = ({ collapsed, setCollapsed }) => {
             isActivePath={isActive("/space-inquiry")}
           />
 
-          {/* <NavItem
-            path="/admin-broker-index"
-            icon="bi-megaphone"
-            label="Broker Index"
-            isActivePath={isActive("/admin-broker-index")}
-          /> */}
           <NavItem
             path="/admin-maintenance-building-list"
             icon="bi-tools"
@@ -344,12 +352,6 @@ export const Sidebar = ({ collapsed, setCollapsed }) => {
                 label="Contacts Hub"
                 isActivePath={isActive("/contacts-hub-upload")}
               />
-              {/* <NavItem
-                path="/employee-contact-upload"
-                icon="bi-people-fill"
-                label="Employee Contact Info"
-                isActivePath={isActive("/employee-contact-upload")}
-              /> */}
 
               <NavItem
                 path="/admin-fire-safety-building-mechanicals-list"
@@ -405,6 +407,17 @@ export const Sidebar = ({ collapsed, setCollapsed }) => {
               icon="bi-plus-circle"
               label="Add Building (LOI & Lease)"
               isActivePath={isActive("/admin-lease-loi-building-list")}
+            />
+          )}
+
+          <AccordionHeader menuKey="adminSettings" label="Settings" />
+          {openMenu === "adminSettings" && (
+            <NavItem
+              path="/admin-profile"
+              icon="bi-person-circle"
+              label="Profile"
+              isActivePath={isActive("/admin-profile")}
+              enabled={true}
             />
           )}
         </>
@@ -495,11 +508,18 @@ export const Sidebar = ({ collapsed, setCollapsed }) => {
           enabled={true}
         /> */}
         <NavItem
+          path="/rss-tenant"
+          icon="bi-rss"
+          label="RSS Tenant"
+          isActivePath={isActive("/rss-tenant")}
+          enabled={true}
+        />
+        <NavItem
           path="/email-drafting"
           icon="bi-envelope-open"
           label="Email Drafting"
           isActivePath={isActive("/email-drafting")}
-          // enabled={profileData.email_drafting_enabled}
+        // enabled={profileData.email_drafting_enabled}
         />
 
         {/* {profileData.gemini_chat_enabled && (
@@ -517,17 +537,17 @@ export const Sidebar = ({ collapsed, setCollapsed }) => {
           icon="bi-journal"
           label="Notes"
           isActivePath={isActive("/notes")}
-          // enabled={profileData.notes_enabled}
+        // enabled={profileData.notes_enabled}
         />
 
         {/* {profileData.forum_enabled && ( */}
-        <NavItem
-          path="/portfolio-forum"
+        {/* <NavItem
+          path="/pulse-forum"
           icon="bi-chat-square-dots"
-          label="Portfolio Forum"
-          isActivePath={isActive("/portfolio-forum")}
-          // enabled={profileData.forum_enabled}
-        />
+          label="Pulse Forum"
+          isActivePath={isActive("/pulse-forum")}
+          enabled={profileData.forum_enabled}
+        /> */}
         {/* )} */}
 
         {/* <NavItem
@@ -563,7 +583,7 @@ export const Sidebar = ({ collapsed, setCollapsed }) => {
           icon="bi-calculator"
           label="Calculator"
           isActivePath={isActive("/calculator")}
-          // enabled={profileData.calculator_enabled}
+        // enabled={profileData.calculator_enabled}
         />
         <NavItem
           path="/yardi"
@@ -585,7 +605,7 @@ export const Sidebar = ({ collapsed, setCollapsed }) => {
           icon="bi-diagram-3"
           label="Project Management"
           isActivePath={isActive("/project-management")}
-          // enabled={profileData.project_management_enabled}
+        // enabled={profileData.project_management_enabled}
         />
 
         <NavItem
@@ -602,12 +622,20 @@ export const Sidebar = ({ collapsed, setCollapsed }) => {
           isActivePath={isActive("/maintenance-building-list")}
           enabled={profileData.maintenance_updates_enabled}
         />
-
+        {/* 
         <NavItem
           path="/loi-audit"
           icon="bi-tools"
           label="Loi Audit"
           isActivePath={isActive("/loi-audit")}
+        /> */}
+
+        <NavItem
+          path="/deal-list"
+          icon="bi-kanban"
+          label="Lead and Deal Tracker"
+          isActivePath={isActive("/deal-list")}
+          enabled={profileData.deal_tracker_enabled}
         />
 
         {!collapsed && dataCategoriesEnabled && (
@@ -704,13 +732,6 @@ export const Sidebar = ({ collapsed, setCollapsed }) => {
               isActivePath={isActive("/tours")}
               enabled={profileData.tour_enabled}
             />
-            {/* <NavItem
-              path="/deal-list"
-              icon="bi-kanban"
-              label="Lead and Deal Tracker"
-              isActivePath={isActive("/deal-list")}
-              enabled={profileData.deal_tracker_enabled}
-            /> */}
           </ul>
         )}
 
@@ -769,9 +790,8 @@ export const Sidebar = ({ collapsed, setCollapsed }) => {
   return (
     <>
       <aside
-        className={`sidebar-wrapper d-flex flex-column border-end ${
-          isMobile && !collapsed ? "sidebar-mobile-open" : ""
-        }`}
+        className={`sidebar-wrapper d-flex flex-column border-end ${isMobile && !collapsed ? "sidebar-mobile-open" : ""
+          }`}
         style={{
           backgroundColor: "var(--sidebar-bg)",
           color: "var(--text-primary)",
@@ -793,11 +813,10 @@ export const Sidebar = ({ collapsed, setCollapsed }) => {
               aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
             >
               <i
-                className={`bi ${
-                  collapsed
-                    ? "bi-chevron-double-right"
-                    : "bi-chevron-double-left"
-                }`}
+                className={`bi ${collapsed
+                  ? "bi-chevron-double-right"
+                  : "bi-chevron-double-left"
+                  }`}
               />
             </button>
           )}
@@ -844,9 +863,8 @@ export const Sidebar = ({ collapsed, setCollapsed }) => {
             aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
           >
             <i
-              className={`bi ${
-                collapsed ? "bi-chevron-double-right" : "bi-chevron-double-left"
-              }`}
+              className={`bi ${collapsed ? "bi-chevron-double-right" : "bi-chevron-double-left"
+                }`}
             />
           </button>
         )}

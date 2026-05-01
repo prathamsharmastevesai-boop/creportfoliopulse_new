@@ -138,6 +138,8 @@ export const distilledCompTrackerEndpoint = "/dct/submit";
 export const distilledCompTrackerlistEndPoint = "/dct/comps";
 export const AskQuestionDCTEndpoint = "/dct/gemini-query";
 export const distilledBenchmarkEndpoint = "/dct/benchmark";
+export const updateDCTCompEndpoint = "/dct/comp/";
+export const deleteDCTCompEndpoint = "/dct/comp/";
 
 //Calc
 export const calcEndpoint = "calc/lease-finance";
@@ -228,3 +230,11 @@ export const quartersEndpoint = "/market_intelligence/quarters";
 export const ingestEndpoint = (id) => `/market_intelligence/quarters/${id}/ingest`;
 export const publishQuarterEndpoint = (id) => `/market_intelligence/quarters/${id}/publish`;
 export const deleteFirmEndpoint = (id) => `/market_intelligence/firms/${id}`;
+
+//OWNER ADMIN DASHBOARD (THE PULSE)
+export const pulseCompsCategories = "/pulse/pulse/comps";
+export const pulseCompsList = "/pulse/pulse/comps/list";
+export const pulseTimsCategories = "/pulse/pulse/tims";
+export const pulseTimsList = "/pulse/pulse/tims/list";
+export const pulseDctSummary = "/pulse/pulse/dct";
+export const pulseDetSummary = "/pulse/pulse/det";

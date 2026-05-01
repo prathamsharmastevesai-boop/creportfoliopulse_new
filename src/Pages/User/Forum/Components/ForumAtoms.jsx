@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { ThumbsUp, Lightbulb, PartyPopper } from "lucide-react";
 import "../forum.css";
 
@@ -63,31 +63,40 @@ export const relativeTime = (dateString) => {
   return `${years}y ago`;
 };
 
-export const Avatar = ({ name, size = 40, className = "" }) => {
+export const Avatar = ({ name, photo, size = 40 }) => {
+  const [imgError, setImgError] = useState(false);
+
+  if (photo && !imgError) {
+    return (
+      <img
+        src={photo}
+        alt={name || "User"}
+        width={size}
+        height={size}
+        onError={() => setImgError(true)}
+        style={{
+          width: size,
+          height: size,
+          borderRadius: "50%",
+          objectFit: "cover",
+          flexShrink: 0,
+        }}
+      />
+    );
+  }
+
+
   const initials = (name || "?")
     .split(" ")
     .map((w) => w[0])
     .join("")
     .toUpperCase()
     .slice(0, 2);
-  const palette = [
-    "var(--accent-color)",
-    "var(--bs-green-primary)",
-    "var(--bs-btn-delete-bg)",
-    "#7a3e9d",
-    "#d4a017",
-    "#1d6363",
-  ];
-  const bg = palette[initials.charCodeAt(0) % palette.length];
+
   return (
     <div
-      className={`li-avatar-base ${className}`}
-      style={{
-        width: size,
-        height: size,
-        background: bg,
-        fontSize: size * 0.38,
-      }}
+      className="li-avatar"
+      style={{ width: size, height: size, fontSize: size * 0.38 }}
     >
       {initials}
     </div>

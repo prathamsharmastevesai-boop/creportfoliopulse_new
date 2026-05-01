@@ -82,7 +82,7 @@ export const InformationCollaboration = () => {
       { label: "LXD", key: "lxd", type: "text", required: true },
       { label: "Status", key: "status", type: "text", required: true },
     ],
-    ThirdParty: [
+    contacts_hub: [
       { label: "Contact Name", key: "name", type: "text", required: true },
       { label: "Title", key: "title", type: "text", required: true },
       { label: "Email", key: "email", type: "email", required: true },
@@ -311,8 +311,8 @@ export const InformationCollaboration = () => {
               <option value="">-- Select category --</option>
               <option value="Comps">Comps</option>
               <option value="TenantMarket">Tenants in The Market</option>
-              <option value="ThirdParty">Contact Hub</option>
-              <option value="TenantInformation">Tenant Info</option>
+              {/* <option value="contacts_hub">Contact Hub</option> */}
+              {/* <option value="TenantInformation">Tenant Info</option> */}
             </Form.Select>
           </Form.Group>
 

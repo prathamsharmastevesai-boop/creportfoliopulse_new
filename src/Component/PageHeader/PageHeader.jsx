@@ -12,6 +12,7 @@ const PageHeader = ({
   const headerClasses = [
     "custom-page-header",
     `text-center text-md-${align}`,
+    `justify-content-between`,
     className,
   ]
     .filter(Boolean)

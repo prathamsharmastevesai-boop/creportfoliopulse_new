@@ -31,9 +31,9 @@ export const Home = () => {
     if (!token || !role) return;
 
     if (role === "user") {
-      navigate("/dashboard", { replace: true });
+      navigate("/user-the-pulse", { replace: true });
     } else if (role === "admin") {
-      navigate("/admin-dashboard", { replace: true });
+      navigate("/admin-the-pulse", { replace: true });
     } else if (role === "superuser") {
       navigate("/admin-management");
     }
